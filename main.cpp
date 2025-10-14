@@ -32,6 +32,13 @@ struct SDLApplication{
     //   assert(0 && "Improper file path found");
       //}
      }
+//     
+//     d
+//     s
+//     da
+//     d
+//     asd
+//     
      
      //Destructor
      ~SDLApplication(){
