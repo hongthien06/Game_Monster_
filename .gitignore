@@ -1,41 +1,31 @@
-# Prerequisites
-*.d
+# Cài đặt cá nhân và cache của các IDE (Visual Studio, VS Code)
+# Bỏ qua các file này để không xung đột cài đặt cá nhân của mỗi người
+.vs/
+.vscode/
+*.vcxproj.user
+*.suo
 
-# Compiled Object files
-*.slo
-*.lo
-*.o
-*.obj
+# Thư mục build và các file do trình biên dịch tạo ra
+# TUYỆT ĐỐI KHÔNG push các file này lên Git vì chúng rất nặng
+# và mỗi máy sẽ tự biên dịch ra các file này
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+**/[Oo]bj/
+**/[Bb]in/
 
-# Precompiled Headers
-*.gch
-*.pch
-
-# Linker files
-*.ilk
-
-# Debugger Files
-*.pdb
-
-# Compiled Dynamic libraries
-*.so
-*.dylib
+# Các loại file thực thi, thư viện, và file trung gian
+# Chỉ cần push mã nguồn, không cần push sản phẩm đã biên dịch
+*.exe
 *.dll
-
-# Fortran module files
-*.mod
-*.smod
-
-# Compiled Static libraries
-*.lai
-*.la
-*.a
+*.obj
+*.ilk
+*.pdb
+*.tlog
 *.lib
 
-# Executables
-*.exe
-*.out
-*.app
-
-# debug information files
-*.dwo
+# Các file hệ thống của macOS và Windows
+.DS_Store
+Thumbs.db
