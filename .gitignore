@@ -24,7 +24,11 @@ x86/
 *.ilk
 *.pdb
 *.tlog
+# Bỏ qua tất cả các file .lib
 *.lib
+
+# NGOẠI LỆ: KHÔNG bỏ qua các file .lib bên trong thư mục vendor
+!vendor/**/*.lib
 
 # Các file hệ thống của macOS và Windows
 .DS_Store
