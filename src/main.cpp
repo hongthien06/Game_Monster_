@@ -1,6 +1,7 @@
 ﻿#include<SDL3/SDL.h>
 #include<SDL3/SDL_main.h>
 #include<SDL3_image/SDL_image.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -23,7 +24,11 @@ int main(int argc, char* argv[]) {
 	}
 	//setup game data
 	const bool* keys = SDL_GetKeyboardState(nullptr);
-	float playerX = 150;
+	float playerX = 150.0f;
+	float playerVelocityX = 0.0f; 
+	const float acceleration = 500.0f;  //Toc do tang toc
+	const float deceleration = 600.0f;  //Toc do dung lai
+	const float maxSpeed = 200.0f;      
 	const float floor = state.logH;
 
 	//load game assets
@@ -34,9 +39,12 @@ int main(int argc, char* argv[]) {
 		return 1;
 	}
 	SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
+	uint64_t prevTime = SDL_GetTicks();
 	//Start game loop
 	bool running = true;
 	while (running) {
+		uint64_t nowTime = SDL_GetTicks();
+		float deltaTime = (nowTime - prevTime) / 1000.0f;
 		SDL_Event event{ 0 };
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -52,6 +60,31 @@ int main(int argc, char* argv[]) {
 			}
 			}
 		}
+		//handle movement
+		int moveDirection = 0;
+		if (keys[SDL_SCANCODE_A]) {
+			moveDirection = -1;;
+		}
+		if (keys[SDL_SCANCODE_D]) {
+			moveDirection = 1;
+		}
+		if (moveDirection != 0) {
+			playerVelocityX += acceleration * moveDirection * deltaTime;
+		}
+		else {
+			if (playerVelocityX > 0) {
+				playerVelocityX -= deceleration * deltaTime;
+				if (playerVelocityX < 0) playerVelocityX = 0; 
+			}
+			else if (playerVelocityX < 0) {
+				playerVelocityX += deceleration * deltaTime;
+				if (playerVelocityX > 0) playerVelocityX = 0; 
+			}
+		}
+		playerVelocityX = std::max(-maxSpeed, std::min(playerVelocityX, maxSpeed));
+		playerX += playerVelocityX * deltaTime;
+
+
 		SDL_SetRenderDrawColor(state.renderer, 20, 10, 30, 255);
 			SDL_RenderClear(state.renderer);
 			const float spriteSize = 48;
@@ -59,19 +92,20 @@ int main(int argc, char* argv[]) {
 				.x = 0,
 				.y = 0,
 				.w = 120,
-				.h = 120
+				.h = 130
 			};
 
 			SDL_FRect dst{
-				.x = playerX, 
-				.y = floor- spriteSize,
+				.x = playerX,
+				.y = floor - spriteSize,
 				.w = spriteSize,
-				.h = spriteSize
+				.h = spriteSize 
 			};
 
 			SDL_RenderTexture(state.renderer, idleTex, &src,&dst);
 
 		SDL_RenderPresent(state.renderer);
+		prevTime = nowTime;
 	}
 	SDL_DestroyTexture(idleTex);
 	cleanup(state);
