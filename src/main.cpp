@@ -85,7 +85,7 @@ int main(int argc, char* argv[]) {
 		playerX += playerVelocityX * deltaTime;
 
 
-		SDL_SetRenderDrawColor(state.renderer, 20, 10, 30, 255);
+		SDL_SetRenderDrawColor(state.renderer, 255, 255, 255, 255);
 			SDL_RenderClear(state.renderer);
 			const float spriteSize = 48;
 			SDL_FRect src{
