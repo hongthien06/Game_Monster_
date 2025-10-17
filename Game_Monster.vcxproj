@@ -219,6 +219,7 @@ xcopy /y /d /i /e "$(SolutionDir)assets" "$(OutDir)assets\"</Command>
     <ClInclude Include="src\include\SDL3\SDL_version.h" />
     <ClInclude Include="src\include\SDL3\SDL_video.h" />
     <ClInclude Include="src\include\SDL3\SDL_vulkan.h" />
+    <ClInclude Include="src\Game.h" />
     <ClInclude Include="vendor\SDL3\include\SDL3\SDL.h" />
     <ClInclude Include="vendor\SDL3\include\SDL3\SDL_assert.h" />
     <ClInclude Include="vendor\SDL3\include\SDL3\SDL_asyncio.h" />
@@ -310,6 +311,7 @@ xcopy /y /d /i /e "$(SolutionDir)assets" "$(OutDir)assets\"</Command>
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

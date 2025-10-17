@@ -528,6 +528,9 @@
     <ClInclude Include="src\include\SDL3\SDL_vulkan.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Game.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -535,6 +538,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Game.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
