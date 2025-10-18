@@ -102,7 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -133,6 +133,7 @@ xcopy /y /d /i /e "$(SolutionDir)assets" "$(OutDir)assets\"</Command>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\include\SDL3\SDL.h" />
     <ClInclude Include="src\include\SDL3\SDL_assert.h" />
     <ClInclude Include="src\include\SDL3\SDL_asyncio.h" />
@@ -311,6 +312,7 @@ xcopy /y /d /i /e "$(SolutionDir)assets" "$(OutDir)assets\"</Command>
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
