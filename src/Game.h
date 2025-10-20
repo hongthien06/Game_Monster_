@@ -2,6 +2,7 @@
 
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include "Map.h"
 #include <string>
 #include "Camera.h"   
 #include <glm/glm.hpp>
@@ -52,6 +53,8 @@ enum class PlayerState {
     STATE_RUNNING
 };
 
+class Map;  /// thay doi moi trong code o day
+
 class Game {
 public:
     Game(); 
@@ -59,6 +62,7 @@ public:
     void run(); // Ham chay game
 
 private:
+    Map* map; // Ban do cua game ///Thay doi moi trong code o day
     bool init();          // Khoi tao
     void handleEvents();  // Xu ly input
     void update(float deltaTime); // Cap nhat logic game

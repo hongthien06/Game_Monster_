@@ -1,9 +1,11 @@
-#include "Game.h"
-#include "Camera.h"
-#include <iostream>
-#include <algorithm>
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
+#include "Game.h"
+#include "Camera.h"
+#include "Map.h"
+#include <iostream>
+#include <algorithm>
+
 
 // Khoi tao game
 Game::Game()
@@ -39,6 +41,7 @@ bool Game::init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL Init Error: " << SDL_GetError() << std::endl;
         return false;
+    
     }
 
     // Tao cua so window
@@ -59,9 +62,11 @@ bool Game::init() {
 
     // Tao nhan vat
     SDL_SetRenderLogicalPresentation(renderer,GameConstants::LOGICAL_WIDTH,GameConstants::LOGICAL_HEIGHT,SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    idleTex = IMG_LoadTexture(renderer, "assets/images/idle.png");
-    walkTex = IMG_LoadTexture(renderer, "assets/images/walk.png");
-    runTex = IMG_LoadTexture(renderer, "assets/images/run.png");
+    SDL_SetRenderLogicalPresentation(renderer, GameConstants::LOGICAL_WIDTH, GameConstants::LOGICAL_HEIGHT, SDL_LOGICAL_PRESENTATION_STRETCH);
+
+    idleTex = IMG_LoadTexture(renderer, "Asset/images/idle.png");
+    walkTex = IMG_LoadTexture(renderer, "Asset/images/walk.png");
+    runTex = IMG_LoadTexture(renderer, "Asset/images/run.png");
     if (!idleTex || !walkTex || !runTex) {
         std::cerr << "Texture Load Error: " << SDL_GetError() << std::endl;
         return false;
@@ -70,6 +75,19 @@ bool Game::init() {
     SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode(walkTex, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode(runTex, SDL_SCALEMODE_NEAREST);
+    
+     map = new Map(renderer);   /// them dong nay de khoi tao ban do
+     map->LoadTiles();           // tai cac tile va du lieu ban do
+
+    SDL_FPoint spawnPoint = map->GetSpawnPoint();   // Lay vi tri spawn tu ban do
+    playerPos.x = spawnPoint.x;
+    playerPos.y = spawnPoint.y;
+     
+    map->CleanSpawnTile();   // Xoa tile spawn de tranh ve len tile do
+
+     std::
+
+    cout << "Vi tri nhan vat: (" << spawnPoint.x << ", " << spawnPoint.y << ")" << endl;   // In vi tri spawn de kiem tra
 
     return true;
 }
@@ -175,13 +193,18 @@ void Game::update(float deltaTime) {
 
 // Ve nhan vat len man hinh 
 void Game::render() {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(renderer, 255, 255, 200, 255);
+
     SDL_RenderClear(renderer);
+
+    glm::vec2 offset = camera.getOffset();    // Lay offset camera de ve ban do
+    map->DrawMap(offset);    // Ve ban do voi offset camera
 
     SDL_Texture* currentTexture = nullptr;
     int totalFrames = 0;
     float frameWidth = 0;
     float frameHeight = 0;
+    
 
     // Chon hoat anh theo trang thai nhan vat
     switch (currentState) {
@@ -204,8 +227,6 @@ void Game::render() {
         frameHeight = GameConstants::RUN_FRAME_HEIGHT;
         break;
     }
-
-    glm::vec2 offset = camera.getOffset();
 
     if (currentTexture) {
         SDL_FRect src = {
@@ -239,5 +260,6 @@ void Game::cleanup() {
     SDL_DestroyTexture(runTex);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    delete map;
     SDL_Quit();
 }
