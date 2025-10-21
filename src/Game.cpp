@@ -1,4 +1,4 @@
-#include <SDL3/SDL.h>
+﻿#include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include "Game.h"
 #include "Camera.h"
@@ -23,8 +23,10 @@ Game::Game()
     currentFrame(0),
     animationTimer(0.0f),
     camera( 
+        // Kich thuoc khung hinh
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
+        // Kich thuoc map
         GameConstants::WORLD_WIDTH,
         GameConstants::WORLD_HEIGHT
     )
@@ -64,6 +66,8 @@ bool Game::init() {
     SDL_SetRenderLogicalPresentation(renderer,GameConstants::LOGICAL_WIDTH,GameConstants::LOGICAL_HEIGHT,SDL_LOGICAL_PRESENTATION_LETTERBOX);
     SDL_SetRenderLogicalPresentation(renderer, GameConstants::LOGICAL_WIDTH, GameConstants::LOGICAL_HEIGHT, SDL_LOGICAL_PRESENTATION_STRETCH);
 
+
+    // Tai anh nhan vat
     idleTex = IMG_LoadTexture(renderer, "Asset/images/idle.png");
     walkTex = IMG_LoadTexture(renderer, "Asset/images/walk.png");
     runTex = IMG_LoadTexture(renderer, "Asset/images/run.png");
@@ -72,20 +76,25 @@ bool Game::init() {
         return false;
     }
 
+    //Giu anh pixel nhin ro
     SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode(walkTex, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode(runTex, SDL_SCALEMODE_NEAREST);
     
      map = new Map(renderer);   /// them dong nay de khoi tao ban do
      map->LoadTiles();           // tai cac tile va du lieu ban do
-
+  
     SDL_FPoint spawnPoint = map->GetSpawnPoint();   // Lay vi tri spawn tu ban do
+    float mapHeight = map->GetMapHeight();
+    float yOffset = GameConstants::LOGICAL_HEIGHT - mapHeight;
+    const float playerDrawSize = 48.0f;
     playerPos.x = spawnPoint.x;
-    playerPos.y = spawnPoint.y;
+    playerPos.y = spawnPoint.y + yOffset - playerDrawSize + 32.0f;
      
     map->CleanSpawnTile();   // Xoa tile spawn de tranh ve len tile do
 
-     std::
+
+
 
     cout << "Vi tri nhan vat: (" << spawnPoint.x << ", " << spawnPoint.y << ")" << endl;   // In vi tri spawn de kiem tra
 
@@ -99,6 +108,8 @@ void Game::run() {
         uint64_t nowTime = SDL_GetTicks();
         float deltaTime = (nowTime - prevTime) / 1000.0f;
         prevTime = nowTime;
+
+        // 60 fps
         if (deltaTime > (1.0f / 60.0f)) deltaTime = (1.0f / 60.0f);
         handleEvents();
         update(deltaTime);
@@ -157,7 +168,7 @@ void Game::update(float deltaTime) {
     const float drawSize = 48.0f;
     playerPos.x = std::clamp(playerPos.x, 0.0f, GameConstants::WORLD_WIDTH - drawSize);
 
-
+    // Xu ly animation frame
     if (currentState != previousState) {
         currentFrame = 0;
         animationTimer = 0.0f;
@@ -188,6 +199,8 @@ void Game::update(float deltaTime) {
         currentFrame = (currentFrame + 1) % totalFrames;
     }
 
+
+    // Cap nhat camera theo nhan vat
     camera.update(playerPos, deltaTime);
 }
 
@@ -241,11 +254,12 @@ void Game::render() {
 
         // Vi tri nhan vat hien thi
         SDL_FRect dst = {
-             playerPos.x - offset.x,
-             GameConstants::FLOOR_Y - drawSize,
-             drawSize,
-             drawSize
+          playerPos.x - offset.x,
+          playerPos.y - offset.y,
+          drawSize,
+          drawSize
         };
+
 
         SDL_RenderTextureRotated(renderer,currentTexture,&src,&dst,0.0,nullptr,flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
     }

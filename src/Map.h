@@ -17,6 +17,9 @@ class Map{
         ~Map();
         void LoadTiles();
         void DrawMap(const glm::vec2& offset); 
+        float GetMapWidth() const { return mapData.empty() ? 0 : mapData[0].size() * TILE_SIZE; }
+        float GetMapHeight() const { return mapData.size() * TILE_SIZE; }
+
     private:
         SDL_Renderer* renderer;
 
