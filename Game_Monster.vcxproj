@@ -113,9 +113,15 @@
 ;SDL3_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy /y /d "$(SolutionDir)vendor\SDL3\bin\x64\*.dll" "$(OutDir)"
-xcopy /y /d "$(SolutionDir)vendor\SDL3_image\bin\x64\*.dll" "$(OutDir)"
-xcopy /y /d /i /e "$(SolutionDir)assets" "$(OutDir)assets\"</Command>
+      <Command>cmd /c ^
+@echo off &amp;&amp; ^
+echo === Copying SDL3 DLLs and Assets === &amp;&amp; ^
+if not exist "$(TargetDir)" mkdir "$(TargetDir)" &amp;&amp; ^
+robocopy "$(SolutionDir)vendor\SDL3\lib\x64" "$(TargetDir)" SDL3.dll /XO &amp;&amp; ^
+robocopy "$(SolutionDir)vendor\SDL3_image\lib\x64" "$(TargetDir)" SDL3_image.dll /XO &amp;&amp; ^
+robocopy "$(SolutionDir)Assets" "$(TargetDir)Assets" /E /XO &amp;&amp; ^
+if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

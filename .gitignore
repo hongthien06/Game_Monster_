@@ -1,12 +1,14 @@
-# Cài đặt cá nhân và cache của các IDE (Visual Studio, VS Code)
+# ======================================================
+# 🔧 IDE settings
+# ======================================================
 .vs/
 .vscode/
-*.vcxproj.user
 *.suo
+*.user
 
-# Thư mục build và các file do trình biên dịch tạo ra
-# Các quy tắc này được thêm dấu / ở đầu để chỉ áp dụng ở thư mục gốc
-# Điều này sẽ không ảnh hưởng đến thư mục x64/ bên trong vendor/
+# ======================================================
+# 🏗 Build output
+# ======================================================
 /[Bb]uild/
 /[Dd]ebug/
 /[Rr]elease/
@@ -15,19 +17,34 @@
 **/[Oo]bj/
 **/[Bb]in/
 
-# Các loại file thực thi, thư viện, và file trung gian
+# ======================================================
+# ⚙️ File thực thi, trung gian, debug symbols
+# ======================================================
 *.exe
-*.dll
 *.obj
 *.ilk
 *.pdb
 *.tlog
-*.lib
+*.log
 
-# NGOẠI LỆ: KHÔNG bỏ qua các file .lib bên trong thư mục vendor
-# Quy tắc này bây giờ sẽ hoạt động chính xác vì thư mục /vendor/x64/ không còn bị bỏ qua
-!vendor/**/*.lib
+# ======================================================
+# 🎯 Giữ lại thư viện và include trong vendor
+# ======================================================
+!vendor/**/include/
+!vendor/**/lib/**/*.lib
+!vendor/**/lib/**/*.dll
+!vendor/**/lib/**/*.a
+!vendor/**/lib/**/*.so
+!vendor/**/*.h
+!vendor/**/*.hpp
 
-# Các file hệ thống của macOS và Windows
+# ======================================================
+# 🎨 Giữ lại Assets (textures, sounds, fonts, map…)
+# ======================================================
+!Assets/**
+
+# ======================================================
+# 💻 Hệ thống OS
+# ======================================================
 .DS_Store
 Thumbs.db
