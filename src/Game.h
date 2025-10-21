@@ -35,6 +35,14 @@ namespace GameConstants {
     constexpr int RUN_FRAME_WIDTH = 128;
     constexpr int RUN_FRAME_HEIGHT = 128;
 
+    // Nhay
+    constexpr int JUMP_FRAMES = 9;
+    constexpr float GRAVITY = 700.0f;   
+    constexpr float JUMP_SPEED = 300.0f; 
+    constexpr float PLAYER_HEIGHT = 48.0f;
+    constexpr int JUMP_FRAME_WIDTH = 128;
+    constexpr int JUMP_FRAME_HEIGHT = 128;
+
     // Gia tri chuyen dong
     constexpr float WALK_SPEED = 80.0f;
     constexpr float RUN_SPEED = 160.0f;
@@ -50,7 +58,8 @@ namespace GameConstants {
 enum class PlayerState {
     STATE_IDLE,
     STATE_WALKING,
-    STATE_RUNNING
+    STATE_RUNNING,
+    STATE_JUMPING
 };
 
 class Map;  /// thay doi moi trong code o day
@@ -77,6 +86,7 @@ private:
     SDL_Texture* idleTex;
     SDL_Texture* walkTex;
     SDL_Texture* runTex;
+    SDL_Texture* jumpTex;
 
     // Player
     PlayerState currentState;
@@ -84,6 +94,8 @@ private:
 
     glm::vec2 playerPos;
     float playerVelocityX;
+    float playerVelocityY;
+    bool isOnGround;
     bool flipHorizontal;
 
     // Animation

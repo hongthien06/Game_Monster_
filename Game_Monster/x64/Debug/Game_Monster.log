@@ -1,2 +1,9 @@
-﻿  Game_Monster.vcxproj -> D:\sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\Game_Monster.exe
+﻿  Game.cpp
+D:\sama\University\BTL_DSA_OOP\Game_Monster_\src\Map.h(20,60): warning C4244: 'return': conversion from 'unsigned __int64' to 'float', possible loss of data
+  (compiling source file 'src/Game.cpp')
+  
+D:\sama\University\BTL_DSA_OOP\Game_Monster_\src\Map.h(21,60): warning C4244: 'return': conversion from 'unsigned __int64' to 'float', possible loss of data
+  (compiling source file 'src/Game.cpp')
+  
+  Game_Monster.vcxproj -> D:\sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\Game_Monster.exe
   === Copying SDL3 DLLs and Assets === 

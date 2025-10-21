@@ -19,6 +19,8 @@ Game::Game()
     previousState(PlayerState::STATE_IDLE),
     playerPos(150.0f, GameConstants::FLOOR_Y),
     playerVelocityX(0.0f),
+    playerVelocityY(0.0f),   
+    isOnGround(true),
     flipHorizontal(false),
     currentFrame(0),
     animationTimer(0.0f),
@@ -71,7 +73,8 @@ bool Game::init() {
     idleTex = IMG_LoadTexture(renderer, "Asset/images/idle.png");
     walkTex = IMG_LoadTexture(renderer, "Asset/images/walk.png");
     runTex = IMG_LoadTexture(renderer, "Asset/images/run.png");
-    if (!idleTex || !walkTex || !runTex) {
+    jumpTex = IMG_LoadTexture(renderer, "Asset/images/jump.png");
+    if (!idleTex || !walkTex || !runTex || !jumpTex) {
         std::cerr << "Texture Load Error: " << SDL_GetError() << std::endl;
         return false;
     }
@@ -80,6 +83,7 @@ bool Game::init() {
     SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode(walkTex, SDL_SCALEMODE_NEAREST);
     SDL_SetTextureScaleMode(runTex, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureScaleMode(jumpTex, SDL_SCALEMODE_NEAREST);
     
      map = new Map(renderer);   /// them dong nay de khoi tao ban do
      map->LoadTiles();           // tai cac tile va du lieu ban do
@@ -89,8 +93,8 @@ bool Game::init() {
     float yOffset = GameConstants::LOGICAL_HEIGHT - mapHeight;
     const float playerDrawSize = 48.0f;
     playerPos.x = spawnPoint.x;
-    playerPos.y = spawnPoint.y + yOffset - playerDrawSize + 32.0f;
-     
+    playerPos.y = spawnPoint.y;
+    isOnGround = true;
     map->CleanSpawnTile();   // Xoa tile spawn de tranh ve len tile do
 
 
@@ -140,8 +144,28 @@ void Game::update(float deltaTime) {
     // Shift de chay nhanh
     bool isPressingRun = keys[SDL_SCANCODE_LSHIFT];
 
-    // Chuyen doi trang thai giua chay, di bo va dung yen
-    if (moveDirection != 0) {
+    // Space de nhay
+    if (keys[SDL_SCANCODE_SPACE] && isOnGround) {
+        playerVelocityY = -GameConstants::JUMP_SPEED; 
+        isOnGround = false;
+    }
+
+    // Trong luc
+    playerVelocityY += GameConstants::GRAVITY * deltaTime;
+    playerPos.y += playerVelocityY * deltaTime;
+
+    // Kiem tra va cham vs mat dat
+    if (playerPos.y + GameConstants::PLAYER_HEIGHT >= GameConstants::FLOOR_Y) {
+        playerPos.y = GameConstants::FLOOR_Y - GameConstants::PLAYER_HEIGHT;
+        playerVelocityY = 0.0f;
+        isOnGround = true;
+    }
+
+    // Chuyen doi trang thai giua chay, nhay, di bo va dung yen
+    if (!isOnGround) {
+        currentState = PlayerState::STATE_JUMPING;
+    }
+    else if (moveDirection != 0) {
         currentState = isPressingRun ? PlayerState::STATE_RUNNING : PlayerState::STATE_WALKING;
     }
     else {
@@ -239,7 +263,14 @@ void Game::render() {
         frameWidth = GameConstants::RUN_FRAME_WIDTH;
         frameHeight = GameConstants::RUN_FRAME_HEIGHT;
         break;
+    case PlayerState::STATE_JUMPING:
+        currentTexture = jumpTex;
+        totalFrames = GameConstants::JUMP_FRAMES;
+        frameWidth = GameConstants::JUMP_FRAME_WIDTH;
+        frameHeight = GameConstants::JUMP_FRAME_HEIGHT;
+        break;
     }
+
 
     if (currentTexture) {
         SDL_FRect src = {
@@ -272,6 +303,7 @@ void Game::cleanup() {
     SDL_DestroyTexture(idleTex);
     SDL_DestroyTexture(walkTex);
     SDL_DestroyTexture(runTex);
+    SDL_DestroyTexture(jumpTex);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     delete map;
