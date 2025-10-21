@@ -1,0 +1,11 @@
+﻿  Game_Monster.vcxproj -> D:\sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\Game_Monster.exe
+  File not found - *.dll
+  0 File(s) copied
+  File not found - *.dll
+  0 File(s) copied
+  File not found - assets
+  0 File(s) copied
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(166,5): error MSB3073: The command "xcopy /y /d "D:\sama\University\BTL_DSA_OOP\Game_Monster_\vendor\SDL3\bin\x64\*.dll" "D:\sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\"
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(166,5): error MSB3073: xcopy /y /d "D:\sama\University\BTL_DSA_OOP\Game_Monster_\vendor\SDL3_image\bin\x64\*.dll" "D:\sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\"
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(166,5): error MSB3073: xcopy /y /d /i /e "D:\sama\University\BTL_DSA_OOP\Game_Monster_\assets" "D:\sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\assets\"
+C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppCommon.targets(166,5): error MSB3073: :VCEnd" exited with code 4.

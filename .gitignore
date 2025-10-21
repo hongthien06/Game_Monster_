@@ -1,33 +1,31 @@
 # Cài đặt cá nhân và cache của các IDE (Visual Studio, VS Code)
-# Bỏ qua các file này để không xung đột cài đặt cá nhân của mỗi người
 .vs/
 .vscode/
 *.vcxproj.user
 *.suo
 
 # Thư mục build và các file do trình biên dịch tạo ra
-# TUYỆT ĐỐI KHÔNG push các file này lên Git vì chúng rất nặng
-# và mỗi máy sẽ tự biên dịch ra các file này
-[Bb]uild/
-[Dd]ebug/
-[Rr]elease/
-x64/
-x86/
+# Các quy tắc này được thêm dấu / ở đầu để chỉ áp dụng ở thư mục gốc
+# Điều này sẽ không ảnh hưởng đến thư mục x64/ bên trong vendor/
+/[Bb]uild/
+/[Dd]ebug/
+/[Rr]elease/
+/x64/
+/x86/
 **/[Oo]bj/
 **/[Bb]in/
 
 # Các loại file thực thi, thư viện, và file trung gian
-# Chỉ cần push mã nguồn, không cần push sản phẩm đã biên dịch
 *.exe
 *.dll
 *.obj
 *.ilk
 *.pdb
 *.tlog
-# Bỏ qua tất cả các file .lib
 *.lib
 
 # NGOẠI LỆ: KHÔNG bỏ qua các file .lib bên trong thư mục vendor
+# Quy tắc này bây giờ sẽ hoạt động chính xác vì thư mục /vendor/x64/ không còn bị bỏ qua
 !vendor/**/*.lib
 
 # Các file hệ thống của macOS và Windows
