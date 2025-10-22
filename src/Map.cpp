@@ -33,21 +33,21 @@ Map::~Map() {
 
 //Load Tiles and Map Data
 void Map::LoadTiles(){
-    grassTile = IMG_LoadTexture(renderer, "Asset/tileset/Tile_02.png");
+    grassTile = IMG_LoadTexture(renderer, "assets/tileset/Tile_02.png");
     if (!grassTile) {
         cerr << "Failed to load grass tile: " << SDL_GetError() << endl;
     }
-    dirtLeft = IMG_LoadTexture(renderer, "Asset/tileset/Tile_47.png");
+    dirtLeft = IMG_LoadTexture(renderer, "assets/tileset/Tile_47.png");
     if (!dirtLeft) {
         cerr << "Failed to load dirt left tile: " << SDL_GetError() << endl;
     }
 
-    dirtRight = IMG_LoadTexture(renderer, "Asset/tileset/Tile_48.png");
+    dirtRight = IMG_LoadTexture(renderer, "assets/tileset/Tile_48.png");
     if (!dirtRight) {
         cerr << "Failed to load dirt right tile: " << SDL_GetError() << endl;
     }
 
-    dirtTile = IMG_LoadTexture(renderer, "Asset/tileset/Tile_12.png");
+    dirtTile = IMG_LoadTexture(renderer, "assets/tileset/Tile_12.png");
     if (!dirtTile) {
         cerr << "Failed to load dirt tile: " << SDL_GetError() << endl;
     }

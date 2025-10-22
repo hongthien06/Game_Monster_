@@ -70,10 +70,10 @@ bool Game::init() {
 
 
     // Tai anh nhan vat
-    idleTex = IMG_LoadTexture(renderer, "Asset/images/idle.png");
-    walkTex = IMG_LoadTexture(renderer, "Asset/images/walk.png");
-    runTex = IMG_LoadTexture(renderer, "Asset/images/run.png");
-    jumpTex = IMG_LoadTexture(renderer, "Asset/images/jump.png");
+    idleTex = IMG_LoadTexture(renderer, "assets/images/idle.png");
+    walkTex = IMG_LoadTexture(renderer, "assets/images/walk.png");
+    runTex = IMG_LoadTexture(renderer, "assets/images/run.png");
+    jumpTex = IMG_LoadTexture(renderer, "assets/images/jump.png");
     if (!idleTex || !walkTex || !runTex || !jumpTex) {
         std::cerr << "Texture Load Error: " << SDL_GetError() << std::endl;
         return false;
