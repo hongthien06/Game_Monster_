@@ -3,125 +3,83 @@
 #include "Game.h"
 #include "Camera.h"
 #include "Map.h"
+#include "Player.h"
 #include <iostream>
 #include <algorithm>
 
-
-// Khoi tao game
 Game::Game()
     : window(nullptr),
     renderer(nullptr),
     isGameRunning(true),
-    idleTex(nullptr),
-    walkTex(nullptr),
-    runTex(nullptr),
-    currentState(PlayerState::STATE_IDLE),
-    previousState(PlayerState::STATE_IDLE),
-    playerPos(150.0f, GameConstants::FLOOR_Y),
-    playerVelocityX(0.0f),
-    playerVelocityY(0.0f),   
-    isOnGround(true),
-    flipHorizontal(false),
-    currentFrame(0),
-    animationTimer(0.0f),
-    camera( 
-        // Kich thuoc khung hinh
+    map(nullptr),
+    player(nullptr),
+    camera(
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
-        // Kich thuoc map
         GameConstants::WORLD_WIDTH,
-        GameConstants::WORLD_HEIGHT
-    )
+        GameConstants::WORLD_HEIGHT)
 {
 }
 
-// Don dep
 Game::~Game() {
     cleanup();
 }
 
-// Khoi tao SDL 
 bool Game::init() {
     if (!SDL_Init(SDL_INIT_VIDEO)) {
         std::cerr << "SDL Init Error: " << SDL_GetError() << std::endl;
         return false;
-    
     }
 
-    // Tao cua so window
-    window = SDL_CreateWindow("Game Monster",GameConstants::SCREEN_WIDTH,GameConstants::SCREEN_HEIGHT,SDL_WINDOW_RESIZABLE);
-    
-    
+    window = SDL_CreateWindow("Game Monster",
+        GameConstants::SCREEN_WIDTH,
+        GameConstants::SCREEN_HEIGHT,
+        SDL_WINDOW_RESIZABLE);
     if (!window) {
         std::cerr << "Window Creation Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    // Tao renderer de ve nhan vat
     renderer = SDL_CreateRenderer(window, nullptr);
     if (!renderer) {
         std::cerr << "Renderer Creation Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
-    // Tao nhan vat
-    SDL_SetRenderLogicalPresentation(renderer,GameConstants::LOGICAL_WIDTH,GameConstants::LOGICAL_HEIGHT,SDL_LOGICAL_PRESENTATION_LETTERBOX);
-    SDL_SetRenderLogicalPresentation(renderer, GameConstants::LOGICAL_WIDTH, GameConstants::LOGICAL_HEIGHT, SDL_LOGICAL_PRESENTATION_STRETCH);
+    SDL_SetRenderLogicalPresentation(renderer,
+        GameConstants::LOGICAL_WIDTH,
+        GameConstants::LOGICAL_HEIGHT,
+        SDL_LOGICAL_PRESENTATION_STRETCH);
 
-
-    // Tai anh nhan vat
-    idleTex = IMG_LoadTexture(renderer, "assets/images/idle.png");
-    walkTex = IMG_LoadTexture(renderer, "assets/images/walk.png");
-    runTex = IMG_LoadTexture(renderer, "assets/images/run.png");
-    jumpTex = IMG_LoadTexture(renderer, "assets/images/jump.png");
-    if (!idleTex || !walkTex || !runTex || !jumpTex) {
-        std::cerr << "Texture Load Error: " << SDL_GetError() << std::endl;
-        return false;
-    }
-
-    //Giu anh pixel nhin ro
-    SDL_SetTextureScaleMode(idleTex, SDL_SCALEMODE_NEAREST);
-    SDL_SetTextureScaleMode(walkTex, SDL_SCALEMODE_NEAREST);
-    SDL_SetTextureScaleMode(runTex, SDL_SCALEMODE_NEAREST);
-    SDL_SetTextureScaleMode(jumpTex, SDL_SCALEMODE_NEAREST);
-    
-     map = new Map(renderer);   /// them dong nay de khoi tao ban do
-     map->LoadTiles();           // tai cac tile va du lieu ban do
-  
-    SDL_FPoint spawnPoint = map->GetSpawnPoint();   // Lay vi tri spawn tu ban do
-    float mapHeight = map->GetMapHeight();
-    float yOffset = GameConstants::LOGICAL_HEIGHT - mapHeight;
-    const float playerDrawSize = 48.0f;
-    playerPos.x = spawnPoint.x;
-    playerPos.y = spawnPoint.y;
-    isOnGround = true;
-    map->CleanSpawnTile();   // Xoa tile spawn de tranh ve len tile do
-
-
-
-
-    cout << "Vi tri nhan vat: (" << spawnPoint.x << ", " << spawnPoint.y << ")" << endl;   // In vi tri spawn de kiem tra
+    map = new Map(renderer);
+    map->LoadTiles();
+    SDL_FPoint spawnPoint = map->GetSpawnPoint();
+    map->CleanSpawnTile();
+    player = new Player(renderer);
+    player->SetPosition({ spawnPoint.x, spawnPoint.y });
+    std::cout << "Vi tri nhan vat: (" << spawnPoint.x << ", " << spawnPoint.y << ")" << std::endl;
 
     return true;
 }
 
 void Game::run() {
     if (!init()) return;
+
     uint64_t prevTime = SDL_GetTicks();
+
     while (isGameRunning) {
         uint64_t nowTime = SDL_GetTicks();
         float deltaTime = (nowTime - prevTime) / 1000.0f;
         prevTime = nowTime;
 
-        // 60 fps
         if (deltaTime > (1.0f / 60.0f)) deltaTime = (1.0f / 60.0f);
+
         handleEvents();
         update(deltaTime);
         render();
     }
 }
 
-// Xu ly phim thoat cua so
 void Game::handleEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -132,180 +90,29 @@ void Game::handleEvents() {
     SDL_PumpEvents();
 }
 
-// Xu ly input dau vao va logic chuyen dong
 void Game::update(float deltaTime) {
-    const bool* keys = SDL_GetKeyboardState(nullptr);
-    int moveDirection = 0;
+    SDL_PumpEvents();
+    if (player) player->Update(deltaTime);
 
-    // A -> trai - D -> phai
-    if (keys[SDL_SCANCODE_A]) moveDirection = -1;
-    if (keys[SDL_SCANCODE_D]) moveDirection = 1;
-
-    // Shift de chay nhanh
-    bool isPressingRun = keys[SDL_SCANCODE_LSHIFT];
-
-    // Space de nhay
-    if (keys[SDL_SCANCODE_SPACE] && isOnGround) {
-        playerVelocityY = -GameConstants::JUMP_SPEED; 
-        isOnGround = false;
-    }
-
-    // Trong luc
-    playerVelocityY += GameConstants::GRAVITY * deltaTime;
-    playerPos.y += playerVelocityY * deltaTime;
-
-    // Kiem tra va cham vs mat dat
-    if (playerPos.y + GameConstants::PLAYER_HEIGHT >= GameConstants::FLOOR_Y) {
-        playerPos.y = GameConstants::FLOOR_Y - GameConstants::PLAYER_HEIGHT;
-        playerVelocityY = 0.0f;
-        isOnGround = true;
-    }
-
-    // Chuyen doi trang thai giua chay, nhay, di bo va dung yen
-    if (!isOnGround) {
-        currentState = PlayerState::STATE_JUMPING;
-    }
-    else if (moveDirection != 0) {
-        currentState = isPressingRun ? PlayerState::STATE_RUNNING : PlayerState::STATE_WALKING;
-    }
-    else {
-        currentState = PlayerState::STATE_IDLE;
-    }
-    float currentMaxSpeed = isPressingRun ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;
-
-
-    // Tang giam van toc nhan vat
-    if (moveDirection) {
-        playerVelocityX += GameConstants::ACCELERATION * moveDirection * deltaTime;
-        flipHorizontal = (moveDirection == -1);
-    }
-    else {
-        if (playerVelocityX > 0)
-            playerVelocityX = std::max(0.0f, playerVelocityX - GameConstants::DECELERATION * deltaTime);
-        else if (playerVelocityX < 0)
-            playerVelocityX = std::min(0.0f, playerVelocityX + GameConstants::DECELERATION * deltaTime);
-    }
-
-    // Gioi han van toc 
-    playerVelocityX = std::clamp(playerVelocityX, -currentMaxSpeed, currentMaxSpeed);
-    playerPos.x += playerVelocityX * deltaTime;
-    const float drawSize = 48.0f;
-    playerPos.x = std::clamp(playerPos.x, 0.0f, GameConstants::WORLD_WIDTH - drawSize);
-
-    // Xu ly animation frame
-    if (currentState != previousState) {
-        currentFrame = 0;
-        animationTimer = 0.0f;
-    }
-    previousState = currentState;
-
-    int totalFrames = 0;
-    float frameDuration = 0;
-
-    switch (currentState) {
-    case PlayerState::STATE_IDLE:
-        totalFrames = GameConstants::IDLE_FRAMES;
-        frameDuration = GameConstants::IDLE_FRAME_DURATION;
-        break;
-    case PlayerState::STATE_WALKING:
-        totalFrames = GameConstants::WALK_FRAMES;
-        frameDuration = GameConstants::WALK_FRAME_DURATION;
-        break;
-    case PlayerState::STATE_RUNNING:
-        totalFrames = GameConstants::RUN_FRAMES;
-        frameDuration = GameConstants::RUN_FRAME_DURATION;
-        break;
-    }
-
-    animationTimer += deltaTime;
-    if (animationTimer >= frameDuration && totalFrames > 0) {
-        animationTimer -= frameDuration;
-        currentFrame = (currentFrame + 1) % totalFrames;
-    }
-
-
-    // Cap nhat camera theo nhan vat
-    camera.update(playerPos, deltaTime);
+    camera.update(player->GetPosition(), deltaTime);
 }
 
-// Ve nhan vat len man hinh 
 void Game::render() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 200, 255);
-
     SDL_RenderClear(renderer);
 
-    glm::vec2 offset = camera.getOffset();    // Lay offset camera de ve ban do
-    map->DrawMap(offset);    // Ve ban do voi offset camera
-
-    SDL_Texture* currentTexture = nullptr;
-    int totalFrames = 0;
-    float frameWidth = 0;
-    float frameHeight = 0;
-    
-
-    // Chon hoat anh theo trang thai nhan vat
-    switch (currentState) {
-    case PlayerState::STATE_IDLE:
-        currentTexture = idleTex;
-        totalFrames = GameConstants::IDLE_FRAMES;
-        frameWidth = GameConstants::IDLE_FRAME_WIDTH;
-        frameHeight = GameConstants::IDLE_FRAME_HEIGHT;
-        break;
-    case PlayerState::STATE_WALKING:
-        currentTexture = walkTex;
-        totalFrames = GameConstants::WALK_FRAMES;
-        frameWidth = GameConstants::WALK_FRAME_WIDTH;
-        frameHeight = GameConstants::WALK_FRAME_HEIGHT;
-        break;
-    case PlayerState::STATE_RUNNING:
-        currentTexture = runTex;
-        totalFrames = GameConstants::RUN_FRAMES;
-        frameWidth = GameConstants::RUN_FRAME_WIDTH;
-        frameHeight = GameConstants::RUN_FRAME_HEIGHT;
-        break;
-    case PlayerState::STATE_JUMPING:
-        currentTexture = jumpTex;
-        totalFrames = GameConstants::JUMP_FRAMES;
-        frameWidth = GameConstants::JUMP_FRAME_WIDTH;
-        frameHeight = GameConstants::JUMP_FRAME_HEIGHT;
-        break;
-    }
-
-
-    if (currentTexture) {
-        SDL_FRect src = {
-            (float)currentFrame * frameWidth,
-            0,
-            frameWidth,
-            frameHeight
-        };
-
-        // Kich thuoc nhan vat tren man hinh
-        const float drawSize = 48.0f; 
-
-        // Vi tri nhan vat hien thi
-        SDL_FRect dst = {
-          playerPos.x - offset.x,
-          playerPos.y - offset.y,
-          drawSize,
-          drawSize
-        };
-
-
-        SDL_RenderTextureRotated(renderer,currentTexture,&src,&dst,0.0,nullptr,flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
-    }
+    glm::vec2 offset = camera.getOffset();
+    if (map) map->DrawMap(offset);
+    if (player) player->Render(renderer, offset);
 
     SDL_RenderPresent(renderer);
 }
 
-
 void Game::cleanup() {
-    SDL_DestroyTexture(idleTex);
-    SDL_DestroyTexture(walkTex);
-    SDL_DestroyTexture(runTex);
-    SDL_DestroyTexture(jumpTex);
+    delete player;
+    delete map;
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    delete map;
     SDL_Quit();
 }

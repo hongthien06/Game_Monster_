@@ -29,5 +29,5 @@ class Map{
         SDL_Texture* dirtRight;
 
         vector<vector<int>> mapData;
-        const int TILE_SIZE = 48;
+        const int TILE_SIZE = 32;
     };

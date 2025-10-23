@@ -139,6 +139,8 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\GameConstants.h" />
+    <ClInclude Include="src\Player.h" />
     <ClInclude Include="src\Camera.h" />
     <ClInclude Include="src\include\SDL3\SDL.h" />
     <ClInclude Include="src\include\SDL3\SDL_assert.h" />
@@ -319,6 +321,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Player.cpp" />
     <ClCompile Include="src\Camera.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\main.cpp" />
