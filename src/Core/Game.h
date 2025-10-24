@@ -5,10 +5,10 @@
 #include <glm/glm.hpp>
 #include <string>
 
-#include "GameConstants.h"
-#include "Camera.h"
-#include "Map.h"
-#include "Player.h"
+#include "../Config/GameConstants.h"
+#include "../Core/Camera.h"
+#include "../Environment/Map.h"
+#include "../Entities/Player.h"
 
 class Map;
 class Player;

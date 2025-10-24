@@ -2,7 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <glm/glm.hpp>
-#include "GameConstants.h"
+#include "../Config/GameConstants.h"
 
 enum class PlayerState {
     STATE_IDLE,

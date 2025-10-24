@@ -12,7 +12,7 @@ namespace GameConstants {
     constexpr float FLOOR_Y = LOGICAL_HEIGHT - 32.0f;
 
     // Dung yen
-    constexpr int IDLE_FRAMES = 6;
+    constexpr int IDLE_FRAMES = 4;
     constexpr float IDLE_FRAME_DURATION = 0.15f;
     constexpr int IDLE_FRAME_WIDTH = 128;
     constexpr int IDLE_FRAME_HEIGHT = 128;

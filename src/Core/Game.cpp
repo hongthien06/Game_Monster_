@@ -2,8 +2,7 @@
 #include <SDL3_image/SDL_image.h>
 #include "Game.h"
 #include "Camera.h"
-#include "Map.h"
-#include "Player.h"
+#include "../Entities/Player.h"
 #include <iostream>
 #include <algorithm>
 
@@ -51,13 +50,7 @@ bool Game::init() {
         GameConstants::LOGICAL_HEIGHT,
         SDL_LOGICAL_PRESENTATION_STRETCH);
 
-    map = new Map(renderer);
-    map->LoadTiles();
-    SDL_FPoint spawnPoint = map->GetSpawnPoint();
-    map->CleanSpawnTile();
     player = new Player(renderer);
-    player->SetPosition({ spawnPoint.x, spawnPoint.y });
-    std::cout << "Vi tri nhan vat: (" << spawnPoint.x << ", " << spawnPoint.y << ")" << std::endl;
 
     return true;
 }
@@ -102,7 +95,6 @@ void Game::render() {
     SDL_RenderClear(renderer);
 
     glm::vec2 offset = camera.getOffset();
-    if (map) map->DrawMap(offset);
     if (player) player->Render(renderer, offset);
 
     SDL_RenderPresent(renderer);

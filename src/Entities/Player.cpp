@@ -13,10 +13,10 @@ Player::Player(SDL_Renderer* renderer)
     currentFrame(0),
     animationTimer(0.0f)
 {
-    idleTex = IMG_LoadTexture(renderer, "assets/images/idle.png");
-    walkTex = IMG_LoadTexture(renderer, "assets/images/walk.png");
-    runTex = IMG_LoadTexture(renderer, "assets/images/run.png");
-    jumpTex = IMG_LoadTexture(renderer, "assets/images/jump.png");
+    idleTex = IMG_LoadTexture(renderer, "assets/images/Player/Archer/Idle.png");
+    walkTex = IMG_LoadTexture(renderer, "assets/images/Player/Archer/Walk.png");
+    runTex = IMG_LoadTexture(renderer, "assets/images/Player/Archer/Run.png");
+    jumpTex = IMG_LoadTexture(renderer, "assets/images/Player/Archer/Jump.png");
 
     if (!idleTex || !walkTex || !runTex || !jumpTex)
         std::cerr << "Error loading player textures!\n";
