@@ -4,7 +4,7 @@
 
 // Khoi tao nhan vat
 Player::Player(SDL_Renderer* renderer)
-    : playerPos(150.0f, GameConstants::FLOOR_Y),
+    : playerPos(50.0f, GameConstants::FLOOR_Y),
     playerVelocityX(0.0f),
     playerVelocityY(0.0f),
     isOnGround(true),
