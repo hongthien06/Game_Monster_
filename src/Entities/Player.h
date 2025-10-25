@@ -29,6 +29,7 @@ private:
 
     int currentFrame;
     float animationTimer;
+    int jumpCount;
 
 public:
     Player(SDL_Renderer* renderer);
