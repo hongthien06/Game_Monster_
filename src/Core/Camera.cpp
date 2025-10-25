@@ -16,20 +16,37 @@ void Camera::update(const glm::vec2& playerPos, float deltaTime)
 {
     deltaTime = std::clamp(deltaTime, 0.0f, 0.033f);
 
-    // Vi tri player o giua man hinh
-    glm::vec2 targetCenter = playerPos - (size * 0.5f) + glm::vec2(24.0f, 0.0f);
+    // Trung tam camera hien tai
+    glm::vec2 cameraCenter = position + size * 0.5f;
 
-    // Di chuyen 
+    // Gioi han vung chet
+    glm::vec2 deadZoneHalf = deadZoneSize * 0.5f;
+    glm::vec2 deadZoneMin = cameraCenter - deadZoneHalf;
+    glm::vec2 deadZoneMax = cameraCenter + deadZoneHalf;
+
+    glm::vec2 target = position;
+
+    // Di chuyen neu ra ngoai vung chet
+    if (playerPos.x < deadZoneMin.x)
+        target.x -= (deadZoneMin.x - playerPos.x);
+    else if (playerPos.x > deadZoneMax.x)
+        target.x += (playerPos.x - deadZoneMax.x);
+
+    if (playerPos.y < deadZoneMin.y)
+        target.y -= (deadZoneMin.y - playerPos.y);
+    else if (playerPos.y > deadZoneMax.y)
+        target.y += (playerPos.y - deadZoneMax.y);
+
+    // Di chuyen muot
     float t = 1.0f - std::exp(-smoothness * deltaTime);
-    position += (targetCenter - position) * t;
+    position += (target - position) * t;
 
-    // Gioi han camera trong bien ban do
+    // Gioi han camera trong ban do
     float maxX = std::max(0.0f, worldSize.x - size.x);
     float maxY = std::max(0.0f, worldSize.y - size.y);
     position.x = std::clamp(position.x, 0.0f, maxX);
     position.y = std::clamp(position.y, 0.0f, maxY);
 }
-
 
 glm::vec2 Camera::getOffset() const {
     return position;
