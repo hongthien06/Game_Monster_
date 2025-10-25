@@ -1,3 +1,10 @@
-﻿  Camera.cpp
+﻿  Game.cpp
+D:\Sama\University\BTL_DSA_OOP\Game_Monster_\src\Core\Game.cpp(119,5): warning C4150: deletion of pointer to incomplete type 'Map'; no destructor called
+      D:\Sama\University\BTL_DSA_OOP\Game_Monster_\src\Core\Game.h(13,7):
+      see declaration of 'Map'
+  
+  Player.cpp
+  main.cpp
+  Generating Code...
   Game_Monster.vcxproj -> D:\Sama\University\BTL_DSA_OOP\Game_Monster_\x64\Debug\Game_Monster.exe
   === Copying SDL3 DLLs and Assets === 

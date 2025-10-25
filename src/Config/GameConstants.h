@@ -31,8 +31,8 @@ namespace GameConstants {
 
     // Nhay
     constexpr int JUMP_FRAMES = 9;
-    constexpr float GRAVITY = 700.0f;
-    constexpr float JUMP_SPEED = 300.0f;
+    constexpr float GRAVITY = 800.0f;
+    constexpr float JUMP_SPEED = 250.0f;
     constexpr float PLAYER_HEIGHT = 32.0f;
     constexpr int JUMP_FRAME_WIDTH = 128;
     constexpr int JUMP_FRAME_HEIGHT = 128;

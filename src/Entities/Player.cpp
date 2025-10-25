@@ -61,15 +61,10 @@ void Player::Update(float deltaTime) {
     if (keys[SDL_SCANCODE_D]) moveDir = 1;
     bool isRunning = keys[SDL_SCANCODE_LSHIFT];
 
-    if (keys[SDL_SCANCODE_SPACE]) {
-        if (jumpCount < 2) {
-            playerVelocityY = -GameConstants::JUMP_SPEED;
-            isOnGround = false;
-            ++jumpCount;
-
-        }
+    if (keys[SDL_SCANCODE_SPACE] && isOnGround) {
+        playerVelocityY = -GameConstants::JUMP_SPEED;
+        isOnGround = false;
     }
-
 
     // Trong luc
     playerVelocityY += GameConstants::GRAVITY * deltaTime;
