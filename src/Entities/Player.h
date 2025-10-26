@@ -1,8 +1,6 @@
 ﻿#pragma once
-#include <SDL3/SDL.h>
+#include "Character.h"
 #include <SDL3_image/SDL_image.h>
-#include <glm/glm.hpp>
-#include "../Config/GameConstants.h"
 
 enum class PlayerState {
     STATE_IDLE,
@@ -11,7 +9,7 @@ enum class PlayerState {
     STATE_JUMPING
 };
 
-class Player {
+class Player:public Character {
 private:
     SDL_Texture* idleTex;
     SDL_Texture* walkTex;
@@ -27,17 +25,10 @@ private:
     PlayerState currentState;
     PlayerState previousState;
 
-    int currentFrame;
-    float animationTimer;
-    int jumpCount;
-
 public:
     Player(SDL_Renderer* renderer);
     ~Player();
 
-    void SetPosition(glm::vec2 pos);
-    glm::vec2 GetPosition() const;
-
-    void Update(float deltaTime);
-    void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
+    void Update(float deltaTime) override;
+    void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
 };

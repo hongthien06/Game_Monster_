@@ -102,7 +102,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
@@ -337,6 +337,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Entities\Character.cpp" />
     <ClCompile Include="src\Components\Animation.cpp" />
     <ClCompile Include="src\Components\Attack.cpp" />
     <ClCompile Include="src\Components\Effect.cpp" />
