@@ -1,7 +1,7 @@
 ﻿#include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include "Game.h"
-#include "Map.h"
+#include "../Environment/Map.h"
 #include "Camera.h"
 #include "../Entities/Player.h"
 #include <iostream>
