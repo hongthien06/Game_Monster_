@@ -4,16 +4,10 @@
 
 // Khoi tao nhan vat
 Player::Player(SDL_Renderer* renderer)
-    : playerPos(50.0f, GameConstants::FLOOR_Y),
-    playerVelocityX(0.0f),
-    playerVelocityY(0.0f),
-    isOnGround(true),
+    : Character(glm::vec2(50.0f, GameConstants::FLOOR_Y)),
     flipHorizontal(false),
     currentState(PlayerState::STATE_IDLE),
-    previousState(PlayerState::STATE_IDLE),
-    currentFrame(0),
-    animationTimer(0.0f),
-    jumpCount(0)
+    previousState(PlayerState::STATE_IDLE)
 {
     // Tai cac texture nhan vat
     idleTex = IMG_LoadTexture(renderer, "assets/images/Player/Archer/Idle.png");
@@ -40,21 +34,11 @@ Player::~Player() {
     SDL_DestroyTexture(jumpTex);
 }
 
-// Lay vi tri nhan vat
-void Player::SetPosition(glm::vec2 pos) {
-    playerPos = pos;
-}
-
-glm::vec2 Player::GetPosition() const {
-    return playerPos;
-}
-
 // Cap nhat gameplay
 void Player::Update(float deltaTime) {
     SDL_PumpEvents();
     const bool* keys = SDL_GetKeyboardState(nullptr);
     int moveDir = 0;
-
 
     // Phim dau vao 
     if (keys[SDL_SCANCODE_A]) moveDir = -1;
@@ -62,24 +46,22 @@ void Player::Update(float deltaTime) {
     bool isRunning = keys[SDL_SCANCODE_LSHIFT];
 
     if (keys[SDL_SCANCODE_SPACE] && isOnGround) {
-        playerVelocityY = -GameConstants::JUMP_SPEED;
+        velocity.y = -GameConstants::JUMP_SPEED;
         isOnGround = false;
     }
 
     // Trong luc
-    playerVelocityY += GameConstants::GRAVITY * deltaTime;
-    playerPos.y += playerVelocityY * deltaTime;
+    velocity.y += GameConstants::GRAVITY * deltaTime;
+    position.y += velocity.y * deltaTime;
 
     // Gioi han nhan vat ko roi xuyen dat
-    if (playerPos.y + GameConstants::PLAYER_HEIGHT >= GameConstants::FLOOR_Y) {
-        playerPos.y = GameConstants::FLOOR_Y - GameConstants::PLAYER_HEIGHT;
-        playerVelocityY = 0.0f;
+    if (position.y + GameConstants::PLAYER_HEIGHT >= GameConstants::FLOOR_Y) {
+        position.y = GameConstants::FLOOR_Y - GameConstants::PLAYER_HEIGHT;
+        velocity.y = 0.0f;
         isOnGround = true;
-        jumpCount = 0;
     }
 
-
-   // Xac dinh trang thai nhan vat
+    // Xac dinh trang thai nhan vat
     if (!isOnGround)
         currentState = PlayerState::STATE_JUMPING;
     else if (moveDir != 0)
@@ -87,30 +69,26 @@ void Player::Update(float deltaTime) {
     else
         currentState = PlayerState::STATE_IDLE;
 
-
     // Tang giam toc do
     float maxSpeed = isRunning ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;
     if (moveDir)
-        playerVelocityX += GameConstants::ACCELERATION * moveDir * deltaTime;
+        velocity.x += GameConstants::ACCELERATION * moveDir * deltaTime;
     else {
-        if (playerVelocityX > 0)
-            playerVelocityX = std::max(0.0f, playerVelocityX - GameConstants::DECELERATION * deltaTime);
-        else if (playerVelocityX < 0)
-            playerVelocityX = std::min(0.0f, playerVelocityX + GameConstants::DECELERATION * deltaTime);
+        if (velocity.x > 0)
+            velocity.x = std::max(0.0f, velocity.x - GameConstants::DECELERATION * deltaTime);
+        else if (velocity.x < 0)
+            velocity.x = std::min(0.0f, velocity.x + GameConstants::DECELERATION * deltaTime);
     }
 
-
     // Gioi han toc do
-    playerVelocityX = std::clamp(playerVelocityX, -maxSpeed, maxSpeed);
-    playerPos.x += playerVelocityX * deltaTime;
+    velocity.x = std::clamp(velocity.x, -maxSpeed, maxSpeed);
+    position.x += velocity.x * deltaTime;
 
     // Gioi han man hinh
-    playerPos.x = std::clamp(playerPos.x, 0.0f, GameConstants::WORLD_WIDTH - 32.0f);
-
+    position.x = std::clamp(position.x, 0.0f, GameConstants::WORLD_WIDTH - 32.0f);
 
     // Huong nhin cua nhan vat
     if (moveDir != 0) flipHorizontal = (moveDir == -1);
-
 
     // Reset hoat anh khi doi trang thai
     if (currentState != previousState) {
@@ -118,7 +96,6 @@ void Player::Update(float deltaTime) {
         animationTimer = 0.0f;
     }
     previousState = currentState;
-
 
     // Cap nhat hoat anh
     int totalFrames = 0;
@@ -185,7 +162,6 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
     if (!tex) return;
 
-
     SDL_FRect src = {
         (float)currentFrame * frameWidth,
         0.0f,
@@ -194,9 +170,9 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     };
 
     SDL_FRect dst = {
-        playerPos.x - cameraOffset.x,
-        playerPos.y - cameraOffset.y,
-        32.0f, 32.0f 
+        position.x - cameraOffset.x,
+        position.y - cameraOffset.y,
+        32.0f, 32.0f
     };
 
     SDL_RenderTextureRotated(

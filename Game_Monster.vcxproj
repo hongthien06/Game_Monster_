@@ -337,6 +337,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <None Include="Makefile" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Entities\Character.cpp" />
     <ClCompile Include="src\Components\Animation.cpp" />
     <ClCompile Include="src\Components\Attack.cpp" />
     <ClCompile Include="src\Components\Effect.cpp" />
