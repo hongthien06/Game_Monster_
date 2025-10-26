@@ -1,6 +1,7 @@
 ﻿#include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include "Game.h"
+#include "Map.h"
 #include "Camera.h"
 #include "../Entities/Player.h"
 #include <iostream>
@@ -58,6 +59,11 @@ bool Game::init() {
     // Tao nhan vat 
     player = new Player(renderer);
 
+    map = new Map(renderer);
+    if (!map->loadMap("assets/tileset/Map_game.tmj")) {
+        std::cerr << "Failed to load map." << std::endl;
+    }
+
     return true;
 }
 
@@ -109,12 +115,14 @@ void Game::render() {
 
     glm::vec2 offset = camera.getOffset();
     if (player) player->Render(renderer, offset);
+    if (map) map->drawMap(offset);
 
     SDL_RenderPresent(renderer);
 }
 
 // Giai phong tai nguyen
 void Game::cleanup() {
+
     delete player;
     delete map;
 
@@ -122,3 +130,4 @@ void Game::cleanup() {
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
+
