@@ -1,41 +1,48 @@
 ﻿#pragma once
 #include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
 #include <glm/glm.hpp>
-#include "Audio.h"
 #include "../Config/GameConstants.h"
+#include <iostream>
 
 enum class CharacterState {
-    IDLE,
-    WALKING,
-    RUNNING,
-    JUMPING
+    STATE_IDLE,
+    STATE_WALKING,
+    STATE_RUNNING,
+    STATE_JUMPING
 };
 
 class Character {
 protected:
-    SDL_Texture* currentTexture;
+    SDL_Texture* idleTex;
+    SDL_Texture* walkTex;
+    SDL_Texture* runTex;
+    SDL_Texture* jumpTex;
+
     glm::vec2 position;
     glm::vec2 velocity;
+
     bool isOnGround;
     bool flipHorizontal;
-    CharacterState state;
+
+    CharacterState currentState;
+    CharacterState previousState;
+
     int currentFrame;
     float animationTimer;
 
 public:
     Character();
-    Character(glm::vec2 startPos);
+    Character(SDL_Renderer* renderer, glm::vec2 startPos,
+        const char* idlePath,
+        const char* walkPath,
+        const char* runPath,
+        const char* jumpPath);
     virtual ~Character();
 
-    virtual void Update(float deltaTime) = 0;
-    virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) = 0;
+    virtual void Update(float deltaTime);
+    virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
 
     void SetPosition(const glm::vec2& pos);
     glm::vec2 GetPosition() const;
-
-    void SetVelocity(const glm::vec2& vel);
-    glm::vec2 GetVelocity() const;
-
-    void SetState(CharacterState newState);
-    CharacterState GetState() const;
 };

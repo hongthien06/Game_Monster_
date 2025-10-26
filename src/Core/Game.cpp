@@ -59,6 +59,7 @@ bool Game::init() {
     // Tao nhan vat 
     player = new Player(renderer);
 
+
     map = new Map(renderer);
     if (!map->loadMap("assets/tileset/Map_game.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
