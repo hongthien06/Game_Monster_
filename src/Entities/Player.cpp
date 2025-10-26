@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 
+
 // Khoi tao nhan vat
 Player::Player(SDL_Renderer* renderer)
     : Character(glm::vec2(50.0f, GameConstants::FLOOR_Y)),
@@ -81,11 +82,11 @@ void Player::Update(float deltaTime) {
     }
 
     // Gioi han toc do
-    velocity.x = std::clamp(velocity.x, -maxSpeed, maxSpeed);
+    velocity.x = std::max(-maxSpeed, std::min(velocity.x, maxSpeed));
     position.x += velocity.x * deltaTime;
 
     // Gioi han man hinh
-    position.x = std::clamp(position.x, 0.0f, GameConstants::WORLD_WIDTH - 32.0f);
+    position.x = std::max(0.0f, std::min(position.x, GameConstants::WORLD_WIDTH - 32.0f));
 
     // Huong nhin cua nhan vat
     if (moveDir != 0) flipHorizontal = (moveDir == -1);

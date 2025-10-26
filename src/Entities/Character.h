@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
+#include "Audio.h"
 #include "../Config/GameConstants.h"
 
 enum class CharacterState {
