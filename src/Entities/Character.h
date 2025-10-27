@@ -2,6 +2,7 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <glm/glm.hpp>
+#include"..//Environment/Map.h"
 #include "../Config/GameConstants.h"
 #include <iostream>
 
@@ -40,7 +41,7 @@ public:
         const char* jumpPath);
     virtual ~Character();
 
-    virtual void Update(float deltaTime);
+    virtual void Update(float deltaTime, Map& map);
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
 
     void SetPosition(const glm::vec2& pos);

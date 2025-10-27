@@ -1,4 +1,5 @@
 ﻿#include "Character.h"
+#include"..//Systems/PhysicsSystem.h"
 #include <algorithm>
 
 
@@ -47,41 +48,22 @@ Character::~Character() {
     SDL_DestroyTexture(jumpTex);
 }
 
-void Character::Update(float deltaTime) {
+void Character::Update(float deltaTime, Map& map) {
     const bool* keys = SDL_GetKeyboardState(nullptr);
     int moveDir = 0;
-    // Di chuyen trai phai
+
+    // Xu li phim
     if (keys[SDL_SCANCODE_A]) moveDir = -1;
     if (keys[SDL_SCANCODE_D]) moveDir = 1;
-    // Chay nhanh
     bool isRunning = keys[SDL_SCANCODE_LSHIFT];
-
-    // Nhay cao
     if (keys[SDL_SCANCODE_SPACE] && isOnGround) {
         velocity.y = -GameConstants::JUMP_SPEED;
         isOnGround = false;
     }
 
-    // Trong luc
-    velocity.y += GameConstants::GRAVITY * deltaTime;
-    position.y += velocity.y * deltaTime;
-
-    // Cham mat dat
-    if (position.y + GameConstants::PLAYER_HEIGHT >= GameConstants::FLOOR_Y) {
-        position.y = GameConstants::FLOOR_Y - GameConstants::PLAYER_HEIGHT;
-        velocity.y = 0.0f;
-        isOnGround = true;
-    }
-
-    //Cap nhat trang thai nhan vat
-    if (!isOnGround)
-        currentState = CharacterState::STATE_JUMPING;
-    else if (moveDir)
-        currentState = isRunning ? CharacterState::STATE_RUNNING : CharacterState::STATE_WALKING;
-    else
-        currentState = CharacterState::STATE_IDLE;
-
+    // Cap nhat van toc 
     float maxSpeed = isRunning ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;
+
     if (moveDir)
         velocity.x += GameConstants::ACCELERATION * moveDir * deltaTime;
     else {
@@ -89,27 +71,31 @@ void Character::Update(float deltaTime) {
         else if (velocity.x < 0) velocity.x = std::min(0.0f, velocity.x + GameConstants::DECELERATION * deltaTime);
     }
 
-    // Gioi han toc do toi da
+    // Gioi han toc do
     velocity.x = std::max(-maxSpeed, std::min(velocity.x, maxSpeed));
 
-    // Cap nhat vi tri
-    position.x += velocity.x * deltaTime;
-
-    // Gioi han trong bien ban do
-    position.x = std::max(0.0f, std::min(position.x, GameConstants::WORLD_WIDTH - 48.0f));
-
+    // Cap nhat huong
     if (moveDir) flipHorizontal = (moveDir == -1);
 
-    // Reset frame animation
-    if (currentState != previousState) {
+    // Ap dung vat ly
+    PhysicsSystem::ApplyPhysics(position, velocity, deltaTime, map, isOnGround);
+
+    CharacterState newState;
+    if (!isOnGround)
+        newState = CharacterState::STATE_JUMPING;
+    else if (std::abs(velocity.x) > 1.0f)
+        newState = isRunning ? CharacterState::STATE_RUNNING : CharacterState::STATE_WALKING;
+    else
+        newState = CharacterState::STATE_IDLE;
+    if (newState != currentState) {
+        currentState = newState;
         currentFrame = 0;
         animationTimer = 0.0f;
     }
-    previousState = currentState;
 
+    // Animation
     int totalFrames = 0;
     float frameDuration = 0.0f;
-
 
     switch (currentState) {
     case CharacterState::STATE_IDLE: totalFrames = GameConstants::IDLE_FRAMES; frameDuration = GameConstants::IDLE_FRAME_DURATION; break;
@@ -118,13 +104,18 @@ void Character::Update(float deltaTime) {
     case CharacterState::STATE_JUMPING: totalFrames = GameConstants::JUMP_FRAMES; frameDuration = GameConstants::JUMP_FRAME_DURATION; break;
     }
 
-    // Cap nhat frame animation
     animationTimer += deltaTime;
     if (animationTimer >= frameDuration && totalFrames > 0) {
         animationTimer -= frameDuration;
         currentFrame = (currentFrame + 1) % totalFrames;
     }
+    if (position.y > GameConstants::WORLD_HEIGHT) {
+        position = { 100.0f, 100.0f }; 
+        velocity = { 0.0f, 0.0f };     
+        isOnGround = false;
+    }
 }
+
 
 void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     SDL_Texture* tex = nullptr;

@@ -165,7 +165,7 @@ bool Map::checkCollision(const SDL_FRect& playerRect) {
                 float centerX = interLeft + interWidth / 2.0f;
                 float centerY = interTop + interHeight / 2.0f;
 
-                cout << "Intersection center: (" << centerX << ", " << centerY << ")\n";  //In ra de de debug ne nha.  in ra tam vung chong lan
+                //cout << "Intersection center: (" << centerX << ", " << centerY << ")\n";  //In ra de de debug ne nha.  in ra tam vung chong lan
                 return true;
             }
         }

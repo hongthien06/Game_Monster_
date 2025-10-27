@@ -201,11 +201,12 @@ void Player::UpdatePlayerAnimation(float deltaTime) {
 }
 
 // UPDATE TỔNG THỂ
-void Player::Update(float deltaTime) {
+void Player::Update(float deltaTime, Map &map) {
     // ✅ GỌI Character::Update() TRƯỚC để xử lý di chuyển
     if (canMove) {
-        Character::Update(deltaTime);
+        Character::Update(deltaTime, map);
     }
+        
 
     // Xử lý input (attack, shot)
     HandleInput();
