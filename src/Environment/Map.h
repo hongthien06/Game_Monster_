@@ -38,11 +38,13 @@ public:
 
     // ===== Getter =====
     SDL_FPoint GetPlayerSpawn();
+    bool checkCollision(const SDL_FRect& playerRect);    // Kiem tra va cham voi dat nha Duc Anh
 
 private:
     // ===== Internal helper functions =====
     SDL_Texture* LoadTexture(const string& file);
     void LoadTileLayers(const json& mapData);
+   
     void LoadCollisionLayer(const json& mapData);
     void LoadObjects(const json& mapData);
 

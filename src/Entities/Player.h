@@ -52,7 +52,7 @@ public:
 
     virtual ~Player();
 
-    virtual void Update(float deltaTime) override;
+    virtual void Update(float deltaTime, Map& map) override; 
 
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
     void TakeDamage(int damage);

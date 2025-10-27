@@ -104,7 +104,8 @@ void Game::update(float deltaTime) {
     SDL_PumpEvents();
 
     // Cap nhat chuyen dong, hoat anh nhan vat
-    if (player) player->Update(deltaTime);
+    if (player && map)
+        player->Update(deltaTime, *map);
 
     camera.update(player->GetPosition(), deltaTime);
 }
