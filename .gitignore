@@ -12,6 +12,8 @@
 /[Bb]uild/
 /[Dd]ebug/
 /[Rr]elease/
+/Debug/
+/Release/
 /x64/
 /x86/
 **/[Oo]bj/
@@ -26,6 +28,7 @@
 *.pdb
 *.tlog
 *.log
+
 
 # ======================================================
 # 🎯 Giữ lại thư viện và include trong vendor
