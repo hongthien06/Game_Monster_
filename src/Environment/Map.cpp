@@ -43,16 +43,22 @@ bool Map::loadMap(const string& filename) {
     mapHeight = mapData["height"];
 
     // Load tileset
-     std::filesystem::path mapDir = std::filesystem::path(filename).parent_path();
-    std::filesystem::path tilesetFullPath = mapDir / mapData["tilesets"][0]["image"].get<std::string>();
-
-    tilesetTexture = LoadTexture(tilesetFullPath.string());
+    string tilesetPath = mapData["tilesets"][0]["image"].get<string>();
+    // Nếu đường dẫn là relative path, thêm đường dẫn thư mục map
+    if (tilesetPath[0] != '/' && tilesetPath[1] != ':') {  // Không phải absolute path
+        size_t lastSlash = filename.find_last_of("/\\");
+        if (lastSlash != string::npos) {
+            tilesetPath = filename.substr(0, lastSlash + 1) + tilesetPath;
+        }
+    }
+    
+    tilesetTexture = LoadTexture(tilesetPath);
     if (!tilesetTexture) {
-        cerr << "Failed to load tileset: " << tilesetFullPath.string() << endl;
+        cerr << "Failed to load tileset: " << tilesetPath << endl;
         return false;
     }
     
-    // T�nh s? c?t trong tileset
+    // T�nh s? c?t trong tileset
     int imageWidth = mapData["tilesets"][0]["imagewidth"];
     tilesetColumns = imageWidth / tileWidth;
 
@@ -80,9 +86,9 @@ SDL_Texture* Map::LoadTexture(const string& file) {
 
 void Map::LoadTileLayers(const json& mapData) {
     for (auto& layer : mapData["layers"]) {
-        if (layer["type"] == "tilelayer") {   // "tilelayer" l� lo?i layer ch?a d? li?u tile
+        if (layer["type"] == "tilelayer") {   // "tilelayer" l� lo?i layer ch?a d? li?u tile
             TileLayer tileLayer;
-            tileLayer.name = layer["name"];   // T�n layer
+            tileLayer.name = layer["name"];   // T�n layer
             tileLayer.width = layer["width"];
             tileLayer.height = layer["height"];
             tileLayer.data = layer["data"].get<vector<int>>();
@@ -127,7 +133,7 @@ void Map::LoadObjects(const json& mapData) {
     for (auto& layer : mapData["layers"]) {
         if (layer["type"] == "objectgroup" && layer["name"] == "Spawn") {
             for (auto& obj : layer["objects"]) {
-                // Duy?t qua properties d? t�m "Player_1"
+                // Duyet qua properties d? t�m "Player_1"
                 if (obj.contains("properties")) {
                     for (auto& prop : obj["properties"]) {
                         if (prop["name"] == "Player_1") {
@@ -141,6 +147,32 @@ void Map::LoadObjects(const json& mapData) {
         }
     }
 }
+
+//Ham de check va cham voi nen dat!!
+bool Map::checkCollision(const SDL_FRect& playerRect) {
+    for (auto& tile : collisions) {
+        if (SDL_HasRectIntersectionFloat(&playerRect, &tile.rect)) {
+            // Tinh thu cong vung giao nhau cua hai hitbox
+            float interLeft   = max(playerRect.x, tile.rect.x);
+            float interTop    = max(playerRect.y, tile.rect.y);
+            float interRight  = min(playerRect.x + playerRect.w, tile.rect.x + tile.rect.w);
+            float interBottom = min(playerRect.y + playerRect.h, tile.rect.y + tile.rect.h);
+
+            float interWidth  = interRight - interLeft;
+            float interHeight = interBottom - interTop;
+
+            if (interWidth > 0 && interHeight > 0) {
+                float centerX = interLeft + interWidth / 2.0f;
+                float centerY = interTop + interHeight / 2.0f;
+
+                cout << "Intersection center: (" << centerX << ", " << centerY << ")\n";  //In ra de de debug ne nha.  in ra tam vung chong lan
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
 
 // ===================== GET PLAYER SPAWN =====================
 
@@ -163,7 +195,7 @@ void Map::drawMap(const glm::vec2& cameraOffset) {
                 int tileID = layer.data[y * layer.width + x];
                 if (tileID == 0) continue; // Tile r?ng
 
-                tileID--; // Tiled b?t d?u t? 1
+                tileID--; // Tiled bat dau tu 1
 
                 SDL_FRect src{
                     static_cast<float>((tileID % tilesetColumns) * tileWidth),
