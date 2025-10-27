@@ -34,8 +34,32 @@ namespace GameConstants {
     constexpr float GRAVITY = 800.0f;
     constexpr float JUMP_SPEED = 250.0f;
     constexpr float PLAYER_HEIGHT = 32.0f;
+    constexpr float JUMP_FRAME_DURATION = 0.12f;
     constexpr int JUMP_FRAME_WIDTH = 128;
     constexpr int JUMP_FRAME_HEIGHT = 128;
+
+    // Tan Cong
+    constexpr int ATTACK_FRAMES = 4;
+    constexpr float ATTACK_FRAME_DURATION = 0.07f;
+    constexpr int ATTACK_FRAME_WIDTH = 128;
+    constexpr int ATTACK_FRAME_HEIGHT = 128;
+
+    // Ban
+    constexpr int SHOT_FRAMES = 14;
+    constexpr float SHOT_FRAME_DURATION = 0.08f;
+    constexpr int SHOT_FRAME_WIDTH = 128;
+    constexpr int SHOT_FRAME_HEIGHT = 128;
+
+    // Chay mau
+    constexpr int HURT_FRAMES = 3;
+    constexpr int HURT_FRAME_WIDTH = 128;
+    constexpr int HURT_FRAME_HEIGHT = 128;
+
+    // Chet
+    constexpr int DEAD_FRAMES = 3;
+    constexpr float DEAD_FRAME_DURATION = 0.15f;
+    constexpr int DEAD_FRAME_WIDTH = 128;
+    constexpr int DEAD_FRAME_HEIGHT = 128;
 
     // Gia tri chuyen dong
     constexpr float WALK_SPEED = 80.0f;

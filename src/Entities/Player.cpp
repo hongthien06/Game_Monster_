@@ -101,10 +101,10 @@ void Player::UpdatePlayerState(float deltaTime) {
     if (isAttacking) {
         int totalFrames = 0;
         if (playerState == PlayerState::STATE_ATTACK) {
-            totalFrames = 8;
+            totalFrames = GameConstants::ATTACK_FRAMES;
         }
         else if (playerState == PlayerState::STATE_SHOT) {
-            totalFrames = 6;
+            totalFrames = GameConstants::SHOT_FRAMES;
         }
 
         // Nếu đã chạy hết animation
@@ -163,23 +163,23 @@ void Player::UpdatePlayerAnimation(float deltaTime) {
         break;
     case PlayerState::STATE_JUMP:
         totalFrames = GameConstants::JUMP_FRAMES;
-        frameDuration = 0.1f;
+        frameDuration = GameConstants::JUMP_FRAME_DURATION;
         break;
     case PlayerState::STATE_ATTACK:
-        totalFrames = 8;
-        frameDuration = 0.07f;
+        totalFrames = GameConstants::ATTACK_FRAMES;
+        frameDuration = GameConstants::ATTACK_FRAME_DURATION;
         break;
     case PlayerState::STATE_SHOT:
-        totalFrames = 6;
-        frameDuration = 0.08f;
+        totalFrames = GameConstants::SHOT_FRAMES;
+        frameDuration = GameConstants::SHOT_FRAME_DURATION;
         break;
     case PlayerState::STATE_HURT:
-        totalFrames = 4;
+        totalFrames = GameConstants::HURT_FRAMES;
         frameDuration = hurtDuration / 4.0f;
         break;
     case PlayerState::STATE_DEAD:
-        totalFrames = 6;
-        frameDuration = 0.15f;
+        totalFrames = GameConstants::DEAD_FRAMES;
+        frameDuration = GameConstants::DEAD_FRAME_DURATION;
         break;
     }
 
@@ -220,8 +220,8 @@ void Player::Update(float deltaTime) {
 //RENDER
 void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     SDL_Texture* currentTexture = nullptr;
-    int frameWidth = 64;
-    int frameHeight = 64;
+    int frameWidth = 0;
+    int frameHeight = 0;
     int totalFrames = 0;
 
     switch (playerState) {
@@ -251,27 +251,27 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         break;
     case PlayerState::STATE_SHOT:
         currentTexture = shotTex;
-        frameWidth = 64;
-        frameHeight = 64;
-        totalFrames = 6;
+        frameWidth = GameConstants::SHOT_FRAME_WIDTH;
+        frameHeight = GameConstants::SHOT_FRAME_HEIGHT;
+        totalFrames = GameConstants::SHOT_FRAMES;
         break;
     case PlayerState::STATE_ATTACK:
         currentTexture = attackTex;
-        frameWidth = 64;
-        frameHeight = 64;
-        totalFrames = 8;
+        frameWidth = GameConstants::ATTACK_FRAME_WIDTH;
+        frameHeight = GameConstants::ATTACK_FRAME_HEIGHT;
+        totalFrames = GameConstants::ATTACK_FRAMES;
         break;
     case PlayerState::STATE_HURT:
         currentTexture = hurtTex;
-        frameWidth = 64;
-        frameHeight = 64;
-        totalFrames = 4;
+        frameWidth = GameConstants::HURT_FRAME_WIDTH;
+        frameHeight = GameConstants::HURT_FRAME_HEIGHT;
+        totalFrames = GameConstants::HURT_FRAMES;
         break;
     case PlayerState::STATE_DEAD:
         currentTexture = deadTex;
-        frameWidth = 64;
-        frameHeight = 64;
-        totalFrames = 6;
+        frameWidth = GameConstants::DEAD_FRAME_WIDTH;
+        frameHeight = GameConstants::DEAD_FRAME_HEIGHT;
+        totalFrames = GameConstants::DEAD_FRAMES;
         break;
     }
 
@@ -294,8 +294,8 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     SDL_FRect dstRect = {
         position.x - cameraOffset.x,
         position.y - cameraOffset.y,
-        64.0f,
-        64.0f
+        48.0f,
+        48.0f
     };
 
     // Vẽ sprite với flip nếu cần

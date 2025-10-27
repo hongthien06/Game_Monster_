@@ -96,7 +96,7 @@ void Character::Update(float deltaTime) {
     case CharacterState::STATE_IDLE: totalFrames = GameConstants::IDLE_FRAMES; frameDuration = GameConstants::IDLE_FRAME_DURATION; break;
     case CharacterState::STATE_WALKING: totalFrames = GameConstants::WALK_FRAMES; frameDuration = GameConstants::WALK_FRAME_DURATION; break;
     case CharacterState::STATE_RUNNING: totalFrames = GameConstants::RUN_FRAMES; frameDuration = GameConstants::RUN_FRAME_DURATION; break;
-    case CharacterState::STATE_JUMPING: totalFrames = GameConstants::JUMP_FRAMES; frameDuration = 0.12f; break;
+    case CharacterState::STATE_JUMPING: totalFrames = GameConstants::JUMP_FRAMES; frameDuration = GameConstants::JUMP_FRAME_DURATION; break;
     }
 
     animationTimer += deltaTime;
@@ -120,7 +120,7 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (!tex) return;
 
     SDL_FRect src = { (float)currentFrame * frameWidth, 0.0f, (float)frameWidth, (float)frameHeight };
-    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 32.0f, 32.0f };
+    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 48.0f, 48.0f };
 
     SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr, flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
