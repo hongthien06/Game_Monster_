@@ -43,6 +43,7 @@ private:
     // ===== Internal helper functions =====
     SDL_Texture* LoadTexture(const string& file);
     void LoadTileLayers(const json& mapData);
+    bool checkCollision(const SDL_FRect& playerRect);    // Kiem tra va cham voi dat nha Duc Anh
     void LoadCollisionLayer(const json& mapData);
     void LoadObjects(const json& mapData);
 
