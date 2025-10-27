@@ -9,7 +9,7 @@ namespace GameConstants {
     constexpr int LOGICAL_WIDTH = 400;
     constexpr int LOGICAL_HEIGHT = 300;
     // Toa do mat dat
-    constexpr float FLOOR_Y = LOGICAL_HEIGHT - 32.0f;
+    constexpr float FLOOR_Y = LOGICAL_HEIGHT- 28.0f;
 
     // Dung yen
     constexpr int IDLE_FRAMES = 4;
