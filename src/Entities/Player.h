@@ -62,7 +62,7 @@ private:
     void LoadAllTextures(SDL_Renderer* renderer);
     void UpdateProjectiles(float deltaTime);
     glm::vec2 GetArrowSpawnPosition() const;
-    void SpawnArrow();            // THÊM MỚI: Tạo mũi tên
+    void SpawnArrow();           
 
 public:
     // ===== CONSTRUCTOR / DESTRUCTOR =====
@@ -95,5 +95,5 @@ public:
     void SetShootCooldown(float cooldown) { shootCooldown = cooldown; }
     void SetProjectileDamage(int damage) { projectileDamage = damage; }
     void SetProjectileSpeed(float speed) { projectileSpeed = speed; }
-    void SetArrowSpawnFrame(int frame) { arrowSpawnFrame = frame; }  // THÊM MỚI
+    void SetArrowSpawnFrame(int frame) { arrowSpawnFrame = frame; }  
 };

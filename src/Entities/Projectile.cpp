@@ -26,7 +26,7 @@ Projectile::Projectile(SDL_Renderer* renderer, glm::vec2 startPos,
     trailSpawnTimer(0.0f),
     maxTrailPoints(15)
 {
-    // Load texture - FIX: Chỉ dùng 1 đường dẫn
+    // Load texture
     texture = IMG_LoadTexture(renderer, "assets/images/Player/Arrow.png");
     if (!texture) {
         std::cerr << "ERROR: Cannot load arrow texture!\n";
@@ -173,24 +173,4 @@ void Projectile::RenderTrail(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
         SDL_RenderFillRect(renderer, &trailRect);
     }
-}
-
-SDL_FRect Projectile::GetBoundingBox() const {
-    return SDL_FRect{
-        position.x - 6.0f,
-        position.y - 2.0f,
-        12.0f,
-        4.0f
-    };
-}
-
-bool Projectile::CheckCollision(const SDL_FRect& target) {
-    if (!isActive) return false;
-
-    SDL_FRect myBox = GetBoundingBox();
-    return SDL_HasRectIntersectionFloat(&myBox, &target);
-}
-
-void Projectile::OnHit() {
-    isActive = false;
 }

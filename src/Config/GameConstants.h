@@ -40,13 +40,13 @@ namespace GameConstants {
 
     // Tan Cong
     constexpr int ATTACK_FRAMES = 4;
-    constexpr float ATTACK_FRAME_DURATION = 0.07f;
+    constexpr float ATTACK_FRAME_DURATION = 0.08f;
     constexpr int ATTACK_FRAME_WIDTH = 128;
     constexpr int ATTACK_FRAME_HEIGHT = 128;
 
     // Ban
     constexpr int SHOT_FRAMES = 14;
-    constexpr float SHOT_FRAME_DURATION = 0.08f;
+    constexpr float SHOT_FRAME_DURATION = 0.05f;
     constexpr int SHOT_FRAME_WIDTH = 128;
     constexpr int SHOT_FRAME_HEIGHT = 128;
 

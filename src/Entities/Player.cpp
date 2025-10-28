@@ -31,10 +31,10 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     shootCooldown(0.3f),
     shootTimer(0.0f),
     projectileDamage(15),
-    projectileSpeed(500.0f),
+    projectileSpeed(600.0f),
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
-    arrowSpawnFrame(12)  // Spawn ở frame
+    arrowSpawnFrame(13)  // Spawn ở frame
 {
     LoadAllTextures(renderer);
 }
@@ -207,7 +207,6 @@ void Player::UpdatePlayerAnimation(float deltaTime) {
             playerCurrentFrame = (playerCurrentFrame + 1) % totalFrames;
         }
 
-        // ✅ THÊM MỚI: Kiểm tra spawn arrow tại frame cụ thể
         if (playerState == PlayerState::STATE_SHOT &&
             playerCurrentFrame == arrowSpawnFrame) {
             SpawnArrow();
@@ -384,7 +383,6 @@ void Player::Shot() {
     canMove = false;
     shootTimer = shootCooldown;
 
-    // CHỈ đặt cờ, CHƯA tạo mũi tên
     shouldSpawnArrow = true;
 
     std::cout << "Player bat dau len cung!\n";
@@ -398,9 +396,8 @@ void Player::SpawnArrow() {
 
     std::cout << "Tao mui ten tai frame " << playerCurrentFrame << "!\n";
 
-    // Điều chỉnh vị trí spawn - THẤP HƠN, NGANG NHÂN VẬT
     float offsetX = flipHorizontal ? -15.0f : 15.0f;
-    glm::vec2 spawnPos = position + glm::vec2(24.0f + offsetX, 36.0f);  // Y = 32 (thấp hơn, gần ngực)
+    glm::vec2 spawnPos = position + glm::vec2(24.0f + offsetX, 36.0f);  
 
     // Bắn ngang theo hướng player đang nhìn
     glm::vec2 direction = glm::vec2(flipHorizontal ? -1.0f : 1.0f, 0.0f);
