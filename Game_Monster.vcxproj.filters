@@ -588,6 +588,12 @@
     <ClInclude Include="src\Systems\PhysicsSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Entities\Trap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Projectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -648,6 +654,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Systems\PhysicsSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Trap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Entities\Projectile.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

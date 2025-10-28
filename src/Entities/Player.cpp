@@ -1,15 +1,20 @@
 ﻿#include "Player.h"
 #include <algorithm>
 #include <iostream>
+#include <cmath>
 
-//CONSTRUCTOR
+// ===== CONSTRUCTOR =====
 Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     : Character(renderer, startPos,
-        "assets/images/Player/Idle.png",   
+        "assets/images/Player/Idle.png",
         "assets/images/Player/Walk.png",
         "assets/images/Player/Run.png",
         "assets/images/Player/Jump.png"),
-    shotTex(nullptr), attackTex(nullptr), hurtTex(nullptr), deadTex(nullptr),
+    shotTex(nullptr),
+    attackTex(nullptr),
+    hurtTex(nullptr),
+    deadTex(nullptr),
+    renderer(renderer),
     playerState(PlayerState::STATE_IDLE),
     previousPlayerState(PlayerState::STATE_IDLE),
     playerCurrentFrame(0),
@@ -22,43 +27,46 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     attackCooldown(0.5f),
     attackTimer(0.0f),
     hurtDuration(0.3f),
-    hurtTimer(0.0f)
+    hurtTimer(0.0f),
+    shootCooldown(0.3f),
+    shootTimer(0.0f),
+    projectileDamage(15),
+    projectileSpeed(500.0f),
+    mouseWorldPos(0.0f, 0.0f),
+    shouldSpawnArrow(false),
+    arrowSpawnFrame(12)  // Spawn ở frame
 {
     LoadAllTextures(renderer);
 }
 
-//  DESTRUCTOR 
+// ===== DESTRUCTOR =====
 Player::~Player() {
-    // Giải phóng các texture bổ sung 
     if (shotTex) SDL_DestroyTexture(shotTex);
     if (attackTex) SDL_DestroyTexture(attackTex);
     if (hurtTex) SDL_DestroyTexture(hurtTex);
     if (deadTex) SDL_DestroyTexture(deadTex);
+    projectiles.clear();
 }
 
-//  LOAD TEXTURES 
+// ===== LOAD TEXTURES =====
 void Player::LoadAllTextures(SDL_Renderer* renderer) {
     shotTex = IMG_LoadTexture(renderer, "assets/images/Player/Shot.png");
     attackTex = IMG_LoadTexture(renderer, "assets/images/Player/Attack.png");
     hurtTex = IMG_LoadTexture(renderer, "assets/images/Player/Hurt.png");
     deadTex = IMG_LoadTexture(renderer, "assets/images/Player/Dead.png");
 
-    // Kiểm tra lỗi load texture
     if (!shotTex || !attackTex || !hurtTex || !deadTex) {
         std::cerr << "ERROR: Khong the load mot hoac nhieu texture bo sung cua Player!\n";
-        std::cerr << "Kiem tra duong dan: assets/images/Player/\n";
     }
 
-    // Thiết lập scale mode
     if (shotTex) SDL_SetTextureScaleMode(shotTex, SDL_SCALEMODE_NEAREST);
     if (attackTex) SDL_SetTextureScaleMode(attackTex, SDL_SCALEMODE_NEAREST);
     if (hurtTex) SDL_SetTextureScaleMode(hurtTex, SDL_SCALEMODE_NEAREST);
     if (deadTex) SDL_SetTextureScaleMode(deadTex, SDL_SCALEMODE_NEAREST);
 }
 
-//  XỬ LÝ INPUT 
+// ===== HANDLE INPUT =====
 void Player::HandleInput() {
-    // Không xử lý input nếu không thể di chuyển 
     if (!canMove) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
@@ -74,9 +82,8 @@ void Player::HandleInput() {
     }
 }
 
-//  CẬP NHẬT TRẠNG THÁI 
+// ===== UPDATE PLAYER STATE =====
 void Player::UpdatePlayerState(float deltaTime) {
-    // Nếu đã chết, trạng thái cố định là DEAD
     if (!isAlive) {
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
@@ -85,6 +92,10 @@ void Player::UpdatePlayerState(float deltaTime) {
 
     if (attackTimer > 0) {
         attackTimer -= deltaTime;
+    }
+
+    if (shootTimer > 0) {
+        shootTimer -= deltaTime;
     }
 
     // Xử lý trạng thái HURT
@@ -115,6 +126,8 @@ void Player::UpdatePlayerState(float deltaTime) {
         }
         return;
     }
+
+    // Đồng bộ với Character state
     if (!isOnGround) {
         playerState = PlayerState::STATE_JUMP;
     }
@@ -136,15 +149,14 @@ void Player::UpdatePlayerState(float deltaTime) {
     }
 }
 
+// ===== UPDATE ANIMATION =====
 void Player::UpdatePlayerAnimation(float deltaTime) {
-    // Reset animation nếu trạng thái thay đổi
     if (playerState != previousPlayerState) {
         playerCurrentFrame = 0;
         playerAnimationTimer = 0.0f;
         previousPlayerState = playerState;
     }
 
-    // Xác định số frame và tốc độ animation dựa trên trạng thái
     int totalFrames = 0;
     float frameDuration = 0.0f;
 
@@ -183,43 +195,68 @@ void Player::UpdatePlayerAnimation(float deltaTime) {
         break;
     }
 
-    // Cập nhật animation timer
     playerAnimationTimer += deltaTime;
 
-    // Chuyển frame khi đủ thời gian
     if (playerAnimationTimer >= frameDuration && totalFrames > 0) {
         playerAnimationTimer -= frameDuration;
 
-        // Animation chết không lặp lại (dừng ở frame cuối)
         if (playerState == PlayerState::STATE_DEAD) {
             playerCurrentFrame = std::min(playerCurrentFrame + 1, totalFrames - 1);
         }
         else {
             playerCurrentFrame = (playerCurrentFrame + 1) % totalFrames;
         }
+
+        // ✅ THÊM MỚI: Kiểm tra spawn arrow tại frame cụ thể
+        if (playerState == PlayerState::STATE_SHOT &&
+            playerCurrentFrame == arrowSpawnFrame) {
+            SpawnArrow();
+        }
     }
 }
 
-// UPDATE TỔNG THỂ
-void Player::Update(float deltaTime, Map &map) {
-    // ✅ GỌI Character::Update() TRƯỚC để xử lý di chuyển
+// ===== UPDATE PROJECTILES =====
+void Player::UpdateProjectiles(float deltaTime) {
+    for (auto& proj : projectiles) {
+        proj->Update(deltaTime);
+    }
+
+    projectiles.erase(
+        std::remove_if(projectiles.begin(), projectiles.end(),
+            [](const std::unique_ptr<Projectile>& p) {
+                return !p->IsActive();
+            }),
+        projectiles.end()
+    );
+}
+
+// ===== MAIN UPDATE =====
+void Player::Update(float deltaTime, Map& map) {
+    // Gọi Character::Update() để xử lý di chuyển
     if (canMove) {
         Character::Update(deltaTime, map);
     }
-        
 
-    // Xử lý input (attack, shot)
+    // Xử lý input
     HandleInput();
 
-    // Cập nhật trạng thái Player (đồng bộ với Character)
+    // Cập nhật trạng thái
     UpdatePlayerState(deltaTime);
 
     // Cập nhật animation
     UpdatePlayerAnimation(deltaTime);
+
+    // Cập nhật projectiles
+    UpdateProjectiles(deltaTime);
 }
 
-//RENDER
+// ===== RENDER =====
 void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
+    // Render projectiles trước
+    for (auto& proj : projectiles) {
+        proj->Render(renderer, cameraOffset);
+    }
+
     SDL_Texture* currentTexture = nullptr;
     int frameWidth = 0;
     int frameHeight = 0;
@@ -276,14 +313,10 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         break;
     }
 
-    if (!currentTexture) {
-        std::cerr << "ERROR: currentTexture is NULL for state " << (int)playerState << "\n";
-        return;
-    }
+    if (!currentTexture) return;
 
     int safeFrame = std::min(playerCurrentFrame, totalFrames - 1);
 
-    // Tính toán vùng source (frame hiện tại trong sprite sheet)
     SDL_FRect srcRect = {
         (float)(safeFrame * frameWidth),
         0.0f,
@@ -291,7 +324,6 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         (float)frameHeight
     };
 
-    // Tính toán vùng destination (vị trí vẽ trên màn hình)
     SDL_FRect dstRect = {
         position.x - cameraOffset.x,
         position.y - cameraOffset.y,
@@ -299,7 +331,6 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         48.0f
     };
 
-    // Vẽ sprite với flip nếu cần
     SDL_RenderTextureRotated(
         renderer,
         currentTexture,
@@ -311,8 +342,7 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     );
 }
 
-//  COMBAT METHODS 
-
+// ===== COMBAT: TAKE DAMAGE =====
 void Player::TakeDamage(int damage) {
     if (!isAlive || playerState == PlayerState::STATE_HURT) return;
 
@@ -326,14 +356,14 @@ void Player::TakeDamage(int damage) {
         std::cout << "Player da chet!\n";
     }
     else {
-        // Chuyển sang trạng thái hurt
         playerState = PlayerState::STATE_HURT;
         hurtTimer = hurtDuration;
         canMove = false;
-        std::cout << "Player nhan " << damage << " sat thuong! HP con lai:" << health << "\n";
+        std::cout << "Player nhan " << damage << " sat thuong! HP: " << health << "\n";
     }
 }
 
+// ===== COMBAT: ATTACK =====
 void Player::Attack() {
     if (attackTimer > 0 || !canMove || !isAlive) return;
 
@@ -345,20 +375,79 @@ void Player::Attack() {
     std::cout << "Player tan cong can chien!\n";
 }
 
+// ===== COMBAT: SHOT =====
 void Player::Shot() {
-    if (attackTimer > 0 || !canMove || !isAlive) return;
+    if (shootTimer > 0 || !canMove || !isAlive) return;
 
     playerState = PlayerState::STATE_SHOT;
     isAttacking = true;
     canMove = false;
-    attackTimer = attackCooldown;
+    shootTimer = shootCooldown;
 
-    std::cout << "Player ban ten!\n";
+    // CHỈ đặt cờ, CHƯA tạo mũi tên
+    shouldSpawnArrow = true;
+
+    std::cout << "Player bat dau len cung!\n";
 }
 
+// ===== SPAWN ARROW =====
+void Player::SpawnArrow() {
+    if (!shouldSpawnArrow) return;
+
+    shouldSpawnArrow = false; // Reset cờ
+
+    std::cout << "Tao mui ten tai frame " << playerCurrentFrame << "!\n";
+
+    // Điều chỉnh vị trí spawn - THẤP HƠN, NGANG NHÂN VẬT
+    float offsetX = flipHorizontal ? -15.0f : 15.0f;
+    glm::vec2 spawnPos = position + glm::vec2(24.0f + offsetX, 36.0f);  // Y = 32 (thấp hơn, gần ngực)
+
+    // Bắn ngang theo hướng player đang nhìn
+    glm::vec2 direction = glm::vec2(flipHorizontal ? -1.0f : 1.0f, 0.0f);
+
+    // Tạo projectile
+    auto projectile = std::make_unique<Projectile>(
+        renderer,
+        spawnPos,
+        direction,
+        projectileSpeed,
+        projectileDamage
+    );
+
+    projectile->SetTrailColor({ 100, 200, 255, 255 });
+    projectiles.push_back(std::move(projectile));
+}
+
+// ===== HEAL =====
 void Player::Heal(int amount) {
     if (!isAlive) return;
 
     health = std::min(health + amount, maxHealth);
-    std::cout << "Player hoi " << amount << " HP! HP hien tai: " << health << "\n";
+    std::cout << "Player hoi " << amount << " HP! HP: " << health << "\n";
+}
+
+// ===== MOUSE HANDLING =====
+void Player::UpdateMousePosition(float mouseScreenX, float mouseScreenY, glm::vec2 cameraOffset) {
+    mouseWorldPos.x = mouseScreenX + cameraOffset.x;
+    mouseWorldPos.y = mouseScreenY + cameraOffset.y;
+}
+
+void Player::HandleMouseClick(float mouseScreenX, float mouseScreenY, glm::vec2 cameraOffset) {
+    UpdateMousePosition(mouseScreenX, mouseScreenY, cameraOffset);
+    Shot();
+}
+
+// ===== GET BOUNDING BOX =====
+SDL_FRect Player::GetBoundingBox() const {
+    return SDL_FRect{
+        position.x + 8.0f,
+        position.y + 8.0f,
+        32.0f,
+        40.0f
+    };
+}
+
+// ===== GET ARROW SPAWN POSITION =====
+glm::vec2 Player::GetArrowSpawnPosition() const {
+    return position + glm::vec2(24.0f, 24.0f);
 }

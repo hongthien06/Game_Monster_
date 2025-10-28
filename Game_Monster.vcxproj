@@ -155,6 +155,8 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClInclude Include="src\Entities\Enemy.h" />
     <ClInclude Include="src\Entities\Minion.h" />
     <ClInclude Include="src\Entities\Player.h" />
+    <ClInclude Include="src\Entities\Projectile.h" />
+    <ClInclude Include="src\Entities\Trap.h" />
     <ClInclude Include="src\Environment\Item.h" />
     <ClInclude Include="src\Environment\Map.h" />
     <ClInclude Include="src\Environment\StageEffect.h" />
@@ -351,6 +353,8 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClCompile Include="src\Entities\Enemy.cpp" />
     <ClCompile Include="src\Entities\Minion.cpp" />
     <ClCompile Include="src\Entities\Player.cpp" />
+    <ClCompile Include="src\Entities\Projectile.cpp" />
+    <ClCompile Include="src\Entities\Trap.cpp" />
     <ClCompile Include="src\Environment\Item.cpp" />
     <ClCompile Include="src\Environment\Map.cpp" />
     <ClCompile Include="src\Environment\StageEffect.cpp" />
