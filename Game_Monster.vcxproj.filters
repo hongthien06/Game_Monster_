@@ -540,9 +540,6 @@
     <ClInclude Include="src\Config\AssetPaths.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Config\GameConstants.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Config\Settings.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -592,6 +589,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Entities\Projectile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Environment\ItemManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -660,6 +660,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Entities\Projectile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Environment\ItemManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

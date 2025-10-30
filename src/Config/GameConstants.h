@@ -70,4 +70,10 @@ namespace GameConstants {
     // Gia tri camera
     constexpr float WORLD_WIDTH = 2000.0f;
     constexpr float WORLD_HEIGHT = 600.0f;
+
+    // Item coin
+    constexpr int COIN_FRAMES = 9;
+    constexpr float COIN_FRAME_DURATION = 0.1f;
+    constexpr int COIN_FRAME_WIDTH = 20;
+    constexpr int COIN_FRAME_HEIGHT = 20;
 }

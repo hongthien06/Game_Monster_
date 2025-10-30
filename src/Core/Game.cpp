@@ -5,7 +5,9 @@
 #include "Camera.h"
 #include "../Entities/Player.h"
 #include <iostream>
+#include "../Environment/Item.h"
 #include <algorithm>
+
 
 // Khoi tao
 Game::Game()
@@ -18,10 +20,10 @@ Game::Game()
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
         GameConstants::WORLD_WIDTH,
-        GameConstants::WORLD_HEIGHT)
+        GameConstants::WORLD_HEIGHT),
+    coinTex(nullptr)
 {
 }
-
 
 // Giai phong tai nguyen
 Game::~Game() {
@@ -56,6 +58,9 @@ bool Game::init() {
         GameConstants::LOGICAL_HEIGHT,
         SDL_LOGICAL_PRESENTATION_STRETCH);
 
+    //tao Item
+    if (!loadItemTextures()) return false;
+
     // Tao nhan vat 
     player = new Player(renderer);
 
@@ -64,6 +69,9 @@ bool Game::init() {
     if (!map->loadMap("assets/tileset/Map_game.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
     }
+
+    spawnInitialItems();
+
 
     return true;
 }
@@ -107,6 +115,16 @@ void Game::update(float deltaTime) {
     if (player && map)
         player->Update(deltaTime, *map);
 
+    //cap nhat tat ca item
+    for (const auto& item : items) {
+        if (!item->IsCollected()) {
+            item->Update(deltaTime);
+        }
+    }
+
+    //kiem tra nhat item
+    checkItemCollisions();
+
     camera.update(player->GetPosition(), deltaTime);
 }
 
@@ -118,6 +136,9 @@ void Game::render() {
     glm::vec2 offset = camera.getOffset();
     if (player) player->Render(renderer, offset);
     if (map) map->drawMap(offset);
+    for (const auto& item : items) {
+        item->Render(renderer, offset);
+    }
 
     SDL_RenderPresent(renderer);
 }
@@ -127,9 +148,63 @@ void Game::cleanup() {
 
     delete player;
     delete map;
+    items.clear();
 
+    SDL_DestroyTexture(coinTex);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     SDL_Quit();
 }
 
+
+bool Game::loadItemTextures() {
+    coinTex = IMG_LoadTexture(renderer, "assets/items/coin2_20x20.png");
+    if (!coinTex) {
+        std::cerr << "ERROR: Khong the load Coin texture: " << SDL_GetError() << "\n";
+        return false;
+    }
+    SDL_SetTextureScaleMode(coinTex, SDL_SCALEMODE_NEAREST);
+    return true;
+}
+
+// Thêm hàm tạo Item
+void Game::spawnInitialItems() {
+    items.push_back(std::make_unique<Item>(glm::vec2(280.0f, 260.0f), coinTex, ItemType::COIN));
+    items.push_back(std::make_unique<Item>(glm::vec2(520.0f, 160.0f), coinTex, ItemType::COIN));
+    items.push_back(std::make_unique<Item>(glm::vec2(70.0f, 130.0f), coinTex, ItemType::COIN));
+}
+
+void Game::checkItemCollisions() {
+    if (!player) return;
+
+    SDL_FRect playerBox = player->GetBoundingBox();
+
+
+    //loại bỏ các item đã nhặt
+    items.erase(
+        std::remove_if(items.begin(), items.end(),
+            [&](const std::unique_ptr<Item>& item) {
+                if (!item || item->IsCollected()) return true; // Xóa luôn item đã được đánh dấu nhặt
+
+                SDL_FRect itemBox = item->GetCollider();
+
+                // Kiểm tra va chạm (Collision AABB)
+                bool collided = SDL_HasRectIntersectionFloat(&playerBox, &itemBox);
+
+                (playerBox, itemBox);
+
+                if (collided) {
+                    item->Collect(); // Đánh dấu item đã được nhặt
+
+                    if (item->GetType() == ItemType::COIN) {
+                        // Thêm logic cập nhật điểm số Player ở đây
+                        std::cout << "Player da nhặt Coin!\n";
+                    }
+                    // else if (item->GetType() == ItemType::HEALTH_POTION) player->Heal(20);
+
+                    return true; // Trả về true để xóa Item này khỏi vector
+                }
+                return false; // Không va chạm, giữ lại
+            }),
+        items.end());
+}

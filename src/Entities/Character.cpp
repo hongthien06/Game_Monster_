@@ -97,6 +97,7 @@ void Character::Update(float deltaTime, Map& map) {
     int totalFrames = 0;
     float frameDuration = 0.0f;
 
+
     switch (currentState) {
     case CharacterState::STATE_IDLE: totalFrames = GameConstants::IDLE_FRAMES; frameDuration = GameConstants::IDLE_FRAME_DURATION; break;
     case CharacterState::STATE_WALKING: totalFrames = GameConstants::WALK_FRAMES; frameDuration = GameConstants::WALK_FRAME_DURATION; break;
@@ -132,9 +133,9 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (!tex) return;
 
     // Xac dinh vung cat trong sprite sheet
-    SDL_FRect src = { (float)currentFrame * frameWidth, 0.0f, (float)frameWidth, (float)frameHeight };
+    SDL_FRect src = { 0.0, 0.0f, (float)frameWidth/6, (float)frameHeight/6 };
     // Vi tri ve tren man hinh
-    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 48.0f, 48.0f };
+    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 0, 0};
     // Ve nhan vat
     SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr, flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }

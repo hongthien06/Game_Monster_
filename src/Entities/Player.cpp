@@ -339,6 +339,8 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         nullptr,
         flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE
     );
+
+   
 }
 
 // ===== COMBAT: TAKE DAMAGE =====

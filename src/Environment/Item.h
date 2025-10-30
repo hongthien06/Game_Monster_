@@ -1,11 +1,43 @@
-/*
-Item.h là file header định nghĩa lớp (class) Item – mô tả một vật phẩm (item) trong game, bao gồm:
+#pragma once
+#include <SDL3/SDL.h>
+#include <SDL3_image/SDL_image.h>
+#include <glm/glm.hpp>
 
-vị trí xuất hiện trên bản đồ,
 
-hình ảnh (texture),
+enum class ItemType {
+    COIN,
+    HEALTH_POTION,
+    MANA_POTION
+ 
+};
 
-loại vật phẩm (máu, mana, tiền, vũ khí, v.v.),
+class Item {
+private:
 
-trạng thái (đã nhặt hay chưa),
-*/
+    glm::vec2 position;
+    SDL_Texture* texture;
+    SDL_FRect collider;
+
+    ItemType type;
+    bool isCollected;
+
+    // Thông số Animation 
+    int totalFrames;
+    int currentFrame;
+    float frameDuration;
+    float animationTimer;
+
+public:
+
+    Item(glm::vec2 pos, SDL_Texture* tex, ItemType itemType);
+    ~Item();
+
+    void Update(float deltaTime);
+    void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
+
+    // Getters cho logic va chạm trong ItemManager
+    const SDL_FRect& GetCollider() const { return collider; }
+    ItemType GetType() const { return type; }
+    bool IsCollected() const { return isCollected; }
+    void Collect() { isCollected = true; } // Đánh dấu đã nhặt
+};
