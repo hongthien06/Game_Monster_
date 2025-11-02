@@ -5,7 +5,7 @@
 
 // Khoi tao mac dinh
 Character::Character()
-    : position(0.0f, 0.0f), velocity(0.0f, 0.0f), isOnGround(true),
+    : position(0.0f, 0.0f), velocity(0.0f, 0.0f), isOnGround(true), wasOnGround(false),  /// 1 bien moi duoc them la wasOnGround
     flipHorizontal(false), currentState(CharacterState::STATE_IDLE),
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
     animationTimer(0.0f), idleTex(nullptr), walkTex(nullptr),
@@ -76,6 +76,8 @@ void Character::Update(float deltaTime, Map& map) {
 
     // Cap nhat huong
     if (moveDir) flipHorizontal = (moveDir == -1);
+
+    wasOnGround = isOnGround;      // Them dong nay de tao logic phat am thanh
 
     // Ap dung vat ly
     PhysicsSystem::ApplyPhysics(position, velocity, deltaTime, map, isOnGround);

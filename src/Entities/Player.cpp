@@ -1,5 +1,6 @@
 ﻿#include "Player.h"
 #include <algorithm>
+#include "Audio.h"
 #include <iostream>
 #include <cmath>
 
@@ -127,6 +128,14 @@ void Player::UpdatePlayerState(float deltaTime) {
         return;
     }
 
+// ===== HIỆU ỨNG CHẠM ĐẤT (CÓ COOL-DOWN) =====   ### Khoi nay them vao de nhan vat phat am thanh
+    landedSoundCooldown -= deltaTime;
+
+    if (!wasOnGround && isOnGround && landedSoundCooldown <= 0.0f) {
+        audio.playSound("assets/audio/jump_landed.wav");
+        landedSoundCooldown = 0.10f;   // 150ms cooldown
+    }
+// ###
     // Đồng bộ với Character state
     if (!isOnGround) {
         playerState = PlayerState::STATE_JUMP;

@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <memory>
+#include "Audio.h"
 #include "Character.h"
 #include "Projectile.h"
 
@@ -41,6 +42,9 @@ private:
     float attackTimer;
     float hurtDuration;
     float hurtTimer;
+
+    // ====== AUDIO ======  Them vao de khoi tao doi tuong lop Audio
+    Audio audio;
 
     // ===== SHOOTING SYSTEM =====
     std::vector<std::unique_ptr<Projectile>> projectiles;
