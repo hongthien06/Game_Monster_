@@ -100,17 +100,16 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann;C:\Users\nguyen an\source\repos\Game_Monster_\vendor\SDL3_ttf-3.2.2\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\SDL3\lib\x64;$(SolutionDir)vendor\SDL3_image\lib\x64</AdditionalLibraryDirectories>
-      <AdditionalDependencies>SDL3.lib
-;SDL3_image.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)vendor\SDL3\lib\x64;$(SolutionDir)vendor\SDL3_image\lib\x64;C:\Users\nguyen an\source\repos\Game_Monster_\vendor\SDL3_ttf-3.2.2\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL3.lib;SDL3_image.lib;SDL3_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>cmd /c ^
@@ -139,6 +138,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="EntityUtils.h" />
     <ClInclude Include="src\Components\Animation.h" />
     <ClInclude Include="src\Components\Attack.h" />
     <ClInclude Include="src\Components\Effect.h" />
@@ -157,7 +157,6 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClInclude Include="src\Entities\Projectile.h" />
     <ClInclude Include="src\Entities\Trap.h" />
     <ClInclude Include="src\Environment\Item.h" />
-    <ClInclude Include="src\Environment\ItemManager.h" />
     <ClInclude Include="src\Environment\Map.h" />
     <ClInclude Include="src\Environment\StageEffect.h" />
     <ClInclude Include="src\include\SDL3\SDL.h" />

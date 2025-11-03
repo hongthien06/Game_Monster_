@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <memory>
-#include "Audio.h"
+#include "../Core/Audio.h"
 #include "Character.h"
 #include "Projectile.h"
 
@@ -94,6 +94,8 @@ public:
     PlayerState GetPlayerState() const { return playerState; }
     SDL_FRect GetBoundingBox() const;
     std::vector<std::unique_ptr<Projectile>>& GetProjectiles() { return projectiles; }
+
+    float GetSpriteWidth() const { return 32.0f; }
 
     // ===== SETTERS =====
     void SetShootCooldown(float cooldown) { shootCooldown = cooldown; }

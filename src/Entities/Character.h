@@ -35,6 +35,9 @@ protected:
     int currentFrame;
     float animationTimer;
 
+    int health;
+    int maxHealth;
+
 public:
     Character();
     Character(SDL_Renderer* renderer, glm::vec2 startPos,
@@ -49,4 +52,5 @@ public:
 
     void SetPosition(const glm::vec2& pos);
     glm::vec2 GetPosition() const;
+
 };

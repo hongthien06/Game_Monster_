@@ -1,8 +1,9 @@
 ﻿#include "Player.h"
 #include <algorithm>
-#include "Audio.h"
+#include "../Core/Audio.h"
 #include <iostream>
 #include <cmath>
+#include "EntityUtils.h"
 
 // ===== CONSTRUCTOR =====
 Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
@@ -35,7 +36,7 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     projectileSpeed(600.0f),
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
-    arrowSpawnFrame(13)  // Spawn ở frame
+    arrowSpawnFrame(13)// Spawn ở frame
 {
     LoadAllTextures(renderer);
 }
@@ -320,6 +321,16 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         totalFrames = GameConstants::DEAD_FRAMES;
         break;
     }
+
+
+    DrawHealthBar(
+        renderer,
+        health,          // currentHealth
+        maxHealth,       // maxHealth
+        position,        // position
+        cameraOffset,    // cameraOffset
+        GetSpriteWidth() // spriteWidth
+    );
 
     if (!currentTexture) return;
 

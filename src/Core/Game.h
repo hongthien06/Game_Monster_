@@ -12,6 +12,7 @@
 #include "../Entities/Player.h"
 #include "../Environment/Item.h"
 
+
 class Map;
 class Player;
 class Item;
@@ -37,6 +38,8 @@ private:
     Player* player;   
     uint64_t prevTime;
 
+    int score = 0;
+
     //quản lý item
     std::vector<std::unique_ptr<Item>> items; 
     SDL_Texture* coinTex;
@@ -44,4 +47,7 @@ private:
     bool loadItemTextures();
     void spawnInitialItems();
     void checkItemCollisions();
+
+    void AddScore(int points) { score += points; }
+    int GetScore() const { return score; }
 };

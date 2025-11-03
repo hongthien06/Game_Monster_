@@ -16,6 +16,7 @@ Game::Game()
     isGameRunning(true),
     map(nullptr),
     player(nullptr),
+
     camera(
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
@@ -140,6 +141,9 @@ void Game::render() {
         item->Render(renderer, offset);
     }
 
+
+
+
     SDL_RenderPresent(renderer);
 }
 
@@ -149,6 +153,8 @@ void Game::cleanup() {
     delete player;
     delete map;
     items.clear();
+
+    //delete playerHUD;
 
     SDL_DestroyTexture(coinTex);
     SDL_DestroyRenderer(renderer);
@@ -179,32 +185,26 @@ void Game::checkItemCollisions() {
 
     SDL_FRect playerBox = player->GetBoundingBox();
 
-
     //loại bỏ các item đã nhặt
     items.erase(
         std::remove_if(items.begin(), items.end(),
             [&](const std::unique_ptr<Item>& item) {
-                if (!item || item->IsCollected()) return true; // Xóa luôn item đã được đánh dấu nhặt
+                if (!item || item->IsCollected()) return true;
 
                 SDL_FRect itemBox = item->GetCollider();
-
-                // Kiểm tra va chạm (Collision AABB)
                 bool collided = SDL_HasRectIntersectionFloat(&playerBox, &itemBox);
 
-                (playerBox, itemBox);
-
                 if (collided) {
-                    item->Collect(); // Đánh dấu item đã được nhặt
+                    item->Collect();
 
                     if (item->GetType() == ItemType::COIN) {
-                        // Thêm logic cập nhật điểm số Player ở đây
-                        std::cout << "Player da nhặt Coin!\n";
+                        // CẬP NHẬT ĐIỂM SỐ TẠI ĐÂY
+                        AddScore(10); // Ví dụ: mỗi xu được 10 điểm
+                        std::cout << "Player da nhặt Coin! Diem: " << score << "\n";
                     }
-                    // else if (item->GetType() == ItemType::HEALTH_POTION) player->Heal(20);
-
-                    return true; // Trả về true để xóa Item này khỏi vector
+                    return true;
                 }
-                return false; // Không va chạm, giữ lại
+                return false;
             }),
         items.end());
 }

@@ -23,7 +23,8 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     : position(startPos), velocity(0.0f, 0.0f), isOnGround(true),
     flipHorizontal(false), currentState(CharacterState::STATE_IDLE),
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
-    animationTimer(0.0f)
+    animationTimer(0.0f),
+    maxHealth(10), health(100)
 {
     // Khoi tao cac texture cac trang thai
     idleTex = IMG_LoadTexture(renderer, idlePath);
@@ -142,7 +143,14 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     // Ve nhan vat
     SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr, flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 
-  
+    DrawHealthBar(
+        renderer,
+        health,
+        maxHealth,
+        position,
+        cameraOffset,
+        GetSpriteWidth() // Hoặc frameWidth nếu Character là lớp con Player
+    );
 }
 
 void Character::SetPosition(const glm::vec2& pos) { position = pos; }
