@@ -35,8 +35,8 @@ protected:
     int currentFrame;
     float animationTimer;
 
-    int health;
-    int maxHealth;
+    int health = 100;
+    int maxHealth = 100;
 
 public:
     Character();
@@ -52,5 +52,11 @@ public:
 
     void SetPosition(const glm::vec2& pos);
     glm::vec2 GetPosition() const;
+
+    int GetHealth() const { return health; }
+    int GetMaxHealth() const { return maxHealth; }
+
+    // Đây là hàm VIRTUAL cần thiết để lấy chiều rộng sprite cho thanh máu
+    virtual float GetSpriteWidth() const = 0;
 
 };

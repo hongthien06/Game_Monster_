@@ -21,8 +21,6 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     previousPlayerState(PlayerState::STATE_IDLE),
     playerCurrentFrame(0),
     playerAnimationTimer(0.0f),
-    health(100),
-    maxHealth(100),
     isAlive(true),
     isAttacking(false),
     canMove(true),

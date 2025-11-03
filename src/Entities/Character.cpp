@@ -10,7 +10,7 @@ Character::Character()
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
     animationTimer(0.0f), idleTex(nullptr), walkTex(nullptr),
     runTex(nullptr), jumpTex(nullptr),
-    maxHealth(10), health(100)
+    maxHealth(100), health(100)
 {
 }
 

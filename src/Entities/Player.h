@@ -33,8 +33,8 @@ private:
     float playerAnimationTimer;
 
     // ===== COMBAT =====
-    int health;
-    int maxHealth;
+   /* int health;
+    int maxHealth;*/
     bool isAlive;
     bool isAttacking;
     bool canMove;
@@ -89,8 +89,7 @@ public:
 
     // ===== GETTERS =====
     bool IsAlive() const { return isAlive; }
-    int GetHealth() const { return health; }
-    int GetMaxHealth() const { return maxHealth; }
+    
     PlayerState GetPlayerState() const { return playerState; }
     SDL_FRect GetBoundingBox() const;
     std::vector<std::unique_ptr<Projectile>>& GetProjectiles() { return projectiles; }
