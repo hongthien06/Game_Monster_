@@ -103,8 +103,6 @@
       <PreprocessorDefinitions>_HAS_STD_BYTE=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
 <<<<<<< HEAD
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann;C:\Users\nguyen an\source\repos\Game_Monster_\vendor\SDL3_ttf-3.2.2\include</AdditionalIncludeDirectories>
-=======
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann;$(SolutionDir)vendor\audio</AdditionalIncludeDirectories>
 >>>>>>> 285d7c4cf7676165f7e39be6d4f1c94627943a00
       <LanguageStandard>stdcpp20</LanguageStandard>
