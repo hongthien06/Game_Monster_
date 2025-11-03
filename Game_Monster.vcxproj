@@ -102,9 +102,10 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_HAS_STD_BYTE=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-<<<<<<< HEAD
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann</AdditionalIncludeDirectories>
+
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann;$(SolutionDir)vendor\audio</AdditionalIncludeDirectories>
->>>>>>> 285d7c4cf7676165f7e39be6d4f1c94627943a00
+
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
