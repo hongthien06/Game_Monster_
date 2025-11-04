@@ -31,6 +31,11 @@ protected:
     bool landedSoundPlayed = false;       // Bien duoc them de xu li logic am thanh
     float landedSoundCooldown = 0.0f;     // Bien duoc them de xu li logic am thanh
     bool flipHorizontal;
+    bool isDashing;;
+    float dashTimer;
+    float dashCooldownTimer;
+    int dashDirection;
+
 
     CharacterState currentState;
     CharacterState previousState;

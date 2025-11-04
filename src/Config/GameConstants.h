@@ -22,12 +22,14 @@ namespace GameConstants {
     constexpr float WALK_FRAME_DURATION = 0.1f;
     constexpr int WALK_FRAME_WIDTH = 128;
     constexpr int WALK_FRAME_HEIGHT = 128;
+    constexpr float WALK_SPEED = 80.0f;
 
     // Chay 
     constexpr int RUN_FRAMES = 8;
     constexpr float RUN_FRAME_DURATION = 0.08f;
     constexpr int RUN_FRAME_WIDTH = 128;
     constexpr int RUN_FRAME_HEIGHT = 128;
+    constexpr float RUN_SPEED = 160.0f;
 
     // Nhay
     constexpr int JUMP_FRAMES = 9;
@@ -61,9 +63,12 @@ namespace GameConstants {
     constexpr int DEAD_FRAME_WIDTH = 128;
     constexpr int DEAD_FRAME_HEIGHT = 128;
 
+    //Dash
+    constexpr float DASH_SPEED = 800.0f;       
+    constexpr float DASH_DURATION = 0.2f;      
+    constexpr float DASH_COOLDOWN = 1.0f;       
+
     // Gia tri chuyen dong
-    constexpr float WALK_SPEED = 80.0f;
-    constexpr float RUN_SPEED = 160.0f;
     constexpr float ACCELERATION = 500.0f;
     constexpr float DECELERATION = 400.0f;
 

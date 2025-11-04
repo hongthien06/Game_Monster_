@@ -1,4 +1,5 @@
 ﻿#include "MovementSystem.h"
+#include "../Config/GameConstants.h"
 #include "..//Entities/Character.h"
 #include "..//Systems/PhysicsSystem.h"
 #include <algorithm>
@@ -7,6 +8,24 @@
 void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& map) {
     const bool* keys = SDL_GetKeyboardState(nullptr);
     int moveDir = 0;
+    if (character.isDashing) {
+        character.dashTimer -= deltaTime;
+
+        // Giu toc do dash co dinh
+        character.velocity.x = character.dashDirection * GameConstants::DASH_SPEED;
+
+        // Het thoi gian dash thi dung
+        if (character.dashTimer <= 0.0f) {
+            character.isDashing = false;
+            character.dashCooldownTimer = GameConstants::DASH_COOLDOWN;
+        }
+
+        // Cap nhat vat ly luc dash
+        PhysicsSystem::ApplyPhysics(character.position, character.velocity, deltaTime, map, character.isOnGround);
+        return;
+    }
+        if (character.dashCooldownTimer > 0.0f)
+            character.dashCooldownTimer -= deltaTime;
 
     // Xu ly phim
     if (keys[SDL_SCANCODE_A]) moveDir = -1;
@@ -17,6 +36,16 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
         character.velocity.y = -GameConstants::JUMP_SPEED;
         character.isOnGround = false;
     }
+    if (keys[SDL_SCANCODE_LCTRL] && character.dashCooldownTimer <= 0.0f) {
+        if (moveDir != 0) {
+            character.isDashing = true;
+            character.dashDirection = moveDir;
+            character.dashTimer = GameConstants::DASH_DURATION;
+            character.dashCooldownTimer = GameConstants::DASH_COOLDOWN;
+            return; 
+        }
+    }
+
 
     // Toc do toi da
     float maxSpeed = isRunning ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;

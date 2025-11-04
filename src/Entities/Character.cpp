@@ -11,7 +11,8 @@ Character::Character()
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
     animationTimer(0.0f), idleTex(nullptr), walkTex(nullptr),
     runTex(nullptr), jumpTex(nullptr),
-    maxHealth(100), health(100)
+    maxHealth(100), health(100), 
+    isDashing(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0)
 {
 }
 
