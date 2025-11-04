@@ -1,5 +1,5 @@
 #pragma once
-#include "../miniaudio.h"
+#include "miniaudio.h"
 #include <vector>
 #include <string>
 

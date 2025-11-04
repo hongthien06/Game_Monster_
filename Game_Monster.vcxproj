@@ -103,15 +103,13 @@
       <PreprocessorDefinitions>_HAS_STD_BYTE=0</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann</AdditionalIncludeDirectories>
-
-      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann;$(SolutionDir)vendor\audio</AdditionalIncludeDirectories>
-
+      <AdditionalIncludeDirectories>$(SolutionDir)vendor\SDL3\include;$(SolutionDir)vendor\SDL3_image\include;$(SolutionDir)vendor\glm;$(SolutionDir)vendor\nlohmann;$(SolutionDir)vendor\audio;$(SolutionDir)vendor\SDL3_ttf-3.2.2\include</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(SolutionDir)vendor\SDL3\lib\x64;$(SolutionDir)vendor\SDL3_image\lib\x64;C:\Users\nguyen an\source\repos\Game_Monster_\vendor\SDL3_ttf-3.2.2\lib\x64</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(SolutionDir)vendor\SDL3\lib\x64;$(SolutionDir)vendor\SDL3_image\lib\x64;$(SolutionDir)vendor\SDL3_ttf-3.2.2\lib\x64</AdditionalLibraryDirectories>
       <AdditionalDependencies>SDL3.lib;SDL3_image.lib;SDL3_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
@@ -146,6 +144,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClInclude Include="src\Components\Attack.h" />
     <ClInclude Include="src\Components\Effect.h" />
     <ClInclude Include="src\Config\AssetPaths.h" />
+    <ClInclude Include="src\Config\GameConstants.h" />
     <ClInclude Include="src\Config\Settings.h" />
     <ClInclude Include="src\Core\Audio.h" />
     <ClInclude Include="src\Core\Camera.h" />
@@ -155,6 +154,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClInclude Include="src\Entities\Character.h" />
     <ClInclude Include="src\Entities\Elite.h" />
     <ClInclude Include="src\Entities\Enemy.h" />
+    <ClInclude Include="src\Entities\EntityUtils.h" />
     <ClInclude Include="src\Entities\Minion.h" />
     <ClInclude Include="src\Entities\Player.h" />
     <ClInclude Include="src\Entities\Projectile.h" />
