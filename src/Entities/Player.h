@@ -20,11 +20,12 @@ enum class PlayerState {
 
 class Player : public Character {
 private:
-    // ===== TEXTURES BỔ SUNG =====
-    SDL_Texture* shotTex;
-    SDL_Texture* attackTex;
-    SDL_Texture* hurtTex;
-    SDL_Texture* deadTex;
+    // ===== ĐÃ XÓA: KHÔNG CẦN TEXTURES NỮA =====
+    // Tất cả textures đã có trong Character class (protected)
+    // shotTex, attackTex, hurtTex, deadTex đã được khai báo trong Character
+
+    // ===== ĐÃ XÓA: KHÔNG CẦN RENDERER RIÊNG =====
+    // renderer đã có trong Character class (protected)
 
     // ===== TRẠNG THÁI VÀ ANIMATION =====
     PlayerState playerState;
@@ -33,8 +34,6 @@ private:
     float playerAnimationTimer;
 
     // ===== COMBAT =====
-   /* int health;
-    int maxHealth;*/
     bool isAlive;
     bool isAttacking;
     bool canMove;
@@ -43,19 +42,18 @@ private:
     float hurtDuration;
     float hurtTimer;
 
-    // ====== AUDIO ======  Them vao de khoi tao doi tuong lop Audio
+    // ====== AUDIO ======
     Audio audio;
 
     // ===== SHOOTING SYSTEM =====
     std::vector<std::unique_ptr<Projectile>> projectiles;
-    SDL_Renderer* renderer;       // Lưu renderer để tạo projectile
     float shootCooldown;
     float shootTimer;
     int projectileDamage;
     float projectileSpeed;
     glm::vec2 mouseWorldPos;      // Vị trí chuột trong world
 
-    // THÊM MỚI: Track khi nào spawn arrow
+    // ===== ARROW SPAWNING =====
     bool shouldSpawnArrow;        // Cờ để spawn arrow
     int arrowSpawnFrame;          // Frame nào thì spawn arrow
 
@@ -63,10 +61,9 @@ private:
     void UpdatePlayerAnimation(float deltaTime);
     void UpdatePlayerState(float deltaTime);
     void HandleInput();
-    void LoadAllTextures(SDL_Renderer* renderer);
     void UpdateProjectiles(float deltaTime);
     glm::vec2 GetArrowSpawnPosition() const;
-    void SpawnArrow();           
+    void SpawnArrow();
 
 public:
     // ===== CONSTRUCTOR / DESTRUCTOR =====
@@ -89,16 +86,14 @@ public:
 
     // ===== GETTERS =====
     bool IsAlive() const { return isAlive; }
-    
     PlayerState GetPlayerState() const { return playerState; }
     SDL_FRect GetBoundingBox() const;
     std::vector<std::unique_ptr<Projectile>>& GetProjectiles() { return projectiles; }
-
-    float GetSpriteWidth() const { return 32.0f; }
+    virtual float GetSpriteWidth() const override { return 32.0f; }
 
     // ===== SETTERS =====
     void SetShootCooldown(float cooldown) { shootCooldown = cooldown; }
     void SetProjectileDamage(int damage) { projectileDamage = damage; }
     void SetProjectileSpeed(float speed) { projectileSpeed = speed; }
-    void SetArrowSpawnFrame(int frame) { arrowSpawnFrame = frame; }  
+    void SetArrowSpawnFrame(int frame) { arrowSpawnFrame = frame; }
 };

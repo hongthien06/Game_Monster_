@@ -5,18 +5,17 @@
 #include <cmath>
 #include "EntityUtils.h"
 
-// ===== CONSTRUCTOR =====
+// ===== CONSTRUCTOR - TRUYỀN 8 TEXTURES CHO CHARACTER =====
 Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     : Character(renderer, startPos,
         "assets/images/Player/Idle.png",
         "assets/images/Player/Walk.png",
         "assets/images/Player/Run.png",
-        "assets/images/Player/Jump.png"),
-    shotTex(nullptr),
-    attackTex(nullptr),
-    hurtTex(nullptr),
-    deadTex(nullptr),
-    renderer(renderer),
+        "assets/images/Player/Jump.png",
+        "assets/images/Player/Shot.png",    // THÊM
+        "assets/images/Player/Attack.png",  // THÊM
+        "assets/images/Player/Hurt.png",    // THÊM
+        "assets/images/Player/Dead.png"),   // THÊM
     playerState(PlayerState::STATE_IDLE),
     previousPlayerState(PlayerState::STATE_IDLE),
     playerCurrentFrame(0),
@@ -34,36 +33,19 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     projectileSpeed(600.0f),
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
-    arrowSpawnFrame(13)// Spawn ở frame
+    arrowSpawnFrame(13)
 {
-    LoadAllTextures(renderer);
+    // Không cần LoadAllTextures() nữa - đã load trong Character constructor
 }
 
-// ===== DESTRUCTOR =====
+// ===== DESTRUCTOR - ĐƠN GIẢN HƠN =====
 Player::~Player() {
-    if (shotTex) SDL_DestroyTexture(shotTex);
-    if (attackTex) SDL_DestroyTexture(attackTex);
-    if (hurtTex) SDL_DestroyTexture(hurtTex);
-    if (deadTex) SDL_DestroyTexture(deadTex);
+    // Character destructor sẽ tự động destroy tất cả textures
     projectiles.clear();
 }
 
-// ===== LOAD TEXTURES =====
-void Player::LoadAllTextures(SDL_Renderer* renderer) {
-    shotTex = IMG_LoadTexture(renderer, "assets/images/Player/Shot.png");
-    attackTex = IMG_LoadTexture(renderer, "assets/images/Player/Attack.png");
-    hurtTex = IMG_LoadTexture(renderer, "assets/images/Player/Hurt.png");
-    deadTex = IMG_LoadTexture(renderer, "assets/images/Player/Dead.png");
-
-    if (!shotTex || !attackTex || !hurtTex || !deadTex) {
-        std::cerr << "ERROR: Khong the load mot hoac nhieu texture bo sung cua Player!\n";
-    }
-
-    if (shotTex) SDL_SetTextureScaleMode(shotTex, SDL_SCALEMODE_NEAREST);
-    if (attackTex) SDL_SetTextureScaleMode(attackTex, SDL_SCALEMODE_NEAREST);
-    if (hurtTex) SDL_SetTextureScaleMode(hurtTex, SDL_SCALEMODE_NEAREST);
-    if (deadTex) SDL_SetTextureScaleMode(deadTex, SDL_SCALEMODE_NEAREST);
-}
+// ===== XÓA PHƯƠNG THỨC LoadAllTextures =====
+// Không cần nữa vì đã load trong Character
 
 // ===== HANDLE INPUT =====
 void Player::HandleInput() {
@@ -127,14 +109,14 @@ void Player::UpdatePlayerState(float deltaTime) {
         return;
     }
 
-// ===== HIỆU ỨNG CHẠM ĐẤT (CÓ COOL-DOWN) =====   ### Khoi nay them vao de nhan vat phat am thanh
+    // ===== HIỆU ỨNG CHẠM ĐẤT (CÓ COOL-DOWN) =====
     landedSoundCooldown -= deltaTime;
 
     if (!wasOnGround && isOnGround && landedSoundCooldown <= 0.0f) {
         audio.playSound("assets/audio/jump_landed.wav");
-        landedSoundCooldown = 0.10f;   // 150ms cooldown
+        landedSoundCooldown = 0.10f;
     }
-// ###
+
     // Đồng bộ với Character state
     if (!isOnGround) {
         playerState = PlayerState::STATE_JUMP;
@@ -269,6 +251,7 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     int frameHeight = 0;
     int totalFrames = 0;
 
+    // SỬ DỤNG TEXTURES TỪ CHARACTER CLASS
     switch (playerState) {
     case PlayerState::STATE_IDLE:
         currentTexture = idleTex;
@@ -295,39 +278,38 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         totalFrames = GameConstants::JUMP_FRAMES;
         break;
     case PlayerState::STATE_SHOT:
-        currentTexture = shotTex;
+        currentTexture = shotTex;  // Từ Character
         frameWidth = GameConstants::SHOT_FRAME_WIDTH;
         frameHeight = GameConstants::SHOT_FRAME_HEIGHT;
         totalFrames = GameConstants::SHOT_FRAMES;
         break;
     case PlayerState::STATE_ATTACK:
-        currentTexture = attackTex;
+        currentTexture = attackTex;  // Từ Character
         frameWidth = GameConstants::ATTACK_FRAME_WIDTH;
         frameHeight = GameConstants::ATTACK_FRAME_HEIGHT;
         totalFrames = GameConstants::ATTACK_FRAMES;
         break;
     case PlayerState::STATE_HURT:
-        currentTexture = hurtTex;
+        currentTexture = hurtTex;  // Từ Character
         frameWidth = GameConstants::HURT_FRAME_WIDTH;
         frameHeight = GameConstants::HURT_FRAME_HEIGHT;
         totalFrames = GameConstants::HURT_FRAMES;
         break;
     case PlayerState::STATE_DEAD:
-        currentTexture = deadTex;
+        currentTexture = deadTex;  // Từ Character
         frameWidth = GameConstants::DEAD_FRAME_WIDTH;
         frameHeight = GameConstants::DEAD_FRAME_HEIGHT;
         totalFrames = GameConstants::DEAD_FRAMES;
         break;
     }
 
-
     DrawHealthBar(
         renderer,
-        health,          // currentHealth
-        maxHealth,       // maxHealth
-        position,        // position
-        cameraOffset,    // cameraOffset
-        GetSpriteWidth() // spriteWidth
+        health,
+        maxHealth,
+        position,
+        cameraOffset,
+        GetSpriteWidth()
     );
 
     if (!currentTexture) return;
@@ -357,8 +339,6 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         nullptr,
         flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE
     );
-
-   
 }
 
 // ===== COMBAT: TAKE DAMAGE =====
@@ -412,17 +392,15 @@ void Player::Shot() {
 void Player::SpawnArrow() {
     if (!shouldSpawnArrow) return;
 
-    shouldSpawnArrow = false; // Reset cờ
+    shouldSpawnArrow = false;
 
     std::cout << "Tao mui ten tai frame " << playerCurrentFrame << "!\n";
 
     float offsetX = flipHorizontal ? -15.0f : 15.0f;
-    glm::vec2 spawnPos = position + glm::vec2(24.0f + offsetX, 36.0f);  
+    glm::vec2 spawnPos = position + glm::vec2(24.0f + offsetX, 36.0f);
 
-    // Bắn ngang theo hướng player đang nhìn
     glm::vec2 direction = glm::vec2(flipHorizontal ? -1.0f : 1.0f, 0.0f);
 
-    // Tạo projectile
     auto projectile = std::make_unique<Projectile>(
         renderer,
         spawnPos,
