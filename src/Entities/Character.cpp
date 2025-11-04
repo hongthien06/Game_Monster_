@@ -7,7 +7,9 @@
 
 // Khoi tao mac dinh
 Character::Character()
-    : position(0.0f, 0.0f), velocity(0.0f, 0.0f), isOnGround(true), wasOnGround(false),
+    : position(0.0f, 0.0f), velocity(0.0f, 0.0f), isOnGround(true), 
+     wasOnGround(false), landedSoundPlayed(false), landedSoundCooldown(0.0f),  /// 3 bien moi duoc them la wasOnGround
+
     flipHorizontal(false), currentState(CharacterState::STATE_IDLE),
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
     animationTimer(0.0f),

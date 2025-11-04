@@ -38,8 +38,8 @@ protected:
     // ===== PHYSICS =====
     bool isOnGround;
     bool wasOnGround;                     // Bien duoc them de xu li logic am thanh
-    bool landedSoundPlayed = false;       // Bien duoc them de xu li logic am thanh
-    float landedSoundCooldown = 0.0f;     // Bien duoc them de xu li logic am thanh
+    bool landedSoundPlayed;       // Bien duoc them de xu li logic am thanh
+    float landedSoundCooldown;     // Bien duoc them de xu li logic am thanh
     bool flipHorizontal;
     bool isDashing;
     float dashTimer;

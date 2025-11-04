@@ -62,14 +62,16 @@ bool Game::init() {
     //tao Item
     if (!loadItemTextures()) return false;
 
-    // Tao nhan vat 
-    player = new Player(renderer);
-
 
     map = new Map(renderer);
     if (!map->loadMap("assets/tileset/Map_game.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
     }
+
+    SDL_FPoint spawn = map->GetPlayerSpawn();   // Lay toa do spawn trong Map
+
+    // Tao nhan vat 
+    player = new Player(renderer,glm::vec2(spawn.x, spawn.y));    // Sua o day. Them bien toa do de ve nhan vat spawn o vi tri bat dau
 
     spawnInitialItems();
 
