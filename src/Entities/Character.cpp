@@ -1,5 +1,6 @@
 ﻿#include "Character.h"
-#include"..//Systems/PhysicsSystem.h"
+#include "..//Systems/MovementSystem.h"
+#include "..//Systems/PhysicsSystem.h"
 #include <algorithm>
 #include "EntityUtils.h"
 
@@ -50,46 +51,16 @@ Character::~Character() {
 }
 
 void Character::Update(float deltaTime, Map& map) {
-    const bool* keys = SDL_GetKeyboardState(nullptr);
-    int moveDir = 0;
-
-    // Xu li phim
-    if (keys[SDL_SCANCODE_A]) moveDir = -1;
-    if (keys[SDL_SCANCODE_D]) moveDir = 1;
-    bool isRunning = keys[SDL_SCANCODE_LSHIFT];
-    if (keys[SDL_SCANCODE_SPACE] && isOnGround) {
-        velocity.y = -GameConstants::JUMP_SPEED;
-        isOnGround = false;
-    }
-
-    // Cap nhat van toc 
-    float maxSpeed = isRunning ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;
-
-    if (moveDir)
-        velocity.x += GameConstants::ACCELERATION * moveDir * deltaTime;
-    else {
-        if (velocity.x > 0) velocity.x = std::max(0.0f, velocity.x - GameConstants::DECELERATION * deltaTime);
-        else if (velocity.x < 0) velocity.x = std::min(0.0f, velocity.x + GameConstants::DECELERATION * deltaTime);
-    }
-
-    // Gioi han toc do
-    velocity.x = std::max(-maxSpeed, std::min(velocity.x, maxSpeed));
-
-    // Cap nhat huong
-    if (moveDir) flipHorizontal = (moveDir == -1);
-
-    wasOnGround = isOnGround;      // Them dong nay de tao logic phat am thanh
-
-    // Ap dung vat ly
-    PhysicsSystem::ApplyPhysics(position, velocity, deltaTime, map, isOnGround);
+    MovementSystem::HandleMovement(*this, deltaTime, map);
 
     CharacterState newState;
     if (!isOnGround)
         newState = CharacterState::STATE_JUMPING;
     else if (std::abs(velocity.x) > 1.0f)
-        newState = isRunning ? CharacterState::STATE_RUNNING : CharacterState::STATE_WALKING;
+        newState = CharacterState::STATE_WALKING;
     else
         newState = CharacterState::STATE_IDLE;
+
     if (newState != currentState) {
         currentState = newState;
         currentFrame = 0;

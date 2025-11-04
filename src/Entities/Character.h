@@ -2,8 +2,8 @@
 #include <SDL3/SDL.h>
 #include <SDL3_image/SDL_image.h>
 #include <glm/glm.hpp>
-#include"..//Environment/Map.h"
-#include "../Config/GameConstants.h"
+#include "..//Environment/Map.h"
+#include "..//Config/GameConstants.h"
 #include <iostream>
 
 enum class CharacterState {
@@ -13,7 +13,10 @@ enum class CharacterState {
     STATE_JUMPING
 };
 
+class MovementSystem;
+
 class Character {
+    friend class MovementSystem;
 protected:
     SDL_Texture* idleTex;
     SDL_Texture* walkTex;

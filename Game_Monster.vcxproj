@@ -248,6 +248,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClInclude Include="src\include\SDL3\SDL_version.h" />
     <ClInclude Include="src\include\SDL3\SDL_video.h" />
     <ClInclude Include="src\include\SDL3\SDL_vulkan.h" />
+    <ClInclude Include="src\Systems\MovementSystem.h" />
     <ClInclude Include="src\Systems\PhysicsSystem.h" />
     <ClInclude Include="vendor\SDL3\include\SDL3\SDL.h" />
     <ClInclude Include="vendor\SDL3\include\SDL3\SDL_assert.h" />
@@ -362,6 +363,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClCompile Include="src\Environment\Map.cpp" />
     <ClCompile Include="src\Environment\StageEffect.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Systems\MovementSystem.cpp" />
     <ClCompile Include="src\Systems\PhysicsSystem.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
