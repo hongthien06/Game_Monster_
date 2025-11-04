@@ -139,6 +139,11 @@ void Game::render() {
     glm::vec2 offset = camera.getOffset();
     if (player) player->Render(renderer, offset);
     if (map) map->drawMap(offset);
+    
+    // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
+    map->drawCollisionDebug(offset);   
+
+
     for (const auto& item : items) {
         item->Render(renderer, offset);
     }

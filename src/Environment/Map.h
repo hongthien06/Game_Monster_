@@ -39,14 +39,16 @@ public:
     // ===== Getter =====
     SDL_FPoint GetPlayerSpawn();
     bool checkCollision(const SDL_FRect& playerRect);    // Kiem tra va cham voi dat nha Duc Anh
-
+    
+    void drawCollisionDebug(const glm::vec2& cameraOffset);  // Ve hitbox quanh cac o dat
 private:
     // ===== Internal helper functions =====
     SDL_Texture* LoadTexture(const string& file);
     void LoadTileLayers(const json& mapData);
-   
+    void LoadTileCollisions(const json& mapData); // <-- Them dong nay
     void LoadCollisionLayer(const json& mapData);
     void LoadObjects(const json& mapData);
+    bool PointInPolygon(const SDL_FPoint& p, const std::vector<SDL_FPoint>& poly);
 
 private:
     // ===== SDL / Rendering =====
@@ -64,4 +66,10 @@ private:
     SDL_FPoint playerSpawn;
     vector<TileLayer> tileLayers;
     vector<CollisionBox> collisions;
+
+    // Cac polygon va cham (cho tile nghieng, hinh phuc tap)
+    vector<std::vector<SDL_FPoint>> collisionPolygons;
+
+    // Bản đồ lưu polygon gốc theo tileID trong tileset
+    unordered_map<int, std::vector<SDL_FPoint>> tilePolygons;
 };
