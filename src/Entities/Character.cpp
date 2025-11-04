@@ -168,9 +168,19 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (!tex) return;
 
     // Xac dinh vung cat trong sprite sheet
-    SDL_FRect src = { 0.0, 0.0f, (float)frameWidth / 6, (float)frameHeight / 6 };
+    SDL_FRect src = {
+     currentFrame * frameWidth,
+     0.0f,
+     (float)frameWidth,
+     (float)frameHeight
+    };
     // Vi tri ve tren man hinh
-    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 0, 0 };
+    SDL_FRect dst = {
+        position.x - cameraOffset.x,
+        position.y - cameraOffset.y,
+        48.0f,
+        48.0f
+    };
     // Ve nhan vat
     SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr,
         flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
