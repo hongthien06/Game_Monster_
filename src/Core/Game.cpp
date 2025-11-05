@@ -4,6 +4,7 @@
 #include "../Environment/Map.h"
 #include "Camera.h"
 #include "../Entities/Player.h"
+#include "../Core/Audio.h"
 #include <iostream>
 #include "../Environment/Item.h"
 #include <algorithm>
@@ -74,6 +75,12 @@ bool Game::init() {
     player = new Player(renderer,glm::vec2(spawn.x, spawn.y));    // Sua o day. Them bien toa do de ve nhan vat spawn o vi tri bat dau
 
     spawnInitialItems();
+    
+    // Them o day. Nhac nen game
+    audio = new Audio();
+    audio->playBGM("assets/audio/breath.mp3", true, 0.03f);
+    
+    // audio.setBGMVolume(0.4f);   // nhạc còn ~40% . Dung xoa dong comment này
 
 
     return true;
@@ -129,6 +136,11 @@ void Game::update(float deltaTime) {
     checkItemCollisions();
 
     camera.update(player->GetPosition(), deltaTime);
+
+    audio->update(deltaTime);
+
+    audio->fadeOutBGM(0.4f);
+
 }
 
 // Ve len man hinh
@@ -159,6 +171,7 @@ void Game::cleanup() {
 
     delete player;
     delete map;
+    delete audio;
     items.clear();
 
     //delete playerHUD;

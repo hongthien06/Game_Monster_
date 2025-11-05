@@ -11,9 +11,11 @@
 #include "../Environment/Map.h"
 #include "../Entities/Player.h"
 #include "../Environment/Item.h"
+#include "../Core/Audio.h"
 
 
 class Map;
+class Audio;
 class Player;
 class Item;
 class Game {
@@ -34,6 +36,7 @@ private:
     bool isGameRunning;
 
     Map* map;      //Để tai map   
+    Audio* audio;   //De tai nhac nen
     Camera camera;    
     Player* player;   
     uint64_t prevTime;
