@@ -54,6 +54,7 @@ private:
     // ===== SDL / Rendering =====
     SDL_Renderer* renderer;
     SDL_Texture* tilesetTexture;
+    SDL_Texture* backgroundTexture = nullptr;        // Ve nen
 
     // ===== Tile / Map properties =====
     int tileWidth;

@@ -141,8 +141,11 @@ void Game::render() {
     SDL_RenderClear(renderer);
 
     glm::vec2 offset = camera.getOffset();
-    if (player) player->Render(renderer, offset);
+   
     if (map) map->drawMap(offset);
+
+    if (player) player->Render(renderer, offset);
+
     // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
     map->drawCollisionDebug(offset);
 

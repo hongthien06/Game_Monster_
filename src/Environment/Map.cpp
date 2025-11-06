@@ -15,12 +15,21 @@ Map::Map(SDL_Renderer* renderer)
       tilesetColumns(0)
 {
     playerSpawn = {0, 0};
+    backgroundTexture = IMG_LoadTexture(renderer, "assets/images/Backgrounds/Mountain.png");
+    if (!backgroundTexture) {
+    std::cout << "Failed to load background: " << SDL_GetError() << "\n";
+    }
 }
 
 Map::~Map() {
     if (tilesetTexture) {
         SDL_DestroyTexture(tilesetTexture);
         tilesetTexture = nullptr;
+    }
+
+    if (backgroundTexture) {
+    SDL_DestroyTexture(backgroundTexture);
+    backgroundTexture = nullptr;
     }
 }
 
@@ -58,7 +67,7 @@ bool Map::loadMap(const string& filename) {
         return false;
     }
     
-    // T�nh s? c?t trong tileset
+    // Tinh so cot trong tileset
     int imageWidth = mapData["tilesets"][0]["imagewidth"];
     tilesetColumns = imageWidth / tileWidth;
 
@@ -238,6 +247,18 @@ void Map::drawMap(const glm::vec2& cameraOffset) {
     std::cout << "Tileset texture is NULL!\n";
     return;
 }
+
+// VẼ NỀN THEO MÀN HÌNH (cover + no parallax)
+    if (backgroundTexture) {
+        SDL_FRect bg;
+        bg.x = 0;
+        bg.y = 0;
+        bg.w = 400;   // screenWidth bạn đang dùng
+        bg.h = 300;    // screenHeight bạn đang dùng
+        SDL_RenderTexture(renderer, backgroundTexture, NULL, &bg);
+    }
+
+
 
     for (const auto& layer : tileLayers) {
         for (int y = 0; y < layer.height; ++y) {
