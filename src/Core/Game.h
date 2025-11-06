@@ -4,7 +4,7 @@
 #include <SDL3_image/SDL_image.h>
 #include <glm/glm.hpp>
 #include <string>
-#include<vector>
+#include <vector>
 
 #include "../Config/GameConstants.h"
 #include "../Core/Camera.h"
@@ -12,45 +12,36 @@
 #include "../Entities/Player.h"
 #include "../Environment/Item.h"
 #include "../Core/Audio.h"
+#include "../Core/HUD.h" 
+#include <SDL3_ttf/SDL_ttf.h>
 
-
-class Map;
-class Audio;
-class Player;
-class Item;
 class Game {
+private:
+    SDL_Window* window;
+    SDL_Renderer* renderer;
+    bool isGameRunning;
+
+    Map* map;
+    Player* player;
+    Camera camera;
+    Audio* audio;
+    HUD* playerHUD; 
+
+    std::vector<std::unique_ptr<Item>> items;
+    SDL_Texture* coinTex;
+
 public:
     Game();
     ~Game();
-    void run();
 
-private:
     bool init();
+    void run();
     void handleEvents();
     void update(float deltaTime);
     void render();
     void cleanup();
 
-    SDL_Window* window;
-    SDL_Renderer* renderer;
-    bool isGameRunning;
-
-    Map* map;      //Để tai map   
-    Audio* audio;   //De tai nhac nen
-    Camera camera;    
-    Player* player;   
-    uint64_t prevTime;
-
-    int score = 0;
-
-    //quản lý item
-    std::vector<std::unique_ptr<Item>> items; 
-    SDL_Texture* coinTex;
-
     bool loadItemTextures();
     void spawnInitialItems();
     void checkItemCollisions();
-
-    void AddScore(int points) { score += points; }
-    int GetScore() const { return score; }
 };
