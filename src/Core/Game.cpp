@@ -84,9 +84,7 @@ bool Game::init() {
     playerHUD->LoadResources();
 
     audio = new Audio();
-    audio->playBGM("assets/audio/breath.mp3", true, 0.03f);
-
-    // audio.setBGMVolume(0.4f);   // nhạc còn ~40% . Dung xoa dong comment này
+    audio->playBGM("assets/audio/breath.mp3", true, 0.4f);  // tăng volume lên 0.4 để test
     return true;
 }
 // Vong lap game
