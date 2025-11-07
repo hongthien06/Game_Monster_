@@ -6,6 +6,7 @@
 #include "..//Config/GameConstants.h"
 #include <iostream>
 
+// Trạng thái cơ bản của Character
 enum class CharacterState {
     STATE_IDLE,
     STATE_WALKING,
@@ -15,68 +16,75 @@ enum class CharacterState {
 
 class MovementSystem;
 
+// BASE CLASS cho Player và Enemy
 class Character {
     friend class MovementSystem;
 protected:
     // ===== 8 TEXTURES: 4 CƠ BẢN + 4 BỔ SUNG =====
-    SDL_Texture* idleTex;
-    SDL_Texture* walkTex;
-    SDL_Texture* runTex;
-    SDL_Texture* jumpTex;
-    SDL_Texture* shotTex;      // Thêm cho Player
-    SDL_Texture* attackTex;    // Thêm cho Player
-    SDL_Texture* hurtTex;      // Thêm cho Player
-    SDL_Texture* deadTex;      // Thêm cho Player
+    SDL_Texture* idleTex;      // Đứng yên
+    SDL_Texture* walkTex;      // Đi bộ
+    SDL_Texture* runTex;       // Chạy
+    SDL_Texture* jumpTex;      // Nhảy
+    SDL_Texture* shotTex;      // Bắn (Player) / Magic (Enemy)
+    SDL_Texture* attackTex;    // Tấn công cận chiến
+    SDL_Texture* hurtTex;      // Bị thương
+    SDL_Texture* deadTex;      // Chết
 
     // ===== RENDERER =====
-    SDL_Renderer* renderer;    // Lưu renderer để dùng chung
+    SDL_Renderer* renderer;
 
     // ===== TRANSFORM =====
-    glm::vec2 position;
-    glm::vec2 velocity;
+    glm::vec2 position;        // Vị trí
+    glm::vec2 velocity;        // Vận tốc
 
     // ===== PHYSICS =====
-    bool isOnGround;
-    bool wasOnGround;                     // Bien duoc them de xu li logic am thanh
-    bool landedSoundPlayed;       // Bien duoc them de xu li logic am thanh
-    float landedSoundCooldown;     // Bien duoc them de xu li logic am thanh
-    bool flipHorizontal;
-    bool isDashing;
+    bool isOnGround;           // Đang đứng trên mặt đất
+    bool wasOnGround;          // Trạng thái ground trước đó
+    bool landedSoundPlayed;    // Đã phát âm thanh chạm đất
+    float landedSoundCooldown; // Cooldown âm thanh chạm đất
+    bool flipHorizontal;       // Lật sprite theo chiều ngang
+    bool isDashing;            // Đang dash
     float dashTimer;
     float dashCooldownTimer;
     int dashDirection;
 
     // ===== ANIMATION =====
-    CharacterState currentState;
-    CharacterState previousState;
-    int currentFrame;
-    float animationTimer;
+    CharacterState currentState;    // Trạng thái hiện tại
+    CharacterState previousState;   // Trạng thái trước đó
+    int currentFrame;                // Frame hiện tại
+    float animationTimer;            // Bộ đếm animation
 
     // ===== HEALTH =====
-    int health;
-    int maxHealth;
+    int health;                // Máu hiện tại
+    int maxHealth;             // Máu tối đa
 
-    // ===== HELPER METHOD =====
+    // ===== PHƯƠNG THỨC HỖ TRỢ =====
     void LoadTexture(SDL_Renderer* renderer, SDL_Texture** texture, const char* path);
 
 public:
-    // ===== CONSTRUCTOR - HỖ TRỢ 8 TEXTURES =====
+    // ===== CONSTRUCTOR =====
     Character();
     Character(SDL_Renderer* renderer, glm::vec2 startPos,
         const char* idlePath,
         const char* walkPath,
         const char* runPath,
         const char* jumpPath,
-        const char* shotPath = nullptr,     // Tùy chọn
-        const char* attackPath = nullptr,   // Tùy chọn
-        const char* hurtPath = nullptr,     // Tùy chọn
-        const char* deadPath = nullptr);    // Tùy chọn
+        const char* shotPath = nullptr,      // Tùy chọn
+        const char* attackPath = nullptr,    // Tùy chọn
+        const char* hurtPath = nullptr,      // Tùy chọn
+        const char* deadPath = nullptr);     // Tùy chọn
 
     virtual ~Character();
 
-    // ===== CORE METHODS =====
+    // ===== PHƯƠNG THỨC CHÍNH (VIRTUAL) =====
     virtual void Update(float deltaTime, Map& map);
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
+
+    // ===== COMBAT (VIRTUAL) =====
+    virtual void TakeDamage(int damage) {
+        health -= damage;
+        if (health < 0) health = 0;
+    }
 
     // ===== TRANSFORM =====
     void SetPosition(const glm::vec2& pos);
@@ -85,8 +93,19 @@ public:
     // ===== HEALTH =====
     int GetHealth() const { return health; }
     int GetMaxHealth() const { return maxHealth; }
+    void SetHealth(int hp) { health = hp; }
+    void SetMaxHealth(int maxHp) { maxHealth = maxHp; health = maxHp; }
 
-    // ===== ABSTRACT METHOD =====
-    // Đây là hàm VIRTUAL cần thiết để lấy chiều rộng sprite cho thanh máu
+    // ===== PHƯƠNG THỨC TRỪU TƯỢNG =====
     virtual float GetSpriteWidth() const = 0;
+
+    // ===== BOUNDING BOX (VIRTUAL) =====
+    virtual SDL_FRect GetBoundingBox() const {
+        return SDL_FRect{
+            position.x,
+            position.y,
+            GetSpriteWidth(),
+            GetSpriteWidth()
+        };
+    }
 };

@@ -139,7 +139,6 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="EntityUtils.h" />
     <ClInclude Include="src\Components\Animation.h" />
     <ClInclude Include="src\Components\Attack.h" />
     <ClInclude Include="src\Components\Effect.h" />
@@ -152,6 +151,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     <ClInclude Include="src\Core\HUD.h" />
     <ClInclude Include="src\Core\Timer.h" />
     <ClInclude Include="src\Core\Utils.h" />
+    <ClInclude Include="src\Entities\Boss.h" />
     <ClInclude Include="src\Entities\Character.h" />
     <ClInclude Include="src\Entities\Elite.h" />
     <ClInclude Include="src\Entities\Enemy.h" />

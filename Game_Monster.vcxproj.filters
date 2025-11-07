@@ -591,9 +591,6 @@
     <ClInclude Include="src\Entities\Projectile.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EntityUtils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\Config\GameConstants.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -604,6 +601,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\HUD.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Entities\Boss.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
