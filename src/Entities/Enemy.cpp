@@ -331,7 +331,33 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
     // Vẽ health bar (chỉ khi còn sống và không ở trạng thái DEAD)
     if (isAlive) {
-        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, GetSpriteWidth());
+        if (enemyType == EnemyType::BOSS) {
+            // BOSS: Vẽ thanh máu ở góc phải màn hình
+            // Lấy chiều rộng logical từ GameConstants
+            float screenWidth = (float)GameConstants::LOGICAL_WIDTH;
+
+            DrawCornerHealthBar(
+                renderer,
+                health,
+                maxHealth,
+                screenWidth - 220.0f,  // X: góc phải (trừ đi width + margin)
+                20.0f,                 // Y: góc trên
+                200.0f,                // Chiều rộng
+                20.0f,                 // Chiều cao
+                false                  // Boss không hiển thị trái tim
+            );
+        }
+        else {
+            // MINION & ELITE: Vẽ thanh máu trên đầu như cũ
+            DrawHealthBar(
+                renderer,
+                health,
+                maxHealth,
+                position,
+                cameraOffset,
+                GetSpriteWidth()
+            );
+        }
     }
 
     if (!currentTexture) return;

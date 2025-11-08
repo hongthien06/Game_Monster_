@@ -13,6 +13,7 @@ Character::Character()
     animationTimer(0.0f),
     idleTex(nullptr), walkTex(nullptr), runTex(nullptr), jumpTex(nullptr),
     shotTex(nullptr), attackTex(nullptr), hurtTex(nullptr), deadTex(nullptr),
+    heartTexture(nullptr),
     renderer(nullptr),
     maxHealth(100), health(100),
     isDashing(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
@@ -29,13 +30,15 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     const char* shotPath,
     const char* attackPath,
     const char* hurtPath,
-    const char* deadPath)
+    const char* deadPath,
+    const char* heartPath)
     : position(startPos), velocity(0.0f, 0.0f), isOnGround(true), wasOnGround(false),
     flipHorizontal(false), currentState(CharacterState::STATE_IDLE),
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
     animationTimer(0.0f),
     idleTex(nullptr), walkTex(nullptr), runTex(nullptr), jumpTex(nullptr),
     shotTex(nullptr), attackTex(nullptr), hurtTex(nullptr), deadTex(nullptr),
+    heartTexture(nullptr),
     renderer(renderer),
     maxHealth(100), health(100),
     isDashing(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
@@ -52,6 +55,8 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     if (attackPath) LoadTexture(renderer, &attackTex, attackPath);
     if (hurtPath) LoadTexture(renderer, &hurtTex, hurtPath);
     if (deadPath) LoadTexture(renderer, &deadTex, deadPath);
+
+    LoadTexture(renderer, &heartTexture, heartPath);
 }
 
 // ===== PHƯƠNG THỨC HELPER LOAD TEXTURE =====
@@ -78,6 +83,8 @@ Character::~Character() {
     SDL_DestroyTexture(attackTex);
     SDL_DestroyTexture(hurtTex);
     SDL_DestroyTexture(deadTex);
+    SDL_DestroyTexture(heartTexture);
+
 }
 
 // ===== UPDATE =====

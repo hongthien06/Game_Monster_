@@ -15,7 +15,8 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
         "assets/images/Player/Shot.png",    // THÊM
         "assets/images/Player/Attack.png",  // THÊM
         "assets/images/Player/Hurt.png",    // THÊM
-        "assets/images/Player/Dead.png"),   // THÊM
+        "assets/images/Player/Dead.png",
+        "assets/hearts/hearts.png"),   // THÊM
     playerState(PlayerState::STATE_IDLE),
     previousPlayerState(PlayerState::STATE_IDLE),
     playerCurrentFrame(0),
@@ -34,8 +35,10 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
     arrowSpawnFrame(13)
+
 {
     // Không cần LoadAllTextures() nữa - đã load trong Character constructor
+
 }
 
 // ===== DESTRUCTOR - ĐƠN GIẢN HƠN =====
@@ -303,14 +306,20 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         break;
     }
 
-    DrawHealthBar(
-        renderer,
-        health,
-        maxHealth,
-        position,
-        cameraOffset,
-        GetSpriteWidth()
+    float screenHeight = (float)GameConstants::LOGICAL_HEIGHT;
+
+    DrawCornerHealthBar(
+        renderer,               
+        health,                 
+        maxHealth,              
+        8.0f,                   
+        screenHeight - 25.0f,    
+        150.0f,                  
+        20.0f,                   
+        true,                    
+        heartTexture             
     );
+    
 
     if (!currentTexture) return;
 

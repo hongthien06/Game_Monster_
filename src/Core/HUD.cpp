@@ -12,7 +12,7 @@ HUD::~HUD() {
 }
 
 bool HUD::LoadResources() {
-    font = TTF_OpenFont("assets/fonts/Roboto-VariableFont_wdth,wght.ttf", 28);
+    font = TTF_OpenFont("assets/fonts/Roboto-VariableFont_wdth,wght.ttf", 16);
     if (!font) {
         std::cerr << "Failed to load font: " << SDL_GetError() << std::endl;
         return false;
@@ -57,7 +57,7 @@ void HUD::Render(glm::vec2 cameraOffset) {
         std::string text = "+" + std::to_string(popup.value);
         SDL_Color color = { 255, 255, 0, (Uint8)popup.alpha };
 
-        SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 8, color);
+        SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 4, color);
         if (!surface) continue;
 
         SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -81,7 +81,7 @@ void HUD::Render(glm::vec2 cameraOffset) {
     std::string scoreText = std::to_string(score) + "$";
     SDL_Color textColor = { 255, 235, 0, 255 };
 
-    SDL_Surface* surface = TTF_RenderText_Blended(font, scoreText.c_str(), 8, textColor);
+    SDL_Surface* surface = TTF_RenderText_Blended(font, scoreText.c_str(), 4, textColor);
     if (!surface) return;
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_DestroySurface(surface);
@@ -89,13 +89,13 @@ void HUD::Render(glm::vec2 cameraOffset) {
     float textWidth, textHeight;
     SDL_GetTextureSize(texture, &textWidth, &textHeight);
 
-    SDL_FRect dstRect = { 40.0f, 13.0f, textWidth, textHeight };
+    SDL_FRect dstRect = { 36.0f, 16.0f, textWidth, textHeight };
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     SDL_DestroyTexture(texture);
 
     if (coinIconTex) {
-        SDL_FRect iconRect = { 12.0f, 20.0f, 20.0f, 20.0f };
-        SDL_FRect iconSrc = { 0, 0, 20, 20 };
+        SDL_FRect iconRect = { 9.0f, 13.0f, 20.0f, 20.0f };
+        SDL_FRect iconSrc = { 0, 0, 18, 18 };
         SDL_RenderTexture(renderer, coinIconTex, &iconSrc, &iconRect);
     }
 }

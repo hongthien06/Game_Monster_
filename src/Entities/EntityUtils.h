@@ -1,8 +1,9 @@
 ﻿#pragma once
 #include <SDL3/SDL.h>
 #include <glm/glm.hpp>
+#include <cmath>
 
-// ===== VẼ THANH MÁU =====
+// ===== VẼ THANH MÁU Ở TRÊN ĐẦU  =====
 inline void DrawHealthBar(SDL_Renderer* renderer, int currentHP, int maxHP,
     glm::vec2 position, glm::vec2 cameraOffset, float width) {
     if (currentHP <= 0 || maxHP <= 0) return;
@@ -42,6 +43,104 @@ inline void DrawHealthBar(SDL_Renderer* renderer, int currentHP, int maxHP,
     SDL_RenderRect(renderer, &bgRect);
 }
 
+// ===== VẼ THANH MÁU Ở GÓC
+inline void DrawCornerHealthBar(SDL_Renderer* renderer, int currentHP, int maxHP,
+    float x, float y, float width, float height, bool showHearts = false,
+    SDL_Texture* heartTexture = nullptr) {
+    if (maxHP <= 0) return;
+
+    float healthPercent = (float)currentHP / (float)maxHP;
+    healthPercent = (healthPercent < 0) ? 0 : (healthPercent > 1) ? 1 : healthPercent;
+
+
+    SDL_FRect bgRect = { x, y, width, height };
+    SDL_SetRenderDrawColor(renderer, 20, 20, 20, 255);
+    SDL_RenderFillRect(renderer, &bgRect);
+
+    // ===== CHỌN MÀU DỰA VÀO % HP =====
+    SDL_Color barColor;
+    if (healthPercent > 0.6f) {
+        barColor = { 46, 204, 113, 255 };      // Xanh lá
+    }
+    else if (healthPercent > 0.3f) {
+        barColor = { 241, 196, 15, 255 };      // Vàng
+    }
+    else {
+        barColor = { 231, 76, 60, 255 };       // Đỏ
+    }
+
+    // ===== VẼ THANH MÁU =====
+    float currentWidth = (width - 4) * healthPercent;
+    SDL_FRect hpRect = { x + 2, y + 2, currentWidth, height - 4 };
+    SDL_SetRenderDrawColor(renderer, barColor.r, barColor.g, barColor.b, barColor.a);
+    SDL_RenderFillRect(renderer, &hpRect);
+
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 100);
+    float segmentWidth = 20.0f; // Khoảng cách giữa các gạch
+    int numSegments = (int)(width / segmentWidth);
+
+    for (int i = 1; i < numSegments; i++) {
+        float segX = x + i * segmentWidth;
+
+        for (int j = 0; j < (int)height; j++) {
+            float lineX = segX + (j * 6.0f / height);
+            SDL_RenderPoint(renderer, lineX, y + j);
+        }
+    }
+
+    // ===== VẼ VIỀN =====
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_RenderRect(renderer, &bgRect);
+
+    // ===== VẼ TRÁI TIM TỪ TEXTURE =====
+    if (showHearts && heartTexture) {
+        int hearts = (currentHP + 19) / 20; // Mỗi trái tim = 20 HP
+        int maxHearts = (maxHP + 19) / 20;
+
+        float heartSize = 16.0f * 1.2f;
+        float heartSpacing = 20.0f;
+        float heartY = y - heartSize - 8.0f; // Vẽ trên thanh máu
+
+        // Kích thước mỗi frame trong sprite sheet
+        float frameWidth = 16.0f;
+        float frameHeight = 16.0f;
+
+        for (int i = 0; i < maxHearts; i++) {
+            float heartX = x + i * heartSpacing;
+
+            // Xác định frame
+            int frameIndex;
+            if (i < hearts) {
+                frameIndex = 0; // Trái tim đầy (đỏ)
+            }
+            else if (i == hearts && (currentHP % 20) > 0) {
+                frameIndex = 1; // Trái tim nửa (đen)
+            }
+            else {
+                frameIndex = 2; // Trái tim rỗng (xám)
+            }
+
+            // Source rect
+            SDL_FRect srcRect = {
+                frameIndex * frameWidth,
+                0.0f,
+                frameWidth,
+                frameHeight
+            };
+
+            // Destination rect
+            SDL_FRect dstRect = {
+                heartX,
+                heartY,
+                heartSize,
+                heartSize
+            };
+
+            SDL_RenderTexture(renderer, heartTexture, &srcRect, &dstRect);
+        }
+    }
+}
+
 // ===== KIỂM TRA VA CHẠM GIỮA 2 RECT =====
 inline bool CheckCollision(const SDL_FRect& a, const SDL_FRect& b) {
     return SDL_HasRectIntersectionFloat(&a, &b);
@@ -72,17 +171,6 @@ inline glm::vec2 GetDirection(glm::vec2 from, glm::vec2 to) {
         return dir / len;
     }
     return glm::vec2(0.0f, 0.0f);
-}
-
-// ===== VẼ TEXT (DEBUG) =====
-// Note: Cần SDL_ttf để vẽ text, đây chỉ là placeholder
-inline void DrawDebugText(SDL_Renderer* renderer, const char* text,
-    int x, int y, SDL_Color color) {
-    // TODO: Implement với SDL_ttf
-    // TTF_Font* font = ...
-    // SDL_Surface* surface = TTF_RenderText_Solid(font, text, color);
-    // SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
-    // SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
 }
 
 // ===== CLAMP VALUE =====

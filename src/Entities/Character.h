@@ -29,6 +29,8 @@ protected:
     SDL_Texture* attackTex;    // Tấn công cận chiến
     SDL_Texture* hurtTex;      // Bị thương
     SDL_Texture* deadTex;      // Chết
+    SDL_Texture* heartTexture;
+
 
     // ===== RENDERER =====
     SDL_Renderer* renderer;
@@ -72,7 +74,9 @@ public:
         const char* shotPath = nullptr,      // Tùy chọn
         const char* attackPath = nullptr,    // Tùy chọn
         const char* hurtPath = nullptr,      // Tùy chọn
-        const char* deadPath = nullptr);     // Tùy chọn
+        const char* deadPath = nullptr,
+        const char * heartPath = nullptr
+        );     // Tùy chọn
 
     virtual ~Character();
 
