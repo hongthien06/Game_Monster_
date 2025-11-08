@@ -5,9 +5,9 @@
 
 // Phase c?a Boss
 enum class BossPhase {
-    PHASE_1,    // Phase 1: 100% - 70% HP
-    PHASE_2,    // Phase 2: 70% - 40% HP
-    PHASE_3     // Phase 3: 40% - 0% HP (Cu?ng n?)
+    PHASE_1,    // 100% - 70% HP
+    PHASE_2,    // 70% - 40% HP
+    PHASE_3     // 40% - 0% HP (Cu?ng n?)
 };
 
 // CLASS BOSS - FINAL BOSS
@@ -19,47 +19,47 @@ private:
     bool hasEnteredPhase3;
 
     // ===== ULTIMATE ATTACK =====
-    bool isUsingUltimate;       // ?ang dùng chiêu cu?i?
-    float ultimateCooldown;     // Th?i gian h?i ultimate
-    float ultimateTimer;        // B? ??m ultimate
-    int ultimateDamage;         // Sát th??ng ultimate
-    float ultimateRadius;       // Ph?m vi AOE
+    bool isUsingUltimate;
+    float ultimateCooldown;
+    float ultimateTimer;
+    int ultimateDamage;
+    float ultimateRadius;
 
     // ===== SUMMON MINIONS =====
-    bool canSummon;             // Có th? tri?u h?i?
-    int summonCount;            // S? l??ng ?ã tri?u h?i
-    int maxSummons;             // S? l??ng t?i ?a
-    float summonCooldown;       // Th?i gian h?i summon
-    float summonTimer;          // B? ??m summon
+    bool canSummon;
+    int summonCount;
+    int maxSummons;
+    float summonCooldown;
+    float summonTimer;
 
     // ===== CHARGE ATTACK =====
-    bool isCharging;            // ?ang lao v? phía Player?
-    float chargeSpeed;          // T?c ?? lao
-    glm::vec2 chargeDirection;  // H??ng lao
-    float chargeDuration;       // Th?i gian lao
-    float chargeTimer;          // B? ??m charge
+    bool isCharging;
+    float chargeSpeed;
+    glm::vec2 chargeDirection;
+    float chargeDuration;
+    float chargeTimer;
 
     // ===== GROUND SLAM =====
-    bool isSlamming;            // ?ang ??p ??t?
-    float slamRadius;           // Ph?m vi slam
-    int slamDamage;             // Sát th??ng slam
+    bool isSlamming;
+    float slamRadius;
+    int slamDamage;
 
     // ===== BOSS INTRO =====
-    bool hasIntroPlayed;        // ?ã phát intro?
-    bool isInvulnerable;        // B?t t? (trong intro)?
-    float introTimer;           // B? ??m intro
+    bool hasIntroPlayed;
+    bool isInvulnerable;
+    float introTimer;
 
     // ===== PRIVATE METHODS =====
-    void CheckPhaseTransition(); // Ki?m tra chuy?n phase
-    void EnterPhase2();          // Vào phase 2
-    void EnterPhase3();          // Vào phase 3 (Rage mode)
+    void CheckPhaseTransition();
+    void EnterPhase2();
+    void EnterPhase3();
 
-    void UseUltimate();          // Dùng chiêu cu?i
-    void SummonMinions();        // Tri?u h?i minions
-    void ChargeAttack();         // Lao v? phía Player
-    void GroundSlam();           // ??p ??t t?o sóng xung kích
+    void UseUltimate();
+    void SummonMinions();
+    void ChargeAttack();
+    void GroundSlam();
 
-    void PlayIntro();            // Phát intro (rung màn hình)
+    void PlayIntro();
 
 public:
     // ===== CONSTRUCTOR =====
@@ -69,7 +69,7 @@ public:
     // ===== OVERRIDE METHODS =====
     virtual void Update(float deltaTime, Map& map) override;
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
-    virtual void PerformAttack() override;
+    virtual int PerformAttack() override;
     virtual void TakeDamage(int damage) override;
 
     // ===== GETTERS =====
@@ -78,5 +78,5 @@ public:
     virtual float GetSpriteWidth() const override { return 96.0f; }
 
     // ===== BOSS SPECIFIC =====
-    void TriggerIntro(); // Kích ho?t intro khi Player vào phòng
+    void TriggerIntro();
 };

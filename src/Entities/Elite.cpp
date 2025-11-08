@@ -1,8 +1,7 @@
 #include "Elite.h"
-#include "Player.h"
 #include <iostream>
 
-// ===== CONSTRUCTOR =====
+// ===== CONSTRUCTOR - PHÂN BI?T 3 LO?I TROLL =====
 Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
     : Enemy(renderer, startPos,
         nullptr, nullptr, nullptr, nullptr,
@@ -21,12 +20,15 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
     buffDuration(10.0f),
     buffTimer(0.0f)
 {
-    // Load textures d?a theo lo?i Troll
+    // ===== THI?T L?P THÔNG S? CHO T?NG LO?I TROLL =====
     std::string folderPath;
+    std::string prefix;
 
     switch (type) {
     case TrollType::TROLL_1:
+        // Troll 1 - C? b?n
         folderPath = "assets/images/Elites/1_TROLL/";
+        prefix = "Troll_01_1_";
         maxHealth = 120;
         health = 120;
         attackDamage = 20;
@@ -34,10 +36,13 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         attackCooldown = 1.5f;
         chaseSpeed = 100.0f;
         detectionRange = 220.0f;
+        std::cout << "[Troll 1] Khoi tao - HP: 120, Damage: 20\n";
         break;
 
     case TrollType::TROLL_2:
+        // Troll 2 - Trung bình
         folderPath = "assets/images/Elites/2_TROLL/";
+        prefix = "Troll_02_1_";
         maxHealth = 180;
         health = 180;
         attackDamage = 28;
@@ -46,10 +51,13 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         chaseSpeed = 110.0f;
         detectionRange = 250.0f;
         heavyAttackChargeTime = 0.8f;
+        std::cout << "[Troll 2] Khoi tao - HP: 180, Damage: 28\n";
         break;
 
     case TrollType::TROLL_3:
+        // Troll 3 - M?nh nh?t
         folderPath = "assets/images/Elites/3_TROLL/";
+        prefix = "Troll_03_1_";
         maxHealth = 250;
         health = 250;
         attackDamage = 35;
@@ -58,92 +66,90 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         chaseSpeed = 120.0f;
         detectionRange = 280.0f;
         specialCooldown = 4.0f;
+        std::cout << "[Troll 3] Khoi tao - HP: 250, Damage: 35\n";
         break;
+
+    default:
+        std::cerr << "[Elite] Loai Troll khong hop le!\n";
+        return;
     }
 
-    // Load các texture
-    LoadTexture(renderer, &idleTex, (folderPath + "Troll_01_1_IDLE_000.png").c_str());
-    LoadTexture(renderer, &walkTex, (folderPath + "Troll_01_1_WALK_000.png").c_str());
-    LoadTexture(renderer, &runTex, (folderPath + "Troll_01_1_RUN_000.png").c_str());
-    LoadTexture(renderer, &jumpTex, (folderPath + "Troll_01_1_JUMP_000.png").c_str());
-    LoadTexture(renderer, &attackTex, (folderPath + "Troll_01_1_ATTACK_000.png").c_str());
-    LoadTexture(renderer, &hurtTex, (folderPath + "Troll_01_1_HURT_000.png").c_str());
-    LoadTexture(renderer, &deadTex, (folderPath + "Troll_01_1_DIE_000.png").c_str());
+    // ===== LOAD TEXTURE ?ÚNG CHO T?NG LO?I =====
+    std::cout << "Loading textures tu: " << folderPath << prefix << "...\n";
+
+    LoadTexture(renderer, &idleTex, (folderPath + prefix + "IDLE_000.png").c_str());
+    LoadTexture(renderer, &walkTex, (folderPath + prefix + "WALK_000.png").c_str());
+    LoadTexture(renderer, &runTex, (folderPath + prefix + "RUN_000.png").c_str());
+    LoadTexture(renderer, &jumpTex, (folderPath + prefix + "JUMP_000.png").c_str());
+    LoadTexture(renderer, &attackTex, (folderPath + prefix + "ATTACK_000.png").c_str());
+    LoadTexture(renderer, &hurtTex, (folderPath + prefix + "HURT_000.png").c_str());
+    LoadTexture(renderer, &deadTex, (folderPath + prefix + "DIE_000.png").c_str());
 }
 
 // ===== DESTRUCTOR =====
 Elites::~Elites() {
 }
 
-// ===== G?M LÊN (BUFF ??NG ??I) =====
+// ===== G?M LÊN (BUFF) =====
 void Elites::Roar() {
     if (hasRoared) return;
 
     hasRoared = true;
     buffTimer = buffDuration;
-
-    // T?ng sát th??ng c?a b?n thân
     attackDamage = (int)(attackDamage * 1.3f);
 
-    std::cout << "Elite Troll gam len! Buff toan bo dong doi!\n";
-
-    // TODO: Tìm các Enemy khác trong ph?m vi và buff chúng
+    std::cout << "[Elite Troll] Gam len! Buff toan doi!\n";
 }
 
 // ===== HEAVY ATTACK =====
 void Elites::HeavyAttack() {
-    if (!targetPlayer || !IsPlayerInAttackRange()) return;
+    if (!IsTargetInAttackRange()) return;
 
     isHeavyAttack = true;
     heavyChargeTimer = heavyAttackChargeTime;
 
-    std::cout << "Elite Troll dang nap heavy attack!\n";
+    std::cout << "[Elite Troll] Dang nap Heavy Attack!\n";
 }
 
 // ===== CHIÊU ??C BI?T =====
 void Elites::PerformSpecialAttack() {
-    if (!targetPlayer || specialTimer > 0) return;
+    if (specialTimer > 0) return;
 
     isPerformingSpecial = true;
     specialTimer = specialCooldown;
 
-    // T?n công ph?m vi r?ng
-    float distToPlayer = GetDistanceToPlayer();
-    if (distToPlayer <= attackRange * 1.5f) {
-        targetPlayer->TakeDamage(specialDamage);
-        std::cout << "Elite Troll dung chieu dac biet! Sat thuong: " << specialDamage << "\n";
+    float distToTarget = GetDistanceToTarget();
+    if (distToTarget <= attackRange * 1.5f) {
+        std::cout << "[Elite Troll] CHIEU DAC BIET! Damage: " << specialDamage << "\n";
     }
-
-    // TODO: Thêm hi?u ?ng AOE
 }
 
 // ===== TH?C HI?N T?N CÔNG =====
-void Elites::PerformAttack() {
-    if (!targetPlayer) return;
-
+int Elites::PerformAttack() {
     // 30% c? h?i dùng chiêu ??c bi?t
     if (specialTimer <= 0 && (rand() % 100) < 30) {
         PerformSpecialAttack();
-        return;
+        return specialDamage;
+    }
+
+    // Heavy attack (ch? Troll 2 và 3)
+    if ((trollType == TrollType::TROLL_2 || trollType == TrollType::TROLL_3)
+        && (rand() % 100) < 40) {
+        HeavyAttack();
+        return attackDamage * 2;
     }
 
     // T?n công th??ng
-    if (IsPlayerInAttackRange()) {
-        // Troll 2 và 3 có c? h?i heavy attack
-        if ((trollType == TrollType::TROLL_2 || trollType == TrollType::TROLL_3)
-            && (rand() % 100) < 40) {
-            HeavyAttack();
-        }
-        else {
-            targetPlayer->TakeDamage(attackDamage);
-            std::cout << "Elite Troll tan cong! Sat thuong: " << attackDamage << "\n";
-        }
+    if (IsTargetInAttackRange()) {
+        std::cout << "[Elite Troll] Tan cong! Damage: " << attackDamage << "\n";
+        return attackDamage;
     }
+
+    return 0;
 }
 
 // ===== UPDATE =====
 void Elites::Update(float deltaTime, Map& map) {
-    // G?i Enemy::Update
     Enemy::Update(deltaTime, map);
 
     // Gi?m special timer
@@ -158,12 +164,6 @@ void Elites::Update(float deltaTime, Map& map) {
     if (isHeavyAttack) {
         heavyChargeTimer -= deltaTime;
         if (heavyChargeTimer <= 0) {
-            // Th?c hi?n heavy attack
-            if (targetPlayer && IsPlayerInAttackRange()) {
-                int heavyDamage = attackDamage * 2;
-                targetPlayer->TakeDamage(heavyDamage);
-                std::cout << "Elite Troll heavy attack! Sat thuong: " << heavyDamage << "\n";
-            }
             isHeavyAttack = false;
         }
     }
@@ -173,7 +173,7 @@ void Elites::Update(float deltaTime, Map& map) {
         buffTimer -= deltaTime;
     }
 
-    // Kích ho?t Roar khi vào combat l?n ??u (ch? 1 l?n)
+    // Kích ho?t Roar khi vào combat l?n ??u
     if (!hasRoared && enemyState == EnemyState::STATE_CHASE) {
         float healthPercent = (float)health / (float)maxHealth;
         if (healthPercent > 0.7f) {
@@ -184,25 +184,17 @@ void Elites::Update(float deltaTime, Map& map) {
 
 // ===== RENDER =====
 void Elites::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    // G?i Enemy::Render
     Enemy::Render(renderer, cameraOffset);
 
-    // Hi?u ?ng charge (heavy attack)
-    if (isHeavyAttack) {
-        // TODO: V? hi?u ?ng charging (vòng tròn sáng lên)
-    }
-
-    // Hi?u ?ng buff active
-    if (buffTimer > 0) {
-        // TODO: V? aura buff (vi?n vàng/??)
-    }
+    // TODO: Hi?u ?ng charging, buff
 }
 
-// ===== NH?N SÁT TH??NG =====
+// ===== TAKE DAMAGE =====
 void Elites::TakeDamage(int damage) {
-    // Gi?m sát th??ng n?u ?ang buff
+    // Gi?m damage khi ?ang buff
     if (buffTimer > 0) {
         damage = (int)(damage * 0.7f);
+        std::cout << "[Elite Troll] Giam sat thuong nho buff! Damage: " << damage << "\n";
     }
 
     Enemy::TakeDamage(damage);

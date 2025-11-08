@@ -1,5 +1,4 @@
 ﻿#include "Enemy.h"
-#include "Player.h"
 #include "../Systems/MovementSystem.h"
 #include <iostream>
 #include <cmath>
@@ -13,6 +12,7 @@ Enemy::Enemy()
     enemyType(EnemyType::MINION),
     enemyCurrentFrame(0),
     enemyAnimationTimer(0.0f),
+    targetPosition(0.0f, 0.0f),
     detectionRange(200.0f),
     attackRange(50.0f),
     attackCooldown(1.5f),
@@ -27,8 +27,7 @@ Enemy::Enemy()
     hurtTimer(0.0f),
     canTakeDamage(true),
     isAlive(true),
-    deathTimer(0.0f),
-    targetPlayer(nullptr)
+    deathTimer(0.0f)
 {
 }
 
@@ -49,6 +48,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     enemyType(type),
     enemyCurrentFrame(0),
     enemyAnimationTimer(0.0f),
+    targetPosition(0.0f, 0.0f),
     detectionRange(200.0f),
     attackRange(50.0f),
     attackCooldown(1.5f),
@@ -63,8 +63,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     hurtTimer(0.0f),
     canTakeDamage(true),
     isAlive(true),
-    deathTimer(0.0f),
-    targetPlayer(nullptr)
+    deathTimer(0.0f)
 {
     // Thiết lập thông số theo loại Enemy
     switch (type) {
@@ -93,26 +92,22 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
 
 // ===== DESTRUCTOR =====
 Enemy::~Enemy() {
-    targetPlayer = nullptr;
 }
 
-// ===== TÍNH KHOẢNG CÁCH ĐÉN PLAYER =====
-float Enemy::GetDistanceToPlayer() const {
-    if (!targetPlayer) return 999999.0f;
-
-    glm::vec2 playerPos = targetPlayer->GetPosition();
-    glm::vec2 diff = playerPos - position;
+// ===== TÍNH KHOẢNG CÁCH ĐẾN TARGET =====
+float Enemy::GetDistanceToTarget() const {
+    glm::vec2 diff = targetPosition - position;
     return glm::length(diff);
 }
 
-// ===== KIỂM TRA PLAYER TRONG TẦM PHÁT HIỆN =====
-bool Enemy::IsPlayerInRange() const {
-    return GetDistanceToPlayer() <= detectionRange;
+// ===== KIỂM TRA TARGET TRONG TẦM PHÁT HIỆN =====
+bool Enemy::IsTargetInRange() const {
+    return GetDistanceToTarget() <= detectionRange;
 }
 
-// ===== KIỂM TRA PLAYER TRONG TẦM TẤN CÔNG =====
-bool Enemy::IsPlayerInAttackRange() const {
-    return GetDistanceToPlayer() <= attackRange;
+// ===== KIỂM TRA TARGET TRONG TẦM TẤN CÔNG =====
+bool Enemy::IsTargetInAttackRange() const {
+    return GetDistanceToTarget() <= attackRange;
 }
 
 // ===== SET ĐIỂM TUẦN TRA =====
@@ -128,34 +123,27 @@ void Enemy::HandlePatrol(float deltaTime) {
     float distance = glm::length(direction);
 
     if (distance < 5.0f) {
-        // Đã đến điểm tuần tra, đổi hướng
         movingToB = !movingToB;
         velocity.x = 0.0f;
         return;
     }
 
-    // Di chuyển về phía điểm tuần tra
     direction = glm::normalize(direction);
     velocity.x = direction.x * patrolSpeed;
 
-    // Flip sprite theo hướng di chuyển
     if (velocity.x < 0) flipHorizontal = true;
     else if (velocity.x > 0) flipHorizontal = false;
 }
 
-// ===== XỬ LÝ ĐUỔI THEO PLAYER =====
+// ===== XỬ LÝ ĐUỔI THEO =====
 void Enemy::HandleChase(float deltaTime) {
-    if (!targetPlayer) return;
-
-    glm::vec2 playerPos = targetPlayer->GetPosition();
-    glm::vec2 direction = playerPos - position;
+    glm::vec2 direction = targetPosition - position;
     float distance = glm::length(direction);
 
     if (distance > 0.1f) {
         direction = glm::normalize(direction);
         velocity.x = direction.x * chaseSpeed;
 
-        // Flip sprite theo hướng đuổi
         if (velocity.x < 0) flipHorizontal = true;
         else if (velocity.x > 0) flipHorizontal = false;
     }
@@ -163,22 +151,19 @@ void Enemy::HandleChase(float deltaTime) {
 
 // ===== XỬ LÝ TẤN CÔNG =====
 void Enemy::HandleAttack(float deltaTime) {
-    // Giảm cooldown
     if (attackTimer > 0) {
         attackTimer -= deltaTime;
     }
 
-    // Dừng di chuyển khi tấn công
     velocity.x = 0.0f;
 
-    // Thực hiện tấn công nếu hết cooldown
     if (attackTimer <= 0) {
         PerformAttack();
         attackTimer = attackCooldown;
     }
 }
 
-// ===== CÂP NHẬT TRẠNG THÁI ENEMY =====
+// ===== CẬP NHẬT TRẠNG THÁI ENEMY =====
 void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
     if (!isAlive) {
         enemyState = EnemyState::STATE_DEAD;
@@ -186,7 +171,6 @@ void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
         return;
     }
 
-    // Xử lý trạng thái HURT
     if (enemyState == EnemyState::STATE_HURT) {
         hurtTimer -= deltaTime;
         velocity.x = 0.0f;
@@ -199,24 +183,21 @@ void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
     }
 
     // AI Logic
-    if (IsPlayerInAttackRange()) {
-        // Đủ gần để tấn công
+    if (IsTargetInAttackRange()) {
         enemyState = EnemyState::STATE_ATTACK;
         HandleAttack(deltaTime);
     }
-    else if (IsPlayerInRange() && targetPlayer && targetPlayer->IsAlive()) {
-        // Phát hiện Player, đuổi theo
+    else if (IsTargetInRange()) {
         enemyState = EnemyState::STATE_CHASE;
         HandleChase(deltaTime);
     }
     else {
-        // Tuần tra
         enemyState = EnemyState::STATE_PATROL;
         HandlePatrol(deltaTime);
     }
 }
 
-// ===== CÂP NHẬT ANIMATION ENEMY =====
+// ===== CẬP NHẬT ANIMATION ENEMY =====
 void Enemy::UpdateEnemyAnimation(float deltaTime) {
     if (enemyState != previousEnemyState) {
         enemyCurrentFrame = 0;
@@ -227,7 +208,6 @@ void Enemy::UpdateEnemyAnimation(float deltaTime) {
     int totalFrames = 0;
     float frameDuration = 0.0f;
 
-    // Chọn animation dựa vào state
     switch (enemyState) {
     case EnemyState::STATE_IDLE:
         totalFrames = GameConstants::IDLE_FRAMES;
@@ -258,7 +238,6 @@ void Enemy::UpdateEnemyAnimation(float deltaTime) {
         enemyAnimationTimer -= frameDuration;
 
         if (enemyState == EnemyState::STATE_DEAD) {
-            // Animation chết chỉ chạy 1 lần
             enemyCurrentFrame = std::min(enemyCurrentFrame + 1, totalFrames - 1);
         }
         else {
@@ -269,21 +248,15 @@ void Enemy::UpdateEnemyAnimation(float deltaTime) {
 
 // ===== UPDATE CHÍNH =====
 void Enemy::Update(float deltaTime, Map& map) {
-    // Cập nhật trạng thái AI
     UpdateEnemyState(deltaTime, map);
-
-    // Cập nhật animation
     UpdateEnemyAnimation(deltaTime);
 
-    // Áp dụng vật lý (trọng lực, va chạm)
     if (enemyState != EnemyState::STATE_DEAD) {
         MovementSystem::HandleMovement(*this, deltaTime, map);
     }
 
-    // Xử lý death timer
     if (!isAlive) {
         deathTimer += deltaTime;
-        // Sau 2 giây sẽ bị xóa (xử lý ở Game loop)
     }
 }
 
@@ -294,7 +267,6 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     int frameHeight = 0;
     int totalFrames = 0;
 
-    // Chọn texture dựa vào state
     switch (enemyState) {
     case EnemyState::STATE_IDLE:
         currentTexture = idleTex;
@@ -329,35 +301,8 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         break;
     }
 
-    // Vẽ health bar (chỉ khi còn sống và không ở trạng thái DEAD)
     if (isAlive) {
-        if (enemyType == EnemyType::BOSS) {
-            // BOSS: Vẽ thanh máu ở góc phải màn hình
-            // Lấy chiều rộng logical từ GameConstants
-            float screenWidth = (float)GameConstants::LOGICAL_WIDTH;
-
-            DrawCornerHealthBar(
-                renderer,
-                health,
-                maxHealth,
-                screenWidth - 220.0f,  // X: góc phải (trừ đi width + margin)
-                20.0f,                 // Y: góc trên
-                200.0f,                // Chiều rộng
-                20.0f,                 // Chiều cao
-                false                  // Boss không hiển thị trái tim
-            );
-        }
-        else {
-            // MINION & ELITE: Vẽ thanh máu trên đầu như cũ
-            DrawHealthBar(
-                renderer,
-                health,
-                maxHealth,
-                position,
-                cameraOffset,
-                GetSpriteWidth()
-            );
-        }
+        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, GetSpriteWidth());
     }
 
     if (!currentTexture) return;

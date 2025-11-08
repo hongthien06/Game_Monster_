@@ -5,9 +5,9 @@
 
 // Loại Troll
 enum class TrollType {
-    TROLL_1,  // Troll cấp 1 - Cơ bản
-    TROLL_2,  // Troll cấp 2 - Mạnh hơn
-    TROLL_3   // Troll cấp 3 - Mạnh nhất
+    TROLL_1,
+    TROLL_2,
+    TROLL_3
 };
 
 // CLASS ELITES - TROLLS
@@ -16,26 +16,26 @@ private:
     TrollType trollType;
 
     // ===== SPECIAL ATTACK SYSTEM =====
-    bool isPerformingSpecial;   // Đang thực hiện chiêu đặc biệt?
-    float specialCooldown;      // Thời gian hồi chiêu đặc biệt
-    float specialTimer;         // Bộ đếm special
-    int specialDamage;          // Sát thương chiêu đặc biệt
+    bool isPerformingSpecial;
+    float specialCooldown;
+    float specialTimer;
+    int specialDamage;
 
     // ===== HEAVY ATTACK =====
-    bool isHeavyAttack;         // Đang heavy attack?
-    float heavyAttackChargeTime;// Thời gian nạp đòn
-    float heavyChargeTimer;     // Bộ đếm charge
+    bool isHeavyAttack;
+    float heavyAttackChargeTime;
+    float heavyChargeTimer;
 
     // ===== ROAR/BUFF SYSTEM =====
-    bool hasRoared;             // Đã gầm?
-    float roarRadius;           // Phạm vi buff cho đồng đội
-    float buffDuration;         // Thời gian buff
-    float buffTimer;            // Bộ đếm buff
+    bool hasRoared;
+    float roarRadius;
+    float buffDuration;
+    float buffTimer;
 
     // ===== PRIVATE METHODS =====
-    void PerformSpecialAttack(); // Thực hiện chiêu đặc biệt
-    void HeavyAttack();          // Heavy attack
-    void Roar();                 // Gầm lên buff đồng đội
+    void PerformSpecialAttack();
+    void HeavyAttack();
+    void Roar();
 
 public:
     // ===== CONSTRUCTOR =====
@@ -45,7 +45,7 @@ public:
     // ===== OVERRIDE METHODS =====
     virtual void Update(float deltaTime, Map& map) override;
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
-    virtual void PerformAttack() override;
+    virtual int PerformAttack() override;
     virtual void TakeDamage(int damage) override;
 
     // ===== GETTERS =====

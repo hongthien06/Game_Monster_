@@ -80,13 +80,17 @@ bool Game::init() {
     // Tao nhan vat 
     spawnInitialItems();
 
+    // ===== THÊM MỚI: SPAWN ENEMIES =====
+    initEnemies();
+
     playerHUD = new HUD(renderer);
     playerHUD->LoadResources();
 
     audio = new Audio();
-    audio->playBGM("assets/audio/breath.mp3", true, 0.4f);  // tăng volume lên 0.4 để test
+    audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
     return true;
 }
+
 // Vong lap game
 void Game::run() {
     if (!init()) return;
@@ -116,6 +120,7 @@ void Game::handleEvents() {
     }
     SDL_PumpEvents();
 }
+
 // Cap nhat logic gameplay
 void Game::update(float deltaTime) {
     // Cap nhat chuyen dong, hoat anh nhan vat
@@ -127,6 +132,16 @@ void Game::update(float deltaTime) {
 
     //kiem tra item da nhat chua
     checkItemCollisions();
+
+    // ===== THÊM MỚI: CẬP NHẬT ENEMIES =====
+    updateEnemies(deltaTime);
+
+    // ===== THÊM MỚI: KIỂM TRA VA CHẠM ENEMIES =====
+    checkEnemyCollisions();
+
+    // ===== THÊM MỚI: CẬP NHẬT EFFECTS =====
+    effectManager.Update(deltaTime);
+
     camera.update(player->GetPosition(), deltaTime);
 
     if (playerHUD) playerHUD->Update(deltaTime);
@@ -138,11 +153,18 @@ void Game::render() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 200, 255);
     SDL_RenderClear(renderer);
 
-    glm::vec2 offset = camera.getOffset();
-   
+    // ===== THÊM MỚI: APPLY CAMERA SHAKE =====
+    glm::vec2 shake = effectManager.GetCameraShake();
+    glm::vec2 offset = camera.getOffset() + shake;
+
     if (map) map->drawMap(offset);
 
     if (player) player->Render(renderer, offset);
+
+    // ===== THÊM MỚI: RENDER ENEMIES =====
+    for (auto& enemy : enemies) {
+        enemy->Render(renderer, offset);
+    }
 
     // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
     map->drawCollisionDebug(offset);
@@ -150,10 +172,14 @@ void Game::render() {
     for (const auto& item : items)
         item->Render(renderer, offset);
 
+    // ===== THÊM MỚI: RENDER EFFECTS =====
+    effectManager.Render(renderer, offset);
+
     if (playerHUD) playerHUD->Render(offset);
 
     SDL_RenderPresent(renderer);
 }
+
 // Giai phong tai nguyen
 void Game::cleanup() {
     delete player;
@@ -162,7 +188,9 @@ void Game::cleanup() {
     delete playerHUD;
     items.clear();
 
-    //delete playerHUD;
+    // ===== THÊM MỚI: XÓA ENEMIES =====
+    enemies.clear();
+
     SDL_DestroyTexture(coinTex);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -211,4 +239,155 @@ void Game::checkItemCollisions() {
                 return false;
             }),
         items.end());
+}
+
+// ===== THÊM MỚI: KHỞI TẠO ENEMIES =====
+void Game::initEnemies() {
+    std::cout << "===== BAT DAU SPAWN ENEMIES =====\n";
+
+    // ===== VÙNG 1: SPAWN 3 ORC MINIONS (0-300) =====
+
+    // ORC 1
+    enemies.push_back(std::make_unique<Minions>(
+        renderer,
+        glm::vec2(150.0f, 200.0f),
+        MinionType::ORC_BERSERK
+    ));
+    enemies.back()->SetPatrolPoints(glm::vec2(120.0f, 200.0f), glm::vec2(180.0f, 200.0f));
+
+    // ORC 2
+    enemies.push_back(std::make_unique<Minions>(
+        renderer,
+        glm::vec2(250.0f, 200.0f),
+        MinionType::ORC_SHAMAN
+    ));
+    enemies.back()->SetPatrolPoints(glm::vec2(220.0f, 200.0f), glm::vec2(280.0f, 200.0f));
+
+    // ORC 3
+    enemies.push_back(std::make_unique<Minions>(
+        renderer,
+        glm::vec2(350.0f, 200.0f),
+        MinionType::ORC_WARRIOR
+    ));
+    enemies.back()->SetPatrolPoints(glm::vec2(320.0f, 200.0f), glm::vec2(380.0f, 200.0f));
+
+    // ===== VÙNG 2: SPAWN 3 TROLL ELITES (500-800) =====
+
+    // TROLL 1
+    enemies.push_back(std::make_unique<Elites>(
+        renderer,
+        glm::vec2(550.0f, 200.0f),
+        TrollType::TROLL_1
+    ));
+    enemies.back()->SetPatrolPoints(glm::vec2(520.0f, 200.0f), glm::vec2(580.0f, 200.0f));
+
+    // TROLL 2
+    enemies.push_back(std::make_unique<Elites>(
+        renderer,
+        glm::vec2(700.0f, 200.0f),
+        TrollType::TROLL_2
+    ));
+    enemies.back()->SetPatrolPoints(glm::vec2(670.0f, 200.0f), glm::vec2(730.0f, 200.0f));
+
+    // TROLL 3
+    enemies.push_back(std::make_unique<Elites>(
+        renderer,
+        glm::vec2(850.0f, 200.0f),
+        TrollType::TROLL_3
+    ));
+    enemies.back()->SetPatrolPoints(glm::vec2(820.0f, 200.0f), glm::vec2(880.0f, 200.0f));
+
+    // ===== VÙNG 3: SPAWN BOSS (1200+) =====
+    enemies.push_back(std::make_unique<Boss>(
+        renderer,
+        glm::vec2(1200.0f, 200.0f)
+    ));
+
+    std::cout << "===== DA SPAWN " << enemies.size() << " ENEMIES =====\n";
+}
+
+// ===== THÊM MỚI: CẬP NHẬT ENEMIES =====
+void Game::updateEnemies(float deltaTime) {
+    if (!player) return;
+
+    // Set vị trí Player cho tất cả enemies
+    glm::vec2 playerPos = player->GetPosition();
+
+    for (auto& enemy : enemies) {
+        enemy->SetTargetPosition(playerPos);
+        enemy->Update(deltaTime, *map);
+    }
+
+    // Xóa enemies đã chết sau 2 giây
+    enemies.erase(
+        std::remove_if(enemies.begin(), enemies.end(),
+            [](const std::unique_ptr<Enemy>& e) {
+                return !e->IsAlive() && e->GetDeathTimer() > 2.0f;
+            }),
+        enemies.end()
+    );
+}
+
+// ===== THÊM MỚI: KIỂM TRA VA CHẠM =====
+void Game::checkEnemyCollisions() {
+    if (!player) return;
+
+    SDL_FRect playerBox = player->GetBoundingBox();
+
+    // ===== VA CHẠM 1: PROJECTILE CỦA PLAYER -> ENEMY =====
+    for (auto& proj : player->GetProjectiles()) {
+        if (!proj->IsActive()) continue;
+
+        for (auto& enemy : enemies) {
+            if (!enemy->IsAlive()) continue;
+
+            SDL_FRect projBox = proj->GetBoundingBox();
+            SDL_FRect enemyBox = enemy->GetBoundingBox();
+
+            if (SDL_HasRectIntersectionFloat(&projBox, &enemyBox)) {
+                // Enemy nhận damage
+                enemy->TakeDamage(proj->GetDamage());
+
+                // Projectile biến mất
+                proj->Deactivate();
+
+                // Tạo hiệu ứng nổ
+                effectManager.CreateExplosion(
+                    proj->GetPosition(),
+                    15.0f,
+                    SDL_Color{ 255, 150, 0, 255 }
+                );
+
+                std::cout << "Projectile trung Enemy!\n";
+                break;
+            }
+        }
+    }
+
+    // ===== VA CHẠM 2: ENEMY TẤN CÔNG -> PLAYER =====
+    for (auto& enemy : enemies) {
+        if (!enemy->IsAlive()) continue;
+
+        // Chỉ gây damage khi đang tấn công
+        if (enemy->GetEnemyState() == EnemyState::STATE_ATTACK) {
+            SDL_FRect enemyBox = enemy->GetBoundingBox();
+
+            if (SDL_HasRectIntersectionFloat(&playerBox, &enemyBox)) {
+                int damage = enemy->PerformAttack();
+                if (damage > 0) {
+                    player->TakeDamage(damage);
+
+                    // Flash effect khi Player bị đánh
+                    effectManager.CreateFlash(
+                        player->GetPosition(),
+                        SDL_Color{ 255, 0, 0, 100 },
+                        0.3f,
+                        0.15f
+                    );
+
+                    std::cout << "Enemy tan cong Player! Damage: " << damage << "\n";
+                }
+            }
+        }
+    }
 }

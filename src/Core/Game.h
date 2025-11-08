@@ -5,6 +5,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
+#include <memory>  // ← THÊM: Cho std::unique_ptr
 
 #include "../Config/GameConstants.h"
 #include "../Core/Camera.h"
@@ -14,6 +15,13 @@
 #include "../Core/Audio.h"
 #include "../Core/HUD.h" 
 #include <SDL3_ttf/SDL_ttf.h>
+
+// ===== THÊM MỚI: INCLUDE ENEMY SYSTEM =====
+#include "../Entities/Enemy.h"
+#include "../Entities/Minion.h"
+#include "../Entities/Elite.h"
+#include "../Entities/Boss.h"
+#include "../Components/Effect.h"
 
 class Game {
 private:
@@ -25,10 +33,14 @@ private:
     Player* player;
     Camera camera;
     Audio* audio;
-    HUD* playerHUD; 
+    HUD* playerHUD;
 
     std::vector<std::unique_ptr<Item>> items;
     SDL_Texture* coinTex;
+
+    // ===== THÊM MỚI: ENEMY SYSTEM =====
+    std::vector<std::unique_ptr<Enemy>> enemies;
+    EffectManager effectManager;
 
 public:
     Game();
@@ -44,4 +56,9 @@ public:
     bool loadItemTextures();
     void spawnInitialItems();
     void checkItemCollisions();
+
+    // ===== THÊM MỚI: ENEMY METHODS =====
+    void initEnemies();
+    void updateEnemies(float deltaTime);
+    void checkEnemyCollisions();
 };

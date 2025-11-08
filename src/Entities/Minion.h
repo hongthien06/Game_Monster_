@@ -14,19 +14,19 @@ private:
     MinionType minionType;
 
     // ===== ORC SHAMAN - MAGIC SYSTEM =====
-    SDL_Texture* magicTex1;     // Texture magic 1
-    SDL_Texture* magicTex2;     // Texture magic 2
-    bool isCastingMagic;        // Đang thi pháp thuật?
-    float magicCooldown;        // Thời gian hồi pháp thuật
-    float magicTimer;           // Bộ đếm magic
+    SDL_Texture* magicTex1;
+    SDL_Texture* magicTex2;
+    bool isCastingMagic;
+    float magicCooldown;
+    float magicTimer;
 
     // ===== BERSERK RAGE SYSTEM =====
-    bool isRaging;              // Đang trong trạng thái cuồng nộ?
-    float rageThreshold;        // Ngưỡng máu kích hoạt rage (%)
+    bool isRaging;
+    float rageThreshold;
 
     // ===== PRIVATE METHODS =====
-    void CastMagic();           // Thi pháp thuật (Shaman)
-    void ActivateRage();        // Kích hoạt rage (Berserk)
+    void CastMagic();
+    void ActivateRage();
 
 public:
     // ===== CONSTRUCTOR =====
@@ -36,7 +36,7 @@ public:
     // ===== OVERRIDE METHODS =====
     virtual void Update(float deltaTime, Map& map) override;
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
-    virtual void PerformAttack() override;
+    virtual int PerformAttack() override;
     virtual void TakeDamage(int damage) override;
 
     // ===== GETTERS =====

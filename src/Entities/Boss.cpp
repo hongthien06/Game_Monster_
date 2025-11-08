@@ -1,5 +1,4 @@
 ﻿#include "Boss.h"
-#include "Player.h"
 #include <iostream>
 #include <cmath>
 
@@ -39,7 +38,6 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     isInvulnerable(true),
     introTimer(3.0f)
 {
-    // Thông số Boss
     maxHealth = 800;
     health = 800;
     attackDamage = 40;
@@ -55,10 +53,8 @@ Boss::~Boss() {
 
 // ===== PHÁT INTRO =====
 void Boss::PlayIntro() {
-    std::cout << "=== BOSS XUẤT HIỆN ===\n";
+    std::cout << "=== BOSS XUAT HIEN ===\n";
     std::cout << "Rung man hinh!\n";
-    // TODO: Trigger camera shake effect
-    // TODO: Play boss music
 }
 
 // ===== KÍCH HOẠT INTRO =====
@@ -73,12 +69,10 @@ void Boss::TriggerIntro() {
 void Boss::CheckPhaseTransition() {
     float healthPercent = (float)health / (float)maxHealth;
 
-    // Chuyển sang Phase 2 (70% HP)
     if (!hasEnteredPhase2 && healthPercent <= 0.7f) {
         EnterPhase2();
     }
 
-    // Chuyển sang Phase 3 (40% HP)
     if (!hasEnteredPhase3 && healthPercent <= 0.4f) {
         EnterPhase3();
     }
@@ -91,37 +85,29 @@ void Boss::EnterPhase2() {
 
     std::cout << "=== BOSS PHASE 2 ===\n";
 
-    // Tăng sức mạnh
     attackDamage = (int)(attackDamage * 1.3f);
     chaseSpeed *= 1.2f;
     attackCooldown *= 0.8f;
 
-    // Triệu hồi minions
     if (canSummon && summonCount < maxSummons) {
         SummonMinions();
     }
-
-    // TODO: Hiệu ứng chuyển phase (flash, particles)
 }
 
-// ===== VÀO PHASE 3 (RAGE MODE) =====
+// ===== VÀO PHASE 3 (RAGE) =====
 void Boss::EnterPhase3() {
     hasEnteredPhase3 = true;
     currentPhase = BossPhase::PHASE_3;
 
     std::cout << "=== BOSS PHASE 3: RAGE MODE ===\n";
 
-    // Tăng sức mạnh mạnh mẽ
     attackDamage = (int)(attackDamage * 1.5f);
     chaseSpeed *= 1.4f;
     attackCooldown *= 0.6f;
     ultimateCooldown *= 0.7f;
 
-    // Rung màn hình
     std::cout << "Rung man hinh manh!\n";
-    // TODO: Strong camera shake
 
-    // Triệu hồi thêm minions
     if (canSummon) {
         SummonMinions();
     }
@@ -132,103 +118,87 @@ void Boss::SummonMinions() {
     if (summonCount >= maxSummons || summonTimer > 0) return;
 
     summonTimer = summonCooldown;
-    summonCount += 2; // Triệu hồi 2 minions mỗi lần
+    summonCount += 2;
 
-    std::cout << "Boss trieu hoi 2 Minions! Tong so: " << summonCount << "\n";
-
-    // TODO: Spawn 2 minions ở 2 bên Boss
-    // glm::vec2 leftSpawn = position + glm::vec2(-80.0f, 0.0f);
-    // glm::vec2 rightSpawn = position + glm::vec2(80.0f, 0.0f);
+    std::cout << "Boss trieu hoi 2 Minions!\n";
 }
 
-// ===== LAO VỀ PHÍA PLAYER =====
+// ===== LAO VỀ PHÍA TARGET =====
 void Boss::ChargeAttack() {
-    if (!targetPlayer || isCharging) return;
+    if (isCharging) return;
 
     isCharging = true;
     chargeTimer = chargeDuration;
 
-    // Tính hướng lao
-    glm::vec2 playerPos = targetPlayer->GetPosition();
-    chargeDirection = glm::normalize(playerPos - position);
+    chargeDirection = glm::normalize(targetPosition - position);
 
-    std::cout << "Boss lao ve phia Player!\n";
+    std::cout << "Boss lao!\n";
 }
 
 // ===== ĐẬP ĐẤT =====
 void Boss::GroundSlam() {
-    if (!targetPlayer || isSlamming) return;
+    if (isSlamming) return;
 
     isSlamming = true;
 
-    // Kiểm tra Player có trong phạm vi không
-    float distToPlayer = GetDistanceToPlayer();
-    if (distToPlayer <= slamRadius) {
-        targetPlayer->TakeDamage(slamDamage);
-        std::cout << "Boss dap dat! Player nhan " << slamDamage << " sat thuong!\n";
+    float distToTarget = GetDistanceToTarget();
+    if (distToTarget <= slamRadius) {
+        std::cout << "Boss dap dat! Damage: " << slamDamage << "\n";
     }
-
-    // TODO: Tạo hiệu ứng sóng xung kích
 
     isSlamming = false;
 }
 
-// ===== DÙNG CHIÊU CUỐI =====
+// ===== DÙNG ULTIMATE =====
 void Boss::UseUltimate() {
-    if (!targetPlayer || ultimateTimer > 0) return;
+    if (ultimateTimer > 0) return;
 
     isUsingUltimate = true;
     ultimateTimer = ultimateCooldown;
 
-    std::cout << "=== BOSS DUNG CHIEU CUOI ===\n";
+    std::cout << "=== BOSS ULTIMATE ===\n";
 
-    // AOE damage
-    float distToPlayer = GetDistanceToPlayer();
-    if (distToPlayer <= ultimateRadius) {
-        targetPlayer->TakeDamage(ultimateDamage);
-        std::cout << "Player nhan " << ultimateDamage << " sat thuong tu ultimate!\n";
+    float distToTarget = GetDistanceToTarget();
+    if (distToTarget <= ultimateRadius) {
+        std::cout << "Target nhan " << ultimateDamage << " damage!\n";
     }
-
-    // TODO: Hiệu ứng nổ lớn, sóng xung kích
-    // TODO: Rung màn hình
 
     isUsingUltimate = false;
 }
 
 // ===== THỰC HIỆN TẤN CÔNG =====
-void Boss::PerformAttack() {
-    if (!targetPlayer) return;
-
-    // Phase 3: Dùng ultimate thường xuyên hơn
+int Boss::PerformAttack() {
+    // Phase 3: Ultimate
     if (currentPhase == BossPhase::PHASE_3 && ultimateTimer <= 0) {
         if ((rand() % 100) < 40) {
             UseUltimate();
-            return;
+            return ultimateDamage;
         }
     }
 
-    // Phase 2: Charge attack
+    // Phase 2: Charge
     if (currentPhase == BossPhase::PHASE_2 && (rand() % 100) < 30) {
         ChargeAttack();
-        return;
+        return attackDamage;
     }
 
     // Tấn công thường
-    if (IsPlayerInAttackRange()) {
-        // Ground slam hoặc tấn công thường
+    if (IsTargetInAttackRange()) {
         if ((rand() % 100) < 50) {
             GroundSlam();
+            return slamDamage;
         }
         else {
-            targetPlayer->TakeDamage(attackDamage);
-            std::cout << "Boss tan cong! Sat thuong: " << attackDamage << "\n";
+            std::cout << "Boss tan cong! Damage: " << attackDamage << "\n";
+            return attackDamage;
         }
     }
+
+    return 0;
 }
 
 // ===== UPDATE =====
 void Boss::Update(float deltaTime, Map& map) {
-    // Xử lý intro
     if (!hasIntroPlayed) {
         introTimer -= deltaTime;
         if (introTimer <= 0) {
@@ -239,14 +209,10 @@ void Boss::Update(float deltaTime, Map& map) {
         return;
     }
 
-    // Kiểm tra chuyển phase
     CheckPhaseTransition();
 
-    // Xử lý charge attack
     if (isCharging) {
         chargeTimer -= deltaTime;
-
-        // Di chuyển theo hướng charge
         velocity = chargeDirection * chargeSpeed;
 
         if (chargeTimer <= 0) {
@@ -255,47 +221,31 @@ void Boss::Update(float deltaTime, Map& map) {
         }
     }
 
-    // Giảm các timer
     if (ultimateTimer > 0) ultimateTimer -= deltaTime;
     if (summonTimer > 0) summonTimer -= deltaTime;
 
-    // Gọi Enemy::Update
     Enemy::Update(deltaTime, map);
 }
 
 // ===== RENDER =====
 void Boss::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    // Gọi Enemy::Render
     Enemy::Render(renderer, cameraOffset);
 
-    // Hiệu ứng phase 3 (aura đỏ)
-    if (currentPhase == BossPhase::PHASE_3) {
-        // TODO: Vẽ aura rage (đỏ, particles)
-    }
-
-    // Hiệu ứng charging
-    if (isCharging) {
-        // TODO: Vẽ trail khi lao
-    }
-
-    // Vẽ health bar lớn hơn cho Boss
-    // TODO: Custom Boss health bar ở góc màn hình
+    // TODO: Hiệu ứng Phase 3, Charging, Ultimate
 }
 
-// ===== NHẬN SÁT THƯƠNG =====
+// ===== TAKE DAMAGE =====
 void Boss::TakeDamage(int damage) {
-    // Bất tử trong intro
     if (isInvulnerable) {
-        std::cout << "Boss dang bat tu!\n";
+        std::cout << "Boss bat tu!\n";
         return;
     }
 
-    // Phase 3: Giảm sát thương nhận vào
     if (currentPhase == BossPhase::PHASE_3) {
         damage = (int)(damage * 0.8f);
     }
 
     Enemy::TakeDamage(damage);
 
-    std::cout << "Boss nhan " << damage << " sat thuong! HP: " << health << "/" << maxHealth << "\n";
+    std::cout << "Boss nhan " << damage << " damage! HP: " << health << "/" << maxHealth << "\n";
 }

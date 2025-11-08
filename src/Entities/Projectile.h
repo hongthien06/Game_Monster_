@@ -40,15 +40,11 @@ protected:
     int maxTrailPoints;
 
 public:
-
     Projectile(SDL_Renderer* renderer, glm::vec2 startPos,
         glm::vec2 direction, float speed, int damage);
 
-
     virtual ~Projectile();
     virtual void Update(float deltaTime);
-
-
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
 
     // ===== GETTERS =====
@@ -57,15 +53,25 @@ public:
     int GetDamage() const { return damage; }
     float GetRotation() const { return rotation; }
 
+    // ===== THÊM MỚI: BoundingBox và Deactivate =====
+    SDL_FRect GetBoundingBox() const {
+        return SDL_FRect{
+            position.x - 8.0f,
+            position.y - 4.0f,
+            16.0f,
+            8.0f
+        };
+    }
+
+    void Deactivate() {
+        isActive = false;
+    }
+
     // ===== SETTERS =====
     void SetTrailEnabled(bool enabled) { hasTrail = enabled; }
     void SetTrailColor(SDL_Color color) { trailColor = color; }
 
-
     void UpdateTrail(float deltaTime);
-
-
     void RenderTrail(SDL_Renderer* renderer, glm::vec2 cameraOffset);
-
     void CalculateRotation();
 };

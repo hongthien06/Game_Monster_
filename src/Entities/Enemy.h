@@ -32,6 +32,7 @@ protected:
     float enemyAnimationTimer;
 
     // ===== AI & COMBAT =====
+    glm::vec2 targetPosition;   // Vị trí mục tiêu (Player position)
     float detectionRange;       // Phạm vi phát hiện Player
     float attackRange;          // Phạm vi tấn công
     float attackCooldown;       // Thời gian hồi chiêu
@@ -55,9 +56,6 @@ protected:
     bool isAlive;               // Còn sống?
     float deathTimer;           // Thời gian trước khi xóa
 
-    // ===== REFERENCE =====
-    class Player* targetPlayer; // Con trỏ đến Player (để tính khoảng cách)
-
     // ===== PROTECTED METHODS =====
     virtual void UpdateEnemyState(float deltaTime, Map& map);
     virtual void UpdateEnemyAnimation(float deltaTime);
@@ -65,14 +63,14 @@ protected:
     virtual void HandleChase(float deltaTime);
     virtual void HandleAttack(float deltaTime);
 
-    // Tính khoảng cách đến Player
-    float GetDistanceToPlayer() const;
+    // Tính khoảng cách đến target
+    float GetDistanceToTarget() const;
 
-    // Kiểm tra Player có trong tầm phát hiện không
-    bool IsPlayerInRange() const;
+    // Kiểm tra target có trong tầm phát hiện không
+    bool IsTargetInRange() const;
 
-    // Kiểm tra Player có trong tầm tấn công không
-    bool IsPlayerInAttackRange() const;
+    // Kiểm tra target có trong tầm tấn công không
+    bool IsTargetInAttackRange() const;
 
 public:
     // ===== CONSTRUCTOR =====
@@ -98,7 +96,7 @@ public:
     virtual void Die();
 
     // ===== SETTERS =====
-    void SetTargetPlayer(Player* player) { targetPlayer = player; }
+    void SetTargetPosition(glm::vec2 pos) { targetPosition = pos; }
     void SetPatrolPoints(glm::vec2 pointA, glm::vec2 pointB);
     void SetDetectionRange(float range) { detectionRange = range; }
     void SetAttackRange(float range) { attackRange = range; }
@@ -110,10 +108,11 @@ public:
     EnemyState GetEnemyState() const { return enemyState; }
     EnemyType GetEnemyType() const { return enemyType; }
     int GetAttackDamage() const { return attackDamage; }
+    float GetDeathTimer() const { return deathTimer; }
 
     // ===== BOUNDING BOX (OVERRIDE) =====
     virtual SDL_FRect GetBoundingBox() const override;
 
     // ===== VIRTUAL METHOD CHO SUBCLASS =====
-    virtual void PerformAttack() {} // Thực hiện tấn công (override ở subclass)
+    virtual int PerformAttack() { return attackDamage; } // Trả về damage để Game loop xử lý
 };
