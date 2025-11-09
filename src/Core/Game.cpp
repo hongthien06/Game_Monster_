@@ -3,6 +3,8 @@
 #include <SDL3_ttf/SDL_ttf.h>
 #include "Game.h"
 #include "../Environment/Map.h"
+#include "../Systems/MovementSystem.h"
+#include "../Systems/TrailSystem.h"
 #include "Camera.h"
 #include "../Entities/Player.h"
 #include "../Core/Audio.h"
@@ -60,6 +62,7 @@ bool Game::init() {
         std::cerr << "Renderer Creation Error: " << SDL_GetError() << std::endl;
         return false;
     }
+    TrailSystem::Init(renderer);
 
     SDL_SetRenderLogicalPresentation(renderer,
         GameConstants::LOGICAL_WIDTH,
@@ -88,6 +91,8 @@ bool Game::init() {
 
     audio = new Audio();
     audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
+    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
     return true;
 }
 
@@ -160,6 +165,7 @@ void Game::render() {
     if (map) map->drawMap(offset);
 
     if (player) player->Render(renderer, offset);
+    MovementSystem::RenderDashTrails(renderer);
 
     // ===== THÊM MỚI: RENDER ENEMIES =====
     for (auto& enemy : enemies) {
@@ -190,6 +196,7 @@ void Game::cleanup() {
 
     // ===== THÊM MỚI: XÓA ENEMIES =====
     enemies.clear();
+    TrailSystem::Cleanup();
 
     SDL_DestroyTexture(coinTex);
     SDL_DestroyRenderer(renderer);
