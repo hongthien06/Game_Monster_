@@ -15,9 +15,12 @@ Map::Map(SDL_Renderer* renderer)
       tilesetColumns(0)
 {
     playerSpawn = {0, 0};
-    backgroundTexture = IMG_LoadTexture(renderer, "assets/images/Backgrounds/Mountain.png");
-    if (!backgroundTexture) {
-    std::cout << "Failed to load background: " << SDL_GetError() << "\n";
+    bgFar  = IMG_LoadTexture(renderer, "assets/images/Layers/1.png");
+    bgMid  = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
+    bgNear = IMG_LoadTexture(renderer, "assets/images/Layers/3.png");
+
+    if (!bgFar || !bgMid || !bgNear) {
+     cout << "Failed to load background: " << SDL_GetError() << "\n";
     }
 }
 
@@ -27,9 +30,13 @@ Map::~Map() {
         tilesetTexture = nullptr;
     }
 
-    if (backgroundTexture) {
-    SDL_DestroyTexture(backgroundTexture);
-    backgroundTexture = nullptr;
+    if (bgFar && bgMid && bgNear) {
+    SDL_DestroyTexture(bgFar);
+    SDL_DestroyTexture(bgMid);
+    SDL_DestroyTexture(bgNear);
+    bgFar = nullptr;
+    bgMid = nullptr;
+    bgNear = nullptr;
     }
 }
 
@@ -248,15 +255,29 @@ void Map::drawMap(const glm::vec2& cameraOffset) {
     return;
 }
 
-// VẼ NỀN THEO MÀN HÌNH (cover + no parallax)
-    if (backgroundTexture) {
-        SDL_FRect bg;
-        bg.x = 0;
-        bg.y = 0;
-        bg.w = 400;   // screenWidth bạn đang dùng
-        bg.h = 300;    // screenHeight bạn đang dùng
-        SDL_RenderTexture(renderer, backgroundTexture, NULL, &bg);
-    }
+    auto drawParallax = [&](SDL_Texture* tex, float factor) {
+        if (!tex) return;
+
+        float texW, texH;
+        SDL_GetTextureSize(tex, &texW, &texH);
+
+        // offset theo tỉ lệ parallax
+        float offsetX = -cameraOffset.x * factor;
+
+        // vẽ lặp liên tục 2 ảnh để tránh bị hở
+        float x = fmod(offsetX, (float)texW);
+        if (x > 0) x -= texW;
+
+        for (; x < 400; x += texW) { // 400 = screenWidth
+            SDL_FRect dst = { x, 0, (float)texW, (float)texH };
+            SDL_RenderTexture(renderer, tex, NULL, &dst);
+        }
+    };
+
+    // thứ tự từ xa đến gần
+    drawParallax(bgFar,  0.2f);
+    drawParallax(bgMid,  0.5f);
+    drawParallax(bgNear, 0.8f);
 
 
 

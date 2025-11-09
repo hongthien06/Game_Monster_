@@ -54,7 +54,9 @@ private:
     // ===== SDL / Rendering =====
     SDL_Renderer* renderer;
     SDL_Texture* tilesetTexture;
-    SDL_Texture* backgroundTexture = nullptr;        // Ve nen
+    SDL_Texture* bgFar = nullptr;     // lớp xa (màu xanh tím)
+    SDL_Texture* bgMid = nullptr;     // lớp giữa (rừng tối)
+    SDL_Texture* bgNear = nullptr;    // lớp gần (cây to nhiều chi tiết)
 
     // ===== Tile / Map properties =====
     int tileWidth;
