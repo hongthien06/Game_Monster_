@@ -1,12 +1,13 @@
 #include "Effect.h"
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 // ===== EXPLOSION EFFECT =====
 ExplosionEffect::ExplosionEffect(glm::vec2 pos, float rad, SDL_Color col)
     : Effect(EffectType::EXPLOSION, pos, 1.0f), radius(rad), color(col)
 {
-    // T?o các h?t n?
+    // T?o cï¿½c h?t n?
     int particleCount = 30;
     for (int i = 0; i < particleCount; i++) {
         float angle = (float)i / particleCount * 6.28318f; // 2*PI
@@ -24,12 +25,12 @@ ExplosionEffect::ExplosionEffect(glm::vec2 pos, float rad, SDL_Color col)
 void ExplosionEffect::Update(float deltaTime) {
     Effect::Update(deltaTime);
 
-    // C?p nh?t các h?t
+    // C?p nh?t cï¿½c h?t
     for (auto& particle : particles) {
         particle.Update(deltaTime);
     }
 
-    // Xóa các h?t ?ã h?t lifetime
+    // Xï¿½a cï¿½c h?t ?ï¿½ h?t lifetime
     particles.erase(
         std::remove_if(particles.begin(), particles.end(),
             [](const Particle& p) { return !p.IsAlive(); }),
@@ -74,7 +75,7 @@ void FlashEffect::Update(float deltaTime) {
 }
 
 void FlashEffect::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    // V? hình ch? nh?t ph? toàn màn hình v?i alpha gi?m d?n
+    // V? hï¿½nh ch? nh?t ph? toï¿½n mï¿½n hï¿½nh v?i alpha gi?m d?n
     SDL_Color col = flashColor;
     col.a = (Uint8)(intensity * 255.0f);
 
@@ -101,7 +102,7 @@ void TrailEffect::AddPoint(glm::vec2 point) {
 void TrailEffect::Update(float deltaTime) {
     Effect::Update(deltaTime);
 
-    // Xóa d?n các ?i?m
+    // Xï¿½a d?n cï¿½c ?i?m
     if (!trailPoints.empty() && (rand() % 100) < 30) {
         trailPoints.erase(trailPoints.begin());
     }
@@ -114,7 +115,7 @@ void TrailEffect::Update(float deltaTime) {
 void TrailEffect::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (trailPoints.size() < 2) return;
 
-    // V? các ?o?n th?ng n?i các ?i?m
+    // V? cï¿½c ?o?n th?ng n?i cï¿½c ?i?m
     for (size_t i = 0; i < trailPoints.size() - 1; i++) {
         float alpha = (float)i / trailPoints.size() * 255.0f;
         SDL_Color col = trailColor;
@@ -198,12 +199,12 @@ void EffectManager::Update(float deltaTime) {
     // C?p nh?t screen shake
     screenShake.Update(deltaTime);
 
-    // C?p nh?t các effect
+    // C?p nh?t cï¿½c effect
     for (auto& effect : effects) {
         effect->Update(deltaTime);
     }
 
-    // Xóa các effect không active
+    // Xï¿½a cï¿½c effect khï¿½ng active
     effects.erase(
         std::remove_if(effects.begin(), effects.end(),
             [](const std::unique_ptr<Effect>& e) { return !e->IsActive(); }),
