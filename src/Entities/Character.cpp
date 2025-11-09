@@ -177,15 +177,13 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
     if (!tex) return;
 
-    // Xác định vùng cắt trong sprite sheet
-    SDL_FRect src = { 0.0, 0.0f, (float)frameWidth / 6, (float)frameHeight / 6 };
-    // Vị trí vẽ trên màn hình
-    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 0, 0 };
-    // Vẽ nhân vật
-    SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr,
-        flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
+    // Xac dinh vung cat trong sprite sheet
+    SDL_FRect src = { (float)currentFrame * frameWidth, 0.0f, (float)frameWidth, (float)frameHeight };
+    // Vi tri ve tren man hinh
+    SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 48.0f, 48.0f };
+    // Ve nhan vat
+    SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr, flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
-// ===== TRANSFORM =====
 void Character::SetPosition(const glm::vec2& pos) { position = pos; }
 glm::vec2 Character::GetPosition() const { return position; }
