@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include <SDL3/SDL.h>
 #include <vector>
+#include <glm/glm.hpp>  // ✅ thêm để dùng glm::vec2 cho offset
 
 struct AfterImage {
     SDL_Texture* texture;
@@ -19,5 +20,7 @@ public:
         SDL_Color color, bool flipHorizontal);
 
     static void Update(std::vector<AfterImage>& list, float deltaTime);
-    static void Render(SDL_Renderer* renderer, const std::vector<AfterImage>& list);
+
+    // ✅ thêm offset camera để vẽ đúng vị trí trên màn hình
+    static void Render(SDL_Renderer* renderer, const std::vector<AfterImage>& list, const glm::vec2& offset);
 };

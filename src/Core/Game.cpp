@@ -163,7 +163,7 @@ void Game::render() {
 
     if (map) map->drawMap(offset);
 
-    MovementSystem::RenderDashTrails(renderer);
+    MovementSystem::RenderDashTrails(renderer, offset);
     if (player) player->Render(renderer, offset);
 
     // ===== THÊM MỚI: RENDER ENEMIES =====

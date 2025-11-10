@@ -23,19 +23,24 @@ void AfterImageSystem::Update(std::vector<AfterImage>& list, float deltaTime) {
     }
 }
 
-void AfterImageSystem::Render(SDL_Renderer* renderer, const std::vector<AfterImage>& list) {
+void AfterImageSystem::Render(SDL_Renderer* renderer, const std::vector<AfterImage>& list, const glm::vec2& offset) {
     for (const auto& img : list) {
         float alpha = img.lifetime / img.maxLifetime;
         Uint8 finalAlpha = static_cast<Uint8>(alpha * img.color.a);
+
+        // Tạo bản sao của dst để trừ đi offset camera
+        SDL_FRect drawDst = img.dst;
+        drawDst.x -= offset.x;
+        drawDst.y -= offset.y;
 
         // Áp dụng hiệu ứng mờ dần
         SDL_SetTextureAlphaMod(img.texture, finalAlpha);
         SDL_SetTextureColorMod(img.texture, img.color.r, img.color.g, img.color.b);
 
-        SDL_RenderTextureRotated(renderer, img.texture, &img.src, &img.dst,
+        SDL_RenderTextureRotated(renderer, img.texture, &img.src, &drawDst,
             0, nullptr, img.flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 
-        // ✅ Khôi phục lại texture để nhân vật chính không bị trong suốt
+        // ✅ Khôi phục texture gốc
         SDL_SetTextureAlphaMod(img.texture, 255);
         SDL_SetTextureColorMod(img.texture, 255, 255, 255);
     }

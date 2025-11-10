@@ -47,7 +47,6 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
         if (tex) {
             SDL_FRect src = { (float)character.currentFrame * frameWidth, 0, (float)frameWidth, (float)frameHeight };
 
-            // ✅ Căn dư ảnh ngang thân nhân vật (không bị thấp)
             SDL_FRect dst = {
                 character.position.x,
                 character.position.y - (frameHeight - GameConstants::LOGICAL_HEIGHT) / 2.0f,
@@ -55,7 +54,7 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
                 (float)frameHeight
             };
 
-            SDL_Color color = { 255, 220, 150, 200 }; // màu vàng nhạt mờ
+            SDL_Color color = { 255, 230, 120, 200 }; // màu vàng nhạt mờ
             AfterImageSystem::AddImage(afterImages, tex, src, dst, color, character.flipHorizontal);
         }
 
@@ -90,9 +89,9 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
             character.isDashing = true;
             character.dashDirection = moveDir;
             character.dashTimer = GameConstants::DASH_DURATION;
-            character.dashCooldownTimer = GameConstants::DASH_COOLDOWN;
+            character.dashCooldownTimer = GameConstants::DASH_COOLDOWN; // 2 giây hồi
 
-            // ✅ thêm dư ảnh ban đầu (ngang thân)
+            // ✅ thêm dư ảnh ban đầu
             SDL_Texture* tex = character.runTex ? character.runTex : character.walkTex;
             if (tex) {
                 SDL_FRect src = { (float)character.currentFrame * 48, 0, 48, 48 };
@@ -101,7 +100,7 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
                     character.position.y - (48 - GameConstants::LOGICAL_HEIGHT) / 2.0f,
                     48, 48
                 };
-                SDL_Color color = { 255, 230, 100, 220 };
+                SDL_Color color = { 255, 230, 120, 220 };
                 AfterImageSystem::AddImage(afterImages, tex, src, dst, color, character.flipHorizontal);
             }
 
@@ -135,7 +134,7 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
     AfterImageSystem::Update(afterImages, deltaTime);
 }
 
-// === Render dư ảnh ===
-void MovementSystem::RenderDashTrails(SDL_Renderer* renderer) {
-    AfterImageSystem::Render(renderer, afterImages);
+// === Render dư ảnh (có trừ offset camera) ===
+void MovementSystem::RenderDashTrails(SDL_Renderer* renderer, const glm::vec2& offset) {
+    AfterImageSystem::Render(renderer, afterImages, offset);
 }
