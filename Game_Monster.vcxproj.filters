@@ -606,7 +606,7 @@
     <ClInclude Include="src\Entities\Boss.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Systems\TrailSystem.h">
+    <ClInclude Include="src\Systems\AfterImageSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -686,7 +686,7 @@
     <ClCompile Include="src\Core\HUD.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Systems\TrailSystem.cpp">
+    <ClCompile Include="src\Systems\AfterImageSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

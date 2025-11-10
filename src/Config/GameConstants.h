@@ -64,9 +64,9 @@ namespace GameConstants {
     constexpr int DEAD_FRAME_HEIGHT = 128;
 
     //Dash
-    constexpr float DASH_SPEED = 800.0f;       
-    constexpr float DASH_DURATION = 0.2f;      
-    constexpr float DASH_COOLDOWN = 1.0f;       
+    constexpr float DASH_SPEED = 300.0f;       
+    constexpr float DASH_DURATION = 0.1f;      
+    constexpr float DASH_COOLDOWN = 2.0f;       
 
     // Gia tri chuyen dong
     constexpr float ACCELERATION = 500.0f;

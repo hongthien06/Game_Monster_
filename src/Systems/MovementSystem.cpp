@@ -2,11 +2,11 @@
 #include "../Config/GameConstants.h"
 #include "../Entities/Character.h"
 #include "PhysicsSystem.h"
-#include "TrailSystem.h"
+#include "AfterImageSystem.h"
 #include <algorithm>
 #include <iostream>
 
-static std::vector<Trail> dashTrails; // danh sách vệt sáng toàn cục
+static std::vector<AfterImage> afterImages; // ✅ danh sách dư ảnh
 
 void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& map) {
     const bool* keys = SDL_GetKeyboardState(nullptr);
@@ -17,17 +17,49 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
         character.dashTimer -= deltaTime;
         character.velocity.x = character.dashDirection * GameConstants::DASH_SPEED;
 
-        // Tạo vệt sáng vàng lướt theo nhân vật
-        SDL_FRect rect = {
-            character.position.x + (character.dashDirection == -1 ? 10 : 6), // lệch nhẹ theo hướng
-            character.position.y + GameConstants::PLAYER_HEIGHT + 10,        // ngay dưới chân
-        28, 8                                                            // mảnh, dài ngang chân
-        };
-        SDL_Color color = { 255, 240, 150, 200 }; // vàng sáng ấm, hơi trong suốt
-        TrailSystem::AddTrail(dashTrails, rect, color);
+        // === Thêm dư ảnh nhân vật ===
+        SDL_Texture* tex = nullptr;
+        int frameWidth = 0, frameHeight = 0;
 
+        switch (character.currentState) {
+        case CharacterState::STATE_IDLE:
+            tex = character.idleTex;
+            frameWidth = GameConstants::IDLE_FRAME_WIDTH;
+            frameHeight = GameConstants::IDLE_FRAME_HEIGHT;
+            break;
+        case CharacterState::STATE_WALKING:
+            tex = character.walkTex;
+            frameWidth = GameConstants::WALK_FRAME_WIDTH;
+            frameHeight = GameConstants::WALK_FRAME_HEIGHT;
+            break;
+        case CharacterState::STATE_RUNNING:
+            tex = character.runTex;
+            frameWidth = GameConstants::RUN_FRAME_WIDTH;
+            frameHeight = GameConstants::RUN_FRAME_HEIGHT;
+            break;
+        case CharacterState::STATE_JUMPING:
+            tex = character.jumpTex;
+            frameWidth = GameConstants::JUMP_FRAME_WIDTH;
+            frameHeight = GameConstants::JUMP_FRAME_HEIGHT;
+            break;
+        }
 
-        // Hết thời gian dash → ngừng
+        if (tex) {
+            SDL_FRect src = { (float)character.currentFrame * frameWidth, 0, (float)frameWidth, (float)frameHeight };
+
+            // ✅ Căn dư ảnh ngang thân nhân vật (không bị thấp)
+            SDL_FRect dst = {
+                character.position.x,
+                character.position.y - (frameHeight - GameConstants::LOGICAL_HEIGHT) / 2.0f,
+                (float)frameWidth,
+                (float)frameHeight
+            };
+
+            SDL_Color color = { 255, 220, 150, 200 }; // màu vàng nhạt mờ
+            AfterImageSystem::AddImage(afterImages, tex, src, dst, color, character.flipHorizontal);
+        }
+
+        // --- kết thúc dash ---
         if (character.dashTimer <= 0.0f) {
             character.isDashing = false;
             character.dashCooldownTimer = GameConstants::DASH_COOLDOWN;
@@ -60,14 +92,18 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
             character.dashTimer = GameConstants::DASH_DURATION;
             character.dashCooldownTimer = GameConstants::DASH_COOLDOWN;
 
-            // Vệt sáng ban đầu khi vừa nhấn dash
-            SDL_FRect rect = {
-                character.position.x + 8,
-                character.position.y + 12,
-                14, 18
-            };
-            SDL_Color color = { 255, 220, 60, 220 }; // vàng tươi, alpha cao hơn 1 chút
-            TrailSystem::AddTrail(dashTrails, rect, color);
+            // ✅ thêm dư ảnh ban đầu (ngang thân)
+            SDL_Texture* tex = character.runTex ? character.runTex : character.walkTex;
+            if (tex) {
+                SDL_FRect src = { (float)character.currentFrame * 48, 0, 48, 48 };
+                SDL_FRect dst = {
+                    character.position.x,
+                    character.position.y - (48 - GameConstants::LOGICAL_HEIGHT) / 2.0f,
+                    48, 48
+                };
+                SDL_Color color = { 255, 230, 100, 220 };
+                AfterImageSystem::AddImage(afterImages, tex, src, dst, color, character.flipHorizontal);
+            }
 
             return;
         }
@@ -95,11 +131,11 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
 
     PhysicsSystem::ApplyPhysics(character.position, character.velocity, deltaTime, map, character.isOnGround);
 
-    // --- CẬP NHẬT VỆT SÁNG ---
-    TrailSystem::Update(dashTrails, deltaTime);
+    // --- CẬP NHẬT DƯ ẢNH ---
+    AfterImageSystem::Update(afterImages, deltaTime);
 }
 
+// === Render dư ảnh ===
 void MovementSystem::RenderDashTrails(SDL_Renderer* renderer) {
-    TrailSystem::Render(renderer, dashTrails);
+    AfterImageSystem::Render(renderer, afterImages);
 }
-
