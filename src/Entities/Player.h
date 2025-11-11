@@ -21,13 +21,6 @@ enum class PlayerState {
 
 class Player : public Character {
 private:
-    // ===== ĐÃ XÓA: KHÔNG CẦN TEXTURES NỮA =====
-    // Tất cả textures đã có trong Character class (protected)
-    // shotTex, attackTex, hurtTex, deadTex đã được khai báo trong Character
-
-    // ===== ĐÃ XÓA: KHÔNG CẦN RENDERER RIÊNG =====
-    // renderer đã có trong Character class (protected)
-
     // ===== TRẠNG THÁI VÀ ANIMATION =====
     PlayerState playerState;
     PlayerState previousPlayerState;
@@ -42,6 +35,12 @@ private:
     float attackTimer;
     float hurtDuration;
     float hurtTimer;
+
+    // FIX: I-FRAMES - BẤT TỬ TẠM THỜI
+    float iFramesDuration;
+    float iFramesTimer;
+    bool isFlashing;
+    float flashTimer;
 
     // ====== AUDIO ======
     Audio audio;
@@ -76,7 +75,11 @@ public:
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
 
     // ===== COMBAT METHODS =====
-    void TakeDamage(int damage);
+    // FIX: OVERRIDE TakeDamage VỚI I-FRAMES
+    virtual void TakeDamage(int damage) override;
+
+    bool IsInvulnerable() const { return iFramesTimer > 0; }
+
     void Attack();
     void Shot();
     void Heal(int amount);

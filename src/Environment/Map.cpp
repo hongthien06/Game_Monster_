@@ -378,3 +378,10 @@ void Map::LoadTileCollisions(const json& mapData) {
 
     cout << "Loaded " << tilePolygons.size() << " tile polygons\n";
 }
+const std::vector<SDL_FRect> Map::GetCollisionTiles() const {
+    std::vector<SDL_FRect> rects;
+    rects.reserve(collisions.size());
+    for (const auto& c : collisions)
+        rects.push_back(c.rect);
+    return rects;
+}

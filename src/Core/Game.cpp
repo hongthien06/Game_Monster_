@@ -78,10 +78,7 @@ bool Game::init() {
     SDL_FPoint spawn = map->GetPlayerSpawn();
     player = new Player(renderer, glm::vec2(spawn.x, spawn.y));
 
-    // Tao nhan vat 
-    //spawnInitialItems();
-
-    // ===== THÊM MỚI: SPAWN ENEMIES =====
+    // ===== SPAWN ENEMIES =====
     initEnemies();
 
     playerHUD = new HUD(renderer);
@@ -139,10 +136,10 @@ void Game::update(float deltaTime) {
     // ===== THÊM MỚI: CẬP NHẬT ENEMIES =====
     updateEnemies(deltaTime);
 
-    // ===== THÊM MỚI: KIỂM TRA VA CHẠM ENEMIES =====
+    // ===== KIỂM TRA VA CHẠM ENEMIES =====
     checkEnemyCollisions();
 
-    // ===== THÊM MỚI: CẬP NHẬT EFFECTS =====
+    // ===== CẬP NHẬT EFFECTS =====
     effectManager.Update(deltaTime);
 
     camera.update(player->GetPosition(), deltaTime);
@@ -156,7 +153,7 @@ void Game::render() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 200, 255);
     SDL_RenderClear(renderer);
 
-    // ===== THÊM MỚI: APPLY CAMERA SHAKE =====
+    // ===== APPLY CAMERA SHAKE =====
     glm::vec2 shake = effectManager.GetCameraShake();
     glm::vec2 offset = camera.getOffset() + shake;
 
@@ -164,9 +161,24 @@ void Game::render() {
 
     if (player) player->Render(renderer, offset);
 
-    // ===== THÊM MỚI: RENDER ENEMIES =====
+    // =====RENDER ENEMIES =====
     for (auto& enemy : enemies) {
         enemy->Render(renderer, offset);
+    }
+
+    // DEBUG: VẼ HITBOX CHO ENEMY (Comment khi release)
+    for (auto& enemy : enemies) {
+        if (enemy->IsAlive()) {
+            SDL_FRect box = enemy->GetBoundingBox();
+            SDL_FRect screenBox = {
+                box.x - offset.x,
+                box.y - offset.y,
+                box.w,
+                box.h
+            };
+            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
+            SDL_RenderRect(renderer, &screenBox);
+        }
     }
 
     // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
@@ -212,13 +224,6 @@ bool Game::loadItemTextures() {
     return true;
 }
 
-//void Game::spawnInitialItems() {
-//  /*  items.push_back(std::make_unique<Item>(glm::vec2(280.0f, 260.0f), coinTex, ItemType::COIN));
-//    items.push_back(std::make_unique<Item>(glm::vec2(520.0f, 160.0f), coinTex, ItemType::COIN));
-//    item*/s.push_back(std::make_unique<Item>(glm::vec2(70.0f, 130.0f), coinTex, ItemType::COIN));
-//}
-
-
 void Game::spawnCoinAtPosition(glm::vec2 pos, int amount) {
     // Spawn nhiều coins rải rác xung quanh vị trí
     for (int i = 0; i < amount; i++) {
@@ -233,7 +238,7 @@ void Game::spawnCoinAtPosition(glm::vec2 pos, int amount) {
         coin->floatAmplitude = 6.0f;
         coin->floatSpeed = 3.0f;
 
-        items.push_back(std::make_unique<Item>(coinPos, coinTex, ItemType::COIN));
+        items.push_back(std::move(coin));
     }
     std::cout << "Spawn " << amount << " coins tai (" << pos.x << ", " << pos.y << ")\n";
 }
@@ -264,7 +269,7 @@ void Game::checkItemCollisions() {
         items.end());
 }
 
-// ===== THÊM MỚI: KHỞI TẠO ENEMIES =====
+// ===== KHỞI TẠO ENEMIES =====
 void Game::initEnemies() {
     std::cout << "===== BAT DAU SPAWN ENEMIES =====\n";
 
@@ -289,11 +294,10 @@ void Game::initEnemies() {
         MinionType::ORC_SHAMAN
     ));
     enemies.back()->SetPatrolPoints(glm::vec2(220.0f, 200.0f), glm::vec2(280.0f, 200.0f));
-    enemies.back()->SetCoinDropAmount(1); 
+    enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        pos.y + 100.0f;
         spawnCoinAtPosition(pos, amount);
-        }); // ← THÊM
+        });
 
     // ORC 3
     enemies.push_back(std::make_unique<Minions>(
@@ -302,10 +306,10 @@ void Game::initEnemies() {
         MinionType::ORC_WARRIOR
     ));
     enemies.back()->SetPatrolPoints(glm::vec2(320.0f, 200.0f), glm::vec2(380.0f, 200.0f));
-    enemies.back()->SetCoinDropAmount(1);  // ← THÊM
+    enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
-        }); // ← THÊM
+        });
 
     // ===== VÙNG 2: SPAWN 3 TROLL ELITES (500-800) =====
 
@@ -316,10 +320,10 @@ void Game::initEnemies() {
         TrollType::TROLL_1
     ));
     enemies.back()->SetPatrolPoints(glm::vec2(520.0f, 200.0f), glm::vec2(580.0f, 200.0f));
-    enemies.back()->SetCoinDropAmount(3);  // ← THÊM
+    enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
-        }); // ← THÊM
+        });
 
     // TROLL 2
     enemies.push_back(std::make_unique<Elites>(
@@ -328,10 +332,10 @@ void Game::initEnemies() {
         TrollType::TROLL_2
     ));
     enemies.back()->SetPatrolPoints(glm::vec2(670.0f, 200.0f), glm::vec2(730.0f, 200.0f));
-    enemies.back()->SetCoinDropAmount(3);  // ← THÊM
+    enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
-        }); // ← THÊM
+        });
 
     // TROLL 3
     enemies.push_back(std::make_unique<Elites>(
@@ -340,25 +344,25 @@ void Game::initEnemies() {
         TrollType::TROLL_3
     ));
     enemies.back()->SetPatrolPoints(glm::vec2(820.0f, 200.0f), glm::vec2(880.0f, 200.0f));
-    enemies.back()->SetCoinDropAmount(3);  // ← THÊM
+    enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
-        }); // ← THÊM
+        });
 
     // ===== VÙNG 3: SPAWN BOSS (1200+) =====
     enemies.push_back(std::make_unique<Boss>(
         renderer,
         glm::vec2(1200.0f, 200.0f)
     ));
-    enemies.back()->SetCoinDropAmount(10);  // ← THÊM
+    enemies.back()->SetCoinDropAmount(10);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
-        }); // ← THÊM
+        });
 
     std::cout << "===== DA SPAWN " << enemies.size() << " ENEMIES =====\n";
 }
 
-// ===== THÊM MỚI: CẬP NHẬT ENEMIES =====
+// ===== CẬP NHẬT ENEMIES =====
 void Game::updateEnemies(float deltaTime) {
     if (!player) return;
 
@@ -380,7 +384,7 @@ void Game::updateEnemies(float deltaTime) {
     );
 }
 
-// ===== THÊM MỚI: KIỂM TRA VA CHẠM =====
+// ===== KIỂM TRA VA CHẠM =====
 void Game::checkEnemyCollisions() {
     if (!player) return;
 
@@ -426,18 +430,15 @@ void Game::checkEnemyCollisions() {
 
             if (SDL_HasRectIntersectionFloat(&playerBox, &enemyBox)) {
                 int damage = enemy->PerformAttack();
-                if (damage > 0) {
+                if (damage > 0 && !player->IsInvulnerable()) {
                     player->TakeDamage(damage);
 
-                    // Flash effect khi Player bị đánh
                     effectManager.CreateFlash(
                         player->GetPosition(),
                         SDL_Color{ 255, 0, 0, 100 },
                         0.3f,
                         0.15f
                     );
-
-                    std::cout << "Enemy tan cong Player! Damage: " << damage << "\n";
                 }
             }
         }

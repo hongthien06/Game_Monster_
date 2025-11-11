@@ -2,83 +2,95 @@
 #include "Character.h"
 #include <functional>
 
-// Trạng thái Enemy cơ bản
+// FIX: THÊM ĐẦY ĐỦ 7 TRẠNG THÁI
 enum class EnemyState {
-    STATE_IDLE,       // Đứng yên
-    STATE_PATROL,     // Tuần tra
-    STATE_CHASE,      // Đuổi theo Player
-    STATE_ATTACK,     // Tấn công
-    STATE_HURT,       // Bị thương
-    STATE_DEAD        // Chết
+    STATE_IDLE,
+    STATE_WALK,      // TUẦN TRA
+    STATE_PATROL,
+    STATE_RUN,       // ĐUỔI THEO
+    STATE_CHASE,
+    STATE_JUMP,      // NHẢY (KHÔNG DÙNG)
+    STATE_ATTACK,
+    STATE_HURT,
+    STATE_DEAD
 };
 
-// Loại Enemy (dùng để phân biệt hành vi)
 enum class EnemyType {
-    MINION,    // Quái thường
-    ELITE,     // Quái ưu tú (Troll)
-    BOSS       // Boss cuối
+    MINION,
+    ELITE,
+    BOSS
 };
 
-// BASE CLASS cho tất cả Enemy
 class Enemy : public Character {
 protected:
-    // ===== ENEMY STATE =====
     EnemyState enemyState;
     EnemyState previousEnemyState;
     EnemyType enemyType;
 
-    // ===== ENEMY ANIMATION =====
     int enemyCurrentFrame;
     float enemyAnimationTimer;
 
-    // ===== AI & COMBAT =====
-    glm::vec2 targetPosition;   // Vị trí mục tiêu (Player position)
-    float detectionRange;       // Phạm vi phát hiện Player
-    float attackRange;          // Phạm vi tấn công
-    float attackCooldown;       // Thời gian hồi chiêu
-    float attackTimer;          // Bộ đếm cooldown
-    int attackDamage;           // Sát thương
+    glm::vec2 targetPosition;
 
-    float patrolSpeed;          // Tốc độ tuần tra
-    float chaseSpeed;           // Tốc độ đuổi theo
+    // FIX: TÁCH RÕ AGGRO & ATTACK RANGE
+    float aggroRange;         // TẦM KÍCH HOẠT
+    float detectionRange;
+    float attackRange;
+    float attackCooldown;
+    float attackTimer;
+    int attackDamage;
 
-    // ===== PATROL SYSTEM =====
-    glm::vec2 patrolPointA;     // Điểm tuần tra A
-    glm::vec2 patrolPointB;     // Điểm tuần tra B
-    bool movingToB;             // Đang di chuyển đến B?
+    float patrolSpeed;
+    float walkSpeed;          // THÊM MỚI
+    float chaseSpeed;
+    float runSpeed;           // THÊM MỚI
 
-    // ===== HURT STATE =====
-    float hurtDuration;         // Thời gian bị choáng
-    float hurtTimer;            // Bộ đếm hurt
-    bool canTakeDamage;         // Có thể nhận sát thương?
+    glm::vec2 patrolPointA;
+    glm::vec2 patrolPointB;
+    bool movingToB;
 
-    // ===== DEATH =====
-    bool isAlive;               // Còn sống?
-    float deathTimer;           // Thời gian trước khi xóa
+    float hurtDuration;
+    float hurtTimer;
+    bool canTakeDamage;
 
-    // ===== PROTECTED METHODS =====
-    virtual void UpdateEnemyState(float deltaTime, Map& map);
-    virtual void UpdateEnemyAnimation(float deltaTime);
-    virtual void HandlePatrol(float deltaTime);
-    virtual void HandleChase(float deltaTime);
-    virtual void HandleAttack(float deltaTime);
+    // FIX: THÊM I-FRAMES
+    float iFramesDuration;
+    float iFramesTimer;
 
-    // Tính khoảng cách đến target
-    float GetDistanceToTarget() const;
+    bool isAlive;
+    float deathTimer;
 
-    // Kiểm tra target có trong tầm phát hiện không
-    bool IsTargetInRange() const;
-
-    // Kiểm tra target có trong tầm tấn công không
-    bool IsTargetInAttackRange() const;
-
-    // ===== COIN DROP =====
-    int coinDropAmount;  // Số coin rơi khi chết
-    bool hasDroppedCoins; // Đã rơi coin chưa
+    int coinDropAmount;
+    bool hasDroppedCoins;
     std::function<void(glm::vec2, int)> onDeathCallback;
 
+    // FIX: PHYSICS RIÊNG CHO ENEMY (KHÔNG DÙNG CHUNG VỚI PLAYER)
+    bool enemyCanJump;
+    bool enemyIsOnGround;
+    float enemyGravity;
+
+    // AI LOGIC
+    virtual void UpdateEnemyState(float deltaTime, Map& map);
+    virtual void UpdateEnemyAnimation(float deltaTime);
+
+    // FIX: HANDLER CHO TỪNG STATE
+    virtual void HandleIdle(float deltaTime);
+    virtual void HandleWalk(float deltaTime);
+    virtual void HandlePatrol(float deltaTime);
+    virtual void HandleRun(float deltaTime);
+    virtual void HandleChase(float deltaTime);
+    virtual void HandleJump(float deltaTime);
+    virtual void HandleAttack(float deltaTime);
+    virtual void HandleHurt(float deltaTime);
+
+    float GetDistanceToTarget() const;
+    bool IsTargetInRange() const;
+    bool IsTargetInAttackRange() const;
+
+    // FIX: THÊM CHECK AGGRO RANGE
+    bool IsTargetInAggroRange() const;
+
 public:
-    // ===== CONSTRUCTOR =====
     Enemy();
     Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         const char* idlePath,
@@ -92,37 +104,38 @@ public:
 
     virtual ~Enemy();
 
-    // ===== MAIN METHODS (OVERRIDE) =====
+    // MAIN LOOP
     virtual void Update(float deltaTime, Map& map) override;
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
 
-    // ===== COMBAT (OVERRIDE) =====
+    // COMBAT
     virtual void TakeDamage(int damage) override;
     virtual void Die();
 
-    // ===== SETTERS =====
+    // SETTERS
     void SetTargetPosition(glm::vec2 pos) { targetPosition = pos; }
     void SetPatrolPoints(glm::vec2 pointA, glm::vec2 pointB);
+    void SetAggroRange(float range) { aggroRange = range; }
     void SetDetectionRange(float range) { detectionRange = range; }
     void SetAttackRange(float range) { attackRange = range; }
     void SetAttackDamage(int damage) { attackDamage = damage; }
     void SetAttackCooldown(float cooldown) { attackCooldown = cooldown; }
-
+    void SetCanJump(bool canJump) { enemyCanJump = canJump; }
     void SetCoinDropAmount(int amount) { coinDropAmount = amount; }
     void SetOnDeathCallback(std::function<void(glm::vec2, int)> callback) {
         onDeathCallback = callback;
     }
 
-    // ===== GETTERS =====
+    // GETTERS
     bool IsAlive() const { return isAlive; }
     EnemyState GetEnemyState() const { return enemyState; }
     EnemyType GetEnemyType() const { return enemyType; }
     int GetAttackDamage() const { return attackDamage; }
     float GetDeathTimer() const { return deathTimer; }
+    bool IsInvulnerable() const { return iFramesTimer > 0; }
 
-    // ===== BOUNDING BOX (OVERRIDE) =====
+    // FIX: HITBOX NHỎ HƠN, CÓ OFFSET
     virtual SDL_FRect GetBoundingBox() const override;
 
-    // ===== VIRTUAL METHOD CHO SUBCLASS =====
-    virtual int PerformAttack() { return attackDamage; } // Trả về damage để Game loop xử lý
+    virtual int PerformAttack() { return attackDamage; }
 };

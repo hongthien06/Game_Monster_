@@ -14,8 +14,7 @@ private:
     MinionType minionType;
 
     // ===== ORC SHAMAN - MAGIC SYSTEM =====
-    SDL_Texture* magicTex1;
-    SDL_Texture* magicTex2;
+    SDL_Texture* magicTex;
     bool isCastingMagic;
     float magicCooldown;
     float magicTimer;

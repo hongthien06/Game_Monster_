@@ -233,6 +233,19 @@ void Player::UpdateProjectiles(float deltaTime) {
 
 // ===== MAIN UPDATE =====
 void Player::Update(float deltaTime, Map& map) {
+    // XỬ LÝ I-FRAMES
+    if (iFramesTimer > 0) {
+        iFramesTimer -= deltaTime;
+
+        flashTimer += deltaTime;
+        if (flashTimer >= 0.1f) {
+            isFlashing = !isFlashing;
+            flashTimer = 0.0f;
+        }
+    }
+    else {
+        isFlashing = false;
+    }
     // Gọi Character::Update() để xử lý di chuyển
     if (canMove) {
         Character::Update(deltaTime, map);
@@ -253,6 +266,11 @@ void Player::Update(float deltaTime, Map& map) {
 
 // ===== RENDER =====
 void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
+    // NHẤP NHÁY KHI INVULNERABLE
+    if (isFlashing && (int)(iFramesTimer * 10) % 2 == 0) {
+        return;  // KHÔNG VẼ
+    }
+
     // Render projectiles trước
     for (auto& proj : projectiles) {
         proj->Render(renderer, cameraOffset);

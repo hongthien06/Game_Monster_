@@ -5,7 +5,7 @@
 #include <glm/glm.hpp>
 #include <string>
 #include <vector>
-#include <memory>  // ← THÊM: Cho std::unique_ptr
+#include <memory>   
 
 #include "../Config/GameConstants.h"
 #include "../Core/Camera.h"
@@ -16,7 +16,7 @@
 #include "../Core/HUD.h" 
 #include <SDL3_ttf/SDL_ttf.h>
 
-// ===== THÊM MỚI: INCLUDE ENEMY SYSTEM =====
+// ===== INCLUDE ENEMY SYSTEM =====
 #include "../Entities/Enemy.h"
 #include "../Entities/Minion.h"
 #include "../Entities/Elite.h"
@@ -38,7 +38,7 @@ private:
     std::vector<std::unique_ptr<Item>> items;
     SDL_Texture* coinTex;
 
-    // ===== THÊM MỚI: ENEMY SYSTEM =====
+    // =====  ENEMY SYSTEM =====
     std::vector<std::unique_ptr<Enemy>> enemies;
     EffectManager effectManager;
 
@@ -59,7 +59,7 @@ public:
     void spawnCoinAtPosition(glm::vec2 pos, int amount);
 
 
-    // ===== THÊM MỚI: ENEMY METHODS =====
+    // ===== ENEMY METHODS =====
     void initEnemies();
     void updateEnemies(float deltaTime);
     void checkEnemyCollisions();

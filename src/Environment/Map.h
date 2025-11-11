@@ -41,6 +41,7 @@ public:
     bool checkCollision(const SDL_FRect& playerRect);    // Kiem tra va cham voi dat nha Duc Anh
     
     void drawCollisionDebug(const glm::vec2& cameraOffset);  // Ve hitbox quanh cac o dat
+    const std::vector<SDL_FRect> GetCollisionTiles() const;
 private:
     // ===== Internal helper functions =====
     SDL_Texture* LoadTexture(const string& file);

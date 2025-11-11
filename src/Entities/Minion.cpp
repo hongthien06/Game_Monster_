@@ -8,8 +8,7 @@ Minions::Minions(SDL_Renderer* renderer, glm::vec2 startPos, MinionType type)
         nullptr, nullptr, nullptr,
         EnemyType::MINION),
     minionType(type),
-    magicTex1(nullptr),
-    magicTex2(nullptr),
+    magicTex(nullptr),
     isCastingMagic(false),
     magicCooldown(2.0f),
     magicTimer(0.0f),
@@ -69,22 +68,20 @@ Minions::Minions(SDL_Renderer* renderer, glm::vec2 startPos, MinionType type)
     LoadTexture(renderer, &walkTex, (folderPath + "Walk.png").c_str());
     LoadTexture(renderer, &runTex, (folderPath + "Run.png").c_str());
     LoadTexture(renderer, &jumpTex, (folderPath + "Jump.png").c_str());
-    LoadTexture(renderer, &attackTex, (folderPath + "Attack_1.png").c_str());
+    LoadTexture(renderer, &attackTex, (folderPath + "Attack.png").c_str());
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
     // ===== SHAMAN CÓ THÊM MAGIC TEXTURE =====
     if (type == MinionType::ORC_SHAMAN) {
-        LoadTexture(renderer, &magicTex1, (folderPath + "Magic_1.png").c_str());
-        LoadTexture(renderer, &magicTex2, (folderPath + "Magic_2.png").c_str());
+        LoadTexture(renderer, &magicTex, (folderPath + "Magic.png").c_str());
         std::cout << "[Orc Shaman] Load them Magic textures\n";
     }
 }
 
 // ===== DESTRUCTOR =====
 Minions::~Minions() {
-    SDL_DestroyTexture(magicTex1);
-    SDL_DestroyTexture(magicTex2);
+    SDL_DestroyTexture(magicTex);
 }
 
 // ===== KÍCH HOẠT RAGE (CHỈ ORC BERSERK) =====
@@ -192,7 +189,7 @@ void Minions::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     }
 
     // ===== HIỆU ỨNG MAGIC (SHAMAN) =====
-    if (minionType == MinionType::ORC_SHAMAN && isCastingMagic && magicTex1) {
+    if (minionType == MinionType::ORC_SHAMAN && isCastingMagic && magicTex) {
         // TODO: Render magic effect xung quanh Shaman
     }
 }

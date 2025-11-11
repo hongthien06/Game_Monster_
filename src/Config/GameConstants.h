@@ -9,30 +9,30 @@ namespace GameConstants {
     constexpr int LOGICAL_WIDTH = 400;
     constexpr int LOGICAL_HEIGHT = 300;
     // Toa do mat dat
-    constexpr float FLOOR_Y = LOGICAL_HEIGHT- 28.0f;
+    constexpr float FLOOR_Y = LOGICAL_HEIGHT - 28.0f;
 
     // Dung yen
-    constexpr int IDLE_FRAMES = 4;
+    constexpr int IDLE_FRAMES = 4;//10
     constexpr float IDLE_FRAME_DURATION = 0.15f;
     constexpr int IDLE_FRAME_WIDTH = 128;
     constexpr int IDLE_FRAME_HEIGHT = 128;
 
     // Di bo
-    constexpr int WALK_FRAMES = 8;
+    constexpr int WALK_FRAMES = 8;//10
     constexpr float WALK_FRAME_DURATION = 0.1f;
     constexpr int WALK_FRAME_WIDTH = 128;
     constexpr int WALK_FRAME_HEIGHT = 128;
     constexpr float WALK_SPEED = 80.0f;
 
     // Chay 
-    constexpr int RUN_FRAMES = 8;
+    constexpr int RUN_FRAMES = 8;//10
     constexpr float RUN_FRAME_DURATION = 0.08f;
     constexpr int RUN_FRAME_WIDTH = 128;
     constexpr int RUN_FRAME_HEIGHT = 128;
     constexpr float RUN_SPEED = 160.0f;
 
     // Nhay
-    constexpr int JUMP_FRAMES = 9;
+    constexpr int JUMP_FRAMES = 9;//10
     constexpr float GRAVITY = 800.0f;
     constexpr float JUMP_SPEED = 250.0f;
     constexpr float PLAYER_HEIGHT = 32.0f;
@@ -41,7 +41,7 @@ namespace GameConstants {
     constexpr int JUMP_FRAME_HEIGHT = 128;
 
     // Tan Cong
-    constexpr int ATTACK_FRAMES = 4;
+    constexpr int ATTACK_FRAMES = 4;//10
     constexpr float ATTACK_FRAME_DURATION = 0.08f;
     constexpr int ATTACK_FRAME_WIDTH = 128;
     constexpr int ATTACK_FRAME_HEIGHT = 128;
@@ -65,12 +65,12 @@ namespace GameConstants {
 
     //Dash
     constexpr int DASH_FRAMES = 8;
-    constexpr float DASH_FRAME_DURATION = 0.05f; 
+    constexpr float DASH_FRAME_DURATION = 0.05f;
     constexpr int DASH_FRAME_WIDTH = 128;
     constexpr int DASH_FRAME_HEIGHT = 128;
-    constexpr float DASH_SPEED = 300.0f;       
-    constexpr float DASH_DURATION = 0.15f;      
-    constexpr float DASH_COOLDOWN = 1.5f;       
+    constexpr float DASH_SPEED = 300.0f;
+    constexpr float DASH_DURATION = 0.15f;
+    constexpr float DASH_COOLDOWN = 1.5f;
 
     // Gia tri chuyen dong
     constexpr float ACCELERATION = 500.0f;
@@ -85,4 +85,51 @@ namespace GameConstants {
     constexpr float COIN_FRAME_DURATION = 0.1f;
     constexpr int COIN_FRAME_WIDTH = 20;
     constexpr int COIN_FRAME_HEIGHT = 20;
+
+    // cho quái
+    // Dung yen
+    constexpr int IDLE_FRAMES_ENEMY = 10;
+    constexpr float IDLE_FRAME_DURATION_ENEMY = 0.2f;
+    constexpr int IDLE_FRAME_WIDTH_ENEMY = 128;
+    constexpr int IDLE_FRAME_HEIGHT_ENEMY = 128;
+
+    // Di bo
+    constexpr int WALK_FRAMES_ENEMY = 10;
+    constexpr float WALK_FRAME_DURATION_ENEMY = 0.2f;
+    constexpr int WALK_FRAME_WIDTH_ENEMY = 128;
+    constexpr int WALK_FRAME_HEIGHT_ENEMY = 128;
+    constexpr float WALK_SPEED_ENEMY = 80.0f;
+
+    // Chay 
+    constexpr int RUN_FRAMES_ENEMY = 10;
+    constexpr float RUN_FRAME_DURATION_ENEMY = 0.1f;
+    constexpr int RUN_FRAME_WIDTH_ENEMY = 128;
+    constexpr int RUN_FRAME_HEIGHT_ENEMY = 128;
+    constexpr float RUN_SPEED_ENEMY = 200.0f;
+
+    // Nhay
+    constexpr int JUMP_FRAMES_ENEMY = 10;
+    constexpr float GRAVITY_ENEMY = 800.0f;
+    constexpr float JUMP_SPEED_ENEMY = 250.0f;
+    constexpr float PLAYER_HEIGHT_ENEMY = 32.0f;
+    constexpr float JUMP_FRAME_DURATION_ENEMY = 0.12f;
+    constexpr int JUMP_FRAME_WIDTH_ENEMY = 128;
+    constexpr int JUMP_FRAME_HEIGHT_ENEMY = 128;
+
+    // Tan Cong
+    constexpr int ATTACK_FRAMES_ENEMY = 10;
+    constexpr float ATTACK_FRAME_DURATION_ENEMY = 0.2f;
+    constexpr int ATTACK_FRAME_WIDTH_ENEMY = 128;
+    constexpr int ATTACK_FRAME_HEIGHT_ENEMY = 128;
+
+    // Chay mau
+    constexpr int HURT_FRAMES_ENEMY = 10 ;
+    constexpr int HURT_FRAME_WIDTH_ENEMY = 128;
+    constexpr int HURT_FRAME_HEIGHT_ENEMY = 128;
+
+    // Chet
+    constexpr int DEAD_FRAMES_ENEMY = 10;
+    constexpr float DEAD_FRAME_DURATION_ENEMY = 0.2f;
+    constexpr int DEAD_FRAME_WIDTH_ENEMY = 128;
+    constexpr int DEAD_FRAME_HEIGHT_ENEMY = 128;
 }
