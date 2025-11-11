@@ -27,7 +27,9 @@ Enemy::Enemy()
     hurtTimer(0.0f),
     canTakeDamage(true),
     isAlive(true),
-    deathTimer(0.0f)
+    deathTimer(0.0f),
+    coinDropAmount(1),     
+    hasDroppedCoins(false)
 {
 }
 
@@ -63,7 +65,9 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     hurtTimer(0.0f),
     canTakeDamage(true),
     isAlive(true),
-    deathTimer(0.0f)
+    deathTimer(0.0f),
+    coinDropAmount(1),      
+    hasDroppedCoins(false)
 {
     // Thiết lập thông số theo loại Enemy
     switch (type) {
@@ -72,6 +76,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         health = 50;
         attackDamage = 10;
         detectionRange = 150.0f;
+        coinDropAmount = 1;
         break;
     case EnemyType::ELITE:
         maxHealth = 150;
@@ -79,6 +84,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         attackDamage = 25;
         detectionRange = 250.0f;
         chaseSpeed = 120.0f;
+        coinDropAmount = 3;
         break;
     case EnemyType::BOSS:
         maxHealth = 500;
@@ -86,6 +92,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         attackDamage = 40;
         detectionRange = 300.0f;
         attackRange = 80.0f;
+        coinDropAmount = 10;
         break;
     }
 }
@@ -257,6 +264,17 @@ void Enemy::Update(float deltaTime, Map& map) {
 
     if (!isAlive) {
         deathTimer += deltaTime;
+
+        // THÊM: Rơi coin sau 0.5 giây chết (animation gần xong)
+        
+        if (!hasDroppedCoins && deathTimer >= 0.5f) {
+            hasDroppedCoins = true;
+            if (onDeathCallback) {
+                onDeathCallback(position , coinDropAmount);
+            }
+            std::cout << "Enemy rot " << coinDropAmount << " coins tai ("
+                << position.x << ", " << position.y << ")\n";
+        }
     }
 }
 

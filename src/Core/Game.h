@@ -54,8 +54,10 @@ public:
     void cleanup();
 
     bool loadItemTextures();
-    void spawnInitialItems();
+   // void spawnInitialItems();
     void checkItemCollisions();
+    void spawnCoinAtPosition(glm::vec2 pos, int amount);
+
 
     // ===== THÊM MỚI: ENEMY METHODS =====
     void initEnemies();

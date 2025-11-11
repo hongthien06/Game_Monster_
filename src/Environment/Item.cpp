@@ -3,11 +3,14 @@
 
 Item::Item(glm::vec2 pos, SDL_Texture* tex, ItemType itemType)
     : position(pos),
+    startPosition(pos),
     texture(tex),
     type(itemType),
     isCollected(false),
     currentFrame(0),
-    animationTimer(0.0f)
+    animationTimer(0.0f),
+    floatSpeed(3.0f),       
+    floatAmplitude(5.0f)
 {
     if (type == ItemType::COIN) {
 
@@ -30,6 +33,14 @@ void Item::Update(float deltaTime) {
         animationTimer -= frameDuration;
         currentFrame = (currentFrame + 1) % totalFrames;
     }
+
+    // Float effect: position.y dao động theo sin
+    floatOffset += floatSpeed * deltaTime;
+    position.y = startPosition.y + sin(floatOffset) * floatAmplitude;
+
+    // Cập nhật collider
+    collider.x = position.x;
+    collider.y = position.y;
 }
 
 void Item::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {

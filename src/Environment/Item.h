@@ -15,6 +15,8 @@ class Item {
 private:
 
     glm::vec2 position;
+    glm::vec2 startPosition;
+
     SDL_Texture* texture;
     SDL_FRect collider;
 
@@ -27,10 +29,16 @@ private:
     float frameDuration;
     float animationTimer;
 
-public:
+    float floatOffset;
+    
 
+
+public:
     Item(glm::vec2 pos, SDL_Texture* tex, ItemType itemType);
     ~Item();
+
+    float floatSpeed;
+    float floatAmplitude;
 
     void Update(float deltaTime);
     void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
@@ -40,4 +48,10 @@ public:
     ItemType GetType() const { return type; }
     bool IsCollected() const { return isCollected; }
     void Collect() { isCollected = true; } // Đánh dấu đã nhặt
+    float getFloatSpeed() {
+        return this->floatSpeed;
+    }
+    float getFloatAmplitude() {
+        return this->floatAmplitude;
+    }
 };

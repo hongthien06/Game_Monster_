@@ -72,6 +72,11 @@ protected:
     // Kiểm tra target có trong tầm tấn công không
     bool IsTargetInAttackRange() const;
 
+    // ===== COIN DROP =====
+    int coinDropAmount;  // Số coin rơi khi chết
+    bool hasDroppedCoins; // Đã rơi coin chưa
+    std::function<void(glm::vec2, int)> onDeathCallback;
+
 public:
     // ===== CONSTRUCTOR =====
     Enemy();
@@ -102,6 +107,11 @@ public:
     void SetAttackRange(float range) { attackRange = range; }
     void SetAttackDamage(int damage) { attackDamage = damage; }
     void SetAttackCooldown(float cooldown) { attackCooldown = cooldown; }
+
+    void SetCoinDropAmount(int amount) { coinDropAmount = amount; }
+    void SetOnDeathCallback(std::function<void(glm::vec2, int)> callback) {
+        onDeathCallback = callback;
+    }
 
     // ===== GETTERS =====
     bool IsAlive() const { return isAlive; }
