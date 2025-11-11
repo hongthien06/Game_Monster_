@@ -11,7 +11,8 @@ enum class CharacterState {
     STATE_IDLE,
     STATE_WALKING,
     STATE_RUNNING,
-    STATE_JUMPING
+    STATE_JUMPING,
+    STATE_DASHING
 };
 
 class MovementSystem;
@@ -30,6 +31,7 @@ protected:
     SDL_Texture* hurtTex;      // Bị thương
     SDL_Texture* deadTex;      // Chết
     SDL_Texture* heartTexture;
+    SDL_Texture* dashTex;
 
 
     // ===== RENDERER =====
@@ -71,6 +73,7 @@ public:
         const char* walkPath,
         const char* runPath,
         const char* jumpPath,
+        const char* dashPath,
         const char* shotPath = nullptr,      // Tùy chọn
         const char* attackPath = nullptr,    // Tùy chọn
         const char* hurtPath = nullptr,      // Tùy chọn

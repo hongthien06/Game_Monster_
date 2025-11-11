@@ -12,6 +12,7 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
         "assets/images/Player/Walk.png",
         "assets/images/Player/Run.png",
         "assets/images/Player/Jump.png",
+        "assets/images/Player/Dash.png",
         "assets/images/Player/Shot.png",    // THÊM
         "assets/images/Player/Attack.png",  // THÊM
         "assets/images/Player/Hurt.png",    // THÊM
@@ -138,7 +139,11 @@ void Player::UpdatePlayerState(float deltaTime) {
         case CharacterState::STATE_JUMPING:
             playerState = PlayerState::STATE_JUMP;
             break;
+        case CharacterState::STATE_DASHING:
+            playerState = PlayerState::STATE_DASH;
+            break;
         }
+
     }
 }
 
@@ -169,6 +174,10 @@ void Player::UpdatePlayerAnimation(float deltaTime) {
     case PlayerState::STATE_JUMP:
         totalFrames = GameConstants::JUMP_FRAMES;
         frameDuration = GameConstants::JUMP_FRAME_DURATION;
+        break;
+    case PlayerState::STATE_DASH:
+        totalFrames = GameConstants::DASH_FRAMES;
+        frameDuration = GameConstants::DASH_FRAME_DURATION;
         break;
     case PlayerState::STATE_ATTACK:
         totalFrames = GameConstants::ATTACK_FRAMES;
@@ -279,6 +288,12 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         frameWidth = GameConstants::JUMP_FRAME_WIDTH;
         frameHeight = GameConstants::JUMP_FRAME_HEIGHT;
         totalFrames = GameConstants::JUMP_FRAMES;
+        break;
+    case PlayerState::STATE_DASH:
+        currentTexture = dashTex;
+        frameWidth = GameConstants::DASH_FRAME_WIDTH;
+        frameHeight = GameConstants::DASH_FRAME_HEIGHT;
+        totalFrames = GameConstants::DASH_FRAMES;
         break;
     case PlayerState::STATE_SHOT:
         currentTexture = shotTex;  // Từ Character

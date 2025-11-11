@@ -12,6 +12,7 @@ enum class PlayerState {
     STATE_WALK,
     STATE_RUN,
     STATE_JUMP,
+    STATE_DASH,
     STATE_SHOT,
     STATE_ATTACK,
     STATE_HURT,

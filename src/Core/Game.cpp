@@ -4,7 +4,6 @@
 #include "Game.h"
 #include "../Environment/Map.h"
 #include "../Systems/MovementSystem.h"
-#include "../Systems/AfterImageSystem.h"
 #include "Camera.h"
 #include "../Entities/Player.h"
 #include "../Core/Audio.h"
@@ -163,7 +162,6 @@ void Game::render() {
 
     if (map) map->drawMap(offset);
 
-    MovementSystem::RenderDashTrails(renderer, offset);
     if (player) player->Render(renderer, offset);
 
     // ===== THÊM MỚI: RENDER ENEMIES =====

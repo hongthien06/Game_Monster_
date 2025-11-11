@@ -13,7 +13,7 @@ Character::Character()
     animationTimer(0.0f),
     idleTex(nullptr), walkTex(nullptr), runTex(nullptr), jumpTex(nullptr),
     shotTex(nullptr), attackTex(nullptr), hurtTex(nullptr), deadTex(nullptr),
-    heartTexture(nullptr),
+    heartTexture(nullptr),dashTex(nullptr),
     renderer(nullptr),
     maxHealth(100), health(100),
     isDashing(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
@@ -27,6 +27,7 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     const char* walkPath,
     const char* runPath,
     const char* jumpPath,
+    const char* dashPath,
     const char* shotPath,
     const char* attackPath,
     const char* hurtPath,
@@ -36,7 +37,7 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     flipHorizontal(false), currentState(CharacterState::STATE_IDLE),
     previousState(CharacterState::STATE_IDLE), currentFrame(0),
     animationTimer(0.0f),
-    idleTex(nullptr), walkTex(nullptr), runTex(nullptr), jumpTex(nullptr),
+    idleTex(nullptr), walkTex(nullptr), runTex(nullptr), jumpTex(nullptr), dashTex(nullptr),
     shotTex(nullptr), attackTex(nullptr), hurtTex(nullptr), deadTex(nullptr),
     heartTexture(nullptr),
     renderer(renderer),
@@ -49,6 +50,7 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     LoadTexture(renderer, &walkTex, walkPath);
     LoadTexture(renderer, &runTex, runPath);
     LoadTexture(renderer, &jumpTex, jumpPath);
+    LoadTexture(renderer, &dashTex, dashPath);
 
     // Load 4 texture tùy chọn (cho Player/Enemy)
     if (shotPath) LoadTexture(renderer, &shotTex, shotPath);
@@ -79,6 +81,7 @@ Character::~Character() {
     SDL_DestroyTexture(walkTex);
     SDL_DestroyTexture(runTex);
     SDL_DestroyTexture(jumpTex);
+    SDL_DestroyTexture(dashTex);
     SDL_DestroyTexture(shotTex);
     SDL_DestroyTexture(attackTex);
     SDL_DestroyTexture(hurtTex);
@@ -91,19 +94,21 @@ Character::~Character() {
 void Character::Update(float deltaTime, Map& map) {
     MovementSystem::HandleMovement(*this, deltaTime, map);
 
-    CharacterState newState;
-    if (!isOnGround)
-        newState = CharacterState::STATE_JUMPING;
-    else if (std::abs(velocity.x) > 1.0f)
-        newState = CharacterState::STATE_WALKING;
-    else
-        newState = CharacterState::STATE_IDLE;
+    CharacterState newState = currentState;
 
-    if (newState != currentState) {
-        currentState = newState;
-        currentFrame = 0;
-        animationTimer = 0.0f;
+    if (isDashing) {
+        newState = CharacterState::STATE_DASHING;
     }
+    else if (!isOnGround) {
+        newState = CharacterState::STATE_JUMPING;
+    }
+    else if (std::abs(velocity.x) > 1.0f) {
+        newState = CharacterState::STATE_WALKING;
+    }
+    else {
+        newState = CharacterState::STATE_IDLE;
+    }
+
 
     // Cập nhật animation
     int totalFrames = 0;
@@ -125,6 +130,10 @@ void Character::Update(float deltaTime, Map& map) {
     case CharacterState::STATE_JUMPING:
         totalFrames = GameConstants::JUMP_FRAMES;
         frameDuration = GameConstants::JUMP_FRAME_DURATION;
+        break;
+    case CharacterState::STATE_DASHING:
+        totalFrames = GameConstants::DASH_FRAMES;
+        frameDuration = GameConstants::DASH_FRAME_DURATION;
         break;
     }
 
@@ -173,6 +182,13 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         frameHeight = GameConstants::JUMP_FRAME_HEIGHT;
         totalFrames = GameConstants::JUMP_FRAMES;
         break;
+    case CharacterState::STATE_DASHING:
+        tex = dashTex;
+        frameWidth = GameConstants::DASH_FRAME_WIDTH;
+        frameHeight = GameConstants::DASH_FRAME_HEIGHT;
+        totalFrames = GameConstants::DASH_FRAMES;
+        break;
+
     }
 
     if (!tex) return;
