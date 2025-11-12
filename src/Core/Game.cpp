@@ -167,6 +167,7 @@ void Game::render() {
     }
 
     // DEBUG: VẼ HITBOX CHO ENEMY (Comment khi release)
+    #ifdef DEBUG_DRAW_HITBOX  // Thêm dòng này
     for (auto& enemy : enemies) {
         if (enemy->IsAlive()) {
             SDL_FRect box = enemy->GetBoundingBox();
@@ -180,6 +181,7 @@ void Game::render() {
             SDL_RenderRect(renderer, &screenBox);
         }
     }
+    #endif  // Thêm dòng này
 
     // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
     map->drawCollisionDebug(offset);
@@ -273,53 +275,65 @@ void Game::checkItemCollisions() {
 void Game::initEnemies() {
     std::cout << "===== BAT DAU SPAWN ENEMIES =====\n";
 
-    // ===== VÙNG 1: SPAWN 3 ORC MINIONS (0-300) =====
+    // ===== VÙNG 1: SPAWN 3 ORC MINIONS (X: 200-400) =====
 
-    // ORC 1
+    // ORC BERSERK
     enemies.push_back(std::make_unique<Minions>(
         renderer,
-        glm::vec2(150.0f, 200.0f),
+        glm::vec2(200.0f, GameConstants::FLOOR_Y - 48.0f),  // Spawn trên mặt đất
         MinionType::ORC_BERSERK
     ));
-    enemies.back()->SetPatrolPoints(glm::vec2(120.0f, 200.0f), glm::vec2(180.0f, 200.0f));
+    enemies.back()->SetPatrolPoints(
+        glm::vec2(150.0f, GameConstants::FLOOR_Y - 48.0f),
+        glm::vec2(250.0f, GameConstants::FLOOR_Y - 48.0f)
+    );
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         });
 
-    // ORC 2
+    // ORC SHAMAN
     enemies.push_back(std::make_unique<Minions>(
         renderer,
-        glm::vec2(250.0f, 200.0f),
+        glm::vec2(300.0f, GameConstants::FLOOR_Y - 48.0f),
         MinionType::ORC_SHAMAN
     ));
-    enemies.back()->SetPatrolPoints(glm::vec2(220.0f, 200.0f), glm::vec2(280.0f, 200.0f));
+    enemies.back()->SetPatrolPoints(
+        glm::vec2(270.0f, GameConstants::FLOOR_Y - 48.0f),
+        glm::vec2(330.0f, GameConstants::FLOOR_Y - 48.0f)
+    );
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         });
 
-    // ORC 3
+    // ORC WARRIOR
     enemies.push_back(std::make_unique<Minions>(
         renderer,
-        glm::vec2(350.0f, 200.0f),
+        glm::vec2(400.0f, GameConstants::FLOOR_Y - 48.0f),
         MinionType::ORC_WARRIOR
     ));
-    enemies.back()->SetPatrolPoints(glm::vec2(320.0f, 200.0f), glm::vec2(380.0f, 200.0f));
+    enemies.back()->SetPatrolPoints(
+        glm::vec2(370.0f, GameConstants::FLOOR_Y - 48.0f),
+        glm::vec2(430.0f, GameConstants::FLOOR_Y - 48.0f)
+    );
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         });
 
-    // ===== VÙNG 2: SPAWN 3 TROLL ELITES (500-800) =====
+    // ===== VÙNG 2: SPAWN 3 TROLL ELITES (X: 600-900) =====
 
     // TROLL 1
     enemies.push_back(std::make_unique<Elites>(
         renderer,
-        glm::vec2(550.0f, 200.0f),
+        glm::vec2(600.0f, GameConstants::FLOOR_Y - 64.0f),  // Lớn hơn nên offset lớn hơn
         TrollType::TROLL_1
     ));
-    enemies.back()->SetPatrolPoints(glm::vec2(520.0f, 200.0f), glm::vec2(580.0f, 200.0f));
+    enemies.back()->SetPatrolPoints(
+        glm::vec2(550.0f, GameConstants::FLOOR_Y - 64.0f),
+        glm::vec2(650.0f, GameConstants::FLOOR_Y - 64.0f)
+    );
     enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
@@ -328,10 +342,13 @@ void Game::initEnemies() {
     // TROLL 2
     enemies.push_back(std::make_unique<Elites>(
         renderer,
-        glm::vec2(700.0f, 200.0f),
+        glm::vec2(750.0f, GameConstants::FLOOR_Y - 64.0f),
         TrollType::TROLL_2
     ));
-    enemies.back()->SetPatrolPoints(glm::vec2(670.0f, 200.0f), glm::vec2(730.0f, 200.0f));
+    enemies.back()->SetPatrolPoints(
+        glm::vec2(700.0f, GameConstants::FLOOR_Y - 64.0f),
+        glm::vec2(800.0f, GameConstants::FLOOR_Y - 64.0f)
+    );
     enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
@@ -340,19 +357,22 @@ void Game::initEnemies() {
     // TROLL 3
     enemies.push_back(std::make_unique<Elites>(
         renderer,
-        glm::vec2(850.0f, 200.0f),
+        glm::vec2(900.0f, GameConstants::FLOOR_Y - 64.0f),
         TrollType::TROLL_3
     ));
-    enemies.back()->SetPatrolPoints(glm::vec2(820.0f, 200.0f), glm::vec2(880.0f, 200.0f));
+    enemies.back()->SetPatrolPoints(
+        glm::vec2(850.0f, GameConstants::FLOOR_Y - 64.0f),
+        glm::vec2(950.0f, GameConstants::FLOOR_Y - 64.0f)
+    );
     enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         });
 
-    // ===== VÙNG 3: SPAWN BOSS (1200+) =====
+    // ===== VÙNG 3: SPAWN BOSS (X: 1300+) =====
     enemies.push_back(std::make_unique<Boss>(
         renderer,
-        glm::vec2(1200.0f, 200.0f)
+        glm::vec2(1300.0f, GameConstants::FLOOR_Y - 96.0f)  // Boss lớn nhất
     ));
     enemies.back()->SetCoinDropAmount(10);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {

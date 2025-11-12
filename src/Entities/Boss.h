@@ -61,6 +61,10 @@ private:
 
     void PlayIntro();
 
+protected:
+    // Override: tr? frames t? GameConstants
+    virtual FrameConfig GetFrameConfig(EnemyState state) const override;
+
 public:
     // ===== CONSTRUCTOR =====
     Boss(SDL_Renderer* renderer, glm::vec2 startPos);

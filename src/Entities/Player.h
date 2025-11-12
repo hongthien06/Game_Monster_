@@ -65,6 +65,15 @@ private:
     glm::vec2 GetArrowSpawnPosition() const;
     void SpawnArrow();
 
+    // THÊM MỚI: Knockback & I-frames
+    bool isInvulnerable;
+    float invulnerabilityDuration;
+    float invulnerabilityTimer;
+
+    glm::vec2 knockbackVelocity;
+    float knockbackDecay;
+    bool isKnockedBack;
+
 public:
     // ===== CONSTRUCTOR / DESTRUCTOR =====
     Player(SDL_Renderer* renderer, glm::vec2 startPos = glm::vec2(50.0f, 0.0f));
@@ -100,4 +109,6 @@ public:
     void SetProjectileDamage(int damage) { projectileDamage = damage; }
     void SetProjectileSpeed(float speed) { projectileSpeed = speed; }
     void SetArrowSpawnFrame(int frame) { arrowSpawnFrame = frame; }
+
+    //bool IsInvulnerable() const { return isInvulnerable; }
 };

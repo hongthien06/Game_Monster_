@@ -86,60 +86,41 @@ namespace GameConstants {
     constexpr int COIN_FRAME_WIDTH = 20;
     constexpr int COIN_FRAME_HEIGHT = 20;
 
+    //boss
+    constexpr int BOSS_IDLE_FRAMES = 10;
+    constexpr float BOSS_IDLE_FRAME_DURATION = 0.12f;
+    constexpr int BOSS_IDLE_FRAME_WIDTH = 1600;
+    constexpr int BOSS_IDLE_FRAME_HEIGHT = 1000;
 
+    constexpr int BOSS_WALK_FRAMES = 10;
+    constexpr float BOSS_WALK_FRAME_DURATION = 0.10f;
+    constexpr int BOSS_WALK_FRAME_WIDTH = 1600;
+    constexpr int BOSS_WALK_FRAME_HEIGHT = 1000;
 
-    // cho quái
-    // Dung yen
-    constexpr int IDLE_FRAMES_ENEMY = 10;
-    constexpr float IDLE_FRAME_DURATION_ENEMY = 0.2f;
-    constexpr int IDLE_FRAME_WIDTH_ENEMY = 128;
-    constexpr int IDLE_FRAME_HEIGHT_ENEMY = 128;
+    constexpr int BOSS_RUN_FRAMES = 10;
+    constexpr float BOSS_RUN_FRAME_DURATION = 0.08f;
+    constexpr int BOSS_RUN_FRAME_WIDTH = 1600;
+    constexpr int BOSS_RUN_FRAME_HEIGHT = 1000;
 
-    // Di bo
-    constexpr int WALK_FRAMES_ENEMY = 10;
-    constexpr float WALK_FRAME_DURATION_ENEMY = 0.2f;
-    constexpr int WALK_FRAME_WIDTH_ENEMY = 128;
-    constexpr int WALK_FRAME_HEIGHT_ENEMY = 128;
-    constexpr float WALK_SPEED_ENEMY = 80.0f;
+    constexpr int BOSS_JUMP_FRAMES = 10;
+    constexpr float BOSS_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int BOSS_JUMP_FRAME_WIDTH = 1600;
+    constexpr int BOSS_JUMP_FRAME_HEIGHT = 1000;
 
-    // Chay 
-    constexpr int RUN_FRAMES_ENEMY = 10;
-    constexpr float RUN_FRAME_DURATION_ENEMY = 0.1f;
-    constexpr int RUN_FRAME_WIDTH_ENEMY = 128;
-    constexpr int RUN_FRAME_HEIGHT_ENEMY = 128;
-    constexpr float RUN_SPEED_ENEMY = 200.0f;
+    constexpr int BOSS_ATTACK_FRAMES = 10;
+    constexpr float BOSS_ATTACK_FRAME_DURATION = 0.09f;
+    constexpr int BOSS_ATTACK_FRAME_WIDTH = 1600;
+    constexpr int BOSS_ATTACK_FRAME_HEIGHT = 1000;
 
-    // Nhay
-    constexpr int JUMP_FRAMES_ENEMY = 10;
-    constexpr float GRAVITY_ENEMY = 800.0f;
-    constexpr float JUMP_SPEED_ENEMY = 250.0f;
-    constexpr float PLAYER_HEIGHT_ENEMY = 32.0f;
-    constexpr float JUMP_FRAME_DURATION_ENEMY = 0.12f;
-    constexpr int JUMP_FRAME_WIDTH_ENEMY = 128;
-    constexpr int JUMP_FRAME_HEIGHT_ENEMY = 128;
+    constexpr int BOSS_HURT_FRAMES = 10;
+    constexpr float BOSS_HURT_FRAME_DURATION = 0.10f;
+    constexpr int BOSS_HURT_FRAME_WIDTH = 1600;
+    constexpr int BOSS_HURT_FRAME_HEIGHT = 1000;
 
-    // Tan Cong
-    constexpr int ATTACK_FRAMES_ENEMY = 10;
-    constexpr float ATTACK_FRAME_DURATION_ENEMY = 0.2f;
-    constexpr int ATTACK_FRAME_WIDTH_ENEMY = 128;
-    constexpr int ATTACK_FRAME_HEIGHT_ENEMY = 128;
-
-    // Chay mau
-    constexpr int HURT_FRAMES_ENEMY = 10 ;
-    constexpr int HURT_FRAME_WIDTH_ENEMY = 128;
-    constexpr int HURT_FRAME_HEIGHT_ENEMY = 128;
-
-    // Chet
-    constexpr int DEAD_FRAMES_ENEMY = 10;
-    constexpr float DEAD_FRAME_DURATION_ENEMY = 0.2f;
-    constexpr int DEAD_FRAME_WIDTH_ENEMY = 128;
-    constexpr int DEAD_FRAME_HEIGHT_ENEMY = 128;
-
-
-
-
-    
-
+    constexpr int BOSS_DEAD_FRAMES = 10;
+    constexpr float BOSS_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int BOSS_DEAD_FRAME_WIDTH = 1600;
+    constexpr int BOSS_DEAD_FRAME_HEIGHT = 1000;
 
     // ===================== ELITE TROLL TYPE 1 =====================
     constexpr int ELITE_TROLL_1_IDLE_FRAMES = 10;

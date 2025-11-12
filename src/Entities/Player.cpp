@@ -5,7 +5,7 @@
 #include <cmath>
 #include "EntityUtils.h"
 
-// ===== CONSTRUCTOR - TRUYỀN 8 TEXTURES CHO CHARACTER =====
+// ===== CONSTRUCTOR - THÊM KHỞI TẠO I-FRAMES =====
 Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     : Character(renderer, startPos,
         "assets/images/Player/Idle.png",
@@ -13,11 +13,11 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
         "assets/images/Player/Run.png",
         "assets/images/Player/Jump.png",
         "assets/images/Player/Dash.png",
-        "assets/images/Player/Shot.png",    // THÊM
-        "assets/images/Player/Attack.png",  // THÊM
-        "assets/images/Player/Hurt.png",    // THÊM
+        "assets/images/Player/Shot.png",
+        "assets/images/Player/Attack.png",
+        "assets/images/Player/Hurt.png",
         "assets/images/Player/Dead.png",
-        "assets/hearts/hearts.png"),   // THÊM
+        "assets/hearts/hearts.png"),
     playerState(PlayerState::STATE_IDLE),
     previousPlayerState(PlayerState::STATE_IDLE),
     playerCurrentFrame(0),
@@ -29,6 +29,11 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     attackTimer(0.0f),
     hurtDuration(0.3f),
     hurtTimer(0.0f),
+    // FIX: KHỞI TẠO I-FRAMES
+    iFramesDuration(1.2f),      // 1.2 giây bất tử
+    iFramesTimer(0.0f),
+    isFlashing(false),
+    flashTimer(0.0f),
     shootCooldown(0.3f),
     shootTimer(0.0f),
     projectileDamage(15),
@@ -36,20 +41,13 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
     arrowSpawnFrame(13)
-
 {
     // Không cần LoadAllTextures() nữa - đã load trong Character constructor
-
 }
 
-// ===== DESTRUCTOR - ĐƠN GIẢN HƠN =====
 Player::~Player() {
-    // Character destructor sẽ tự động destroy tất cả textures
     projectiles.clear();
 }
-
-// ===== XÓA PHƯƠNG THỨC LoadAllTextures =====
-// Không cần nữa vì đã load trong Character
 
 // ===== HANDLE INPUT =====
 void Player::HandleInput() {
@@ -84,7 +82,7 @@ void Player::UpdatePlayerState(float deltaTime) {
         shootTimer -= deltaTime;
     }
 
-    // Xử lý trạng thái HURT
+    // FIX: Xử lý trạng thái HURT - CHỈ LOCK DI CHUYỂN, KHÔNG LOCK I-FRAMES
     if (playerState == PlayerState::STATE_HURT) {
         hurtTimer -= deltaTime;
         if (hurtTimer <= 0) {
@@ -143,7 +141,6 @@ void Player::UpdatePlayerState(float deltaTime) {
             playerState = PlayerState::STATE_DASH;
             break;
         }
-
     }
 }
 
@@ -233,10 +230,11 @@ void Player::UpdateProjectiles(float deltaTime) {
 
 // ===== MAIN UPDATE =====
 void Player::Update(float deltaTime, Map& map) {
-    // XỬ LÝ I-FRAMES
+    // FIX: XỬ LÝ I-FRAMES - GIẢM DẦN TIMER
     if (iFramesTimer > 0) {
         iFramesTimer -= deltaTime;
 
+        // Tạo hiệu ứng nhấp nháy
         flashTimer += deltaTime;
         if (flashTimer >= 0.1f) {
             isFlashing = !isFlashing;
@@ -246,6 +244,7 @@ void Player::Update(float deltaTime, Map& map) {
     else {
         isFlashing = false;
     }
+
     // Gọi Character::Update() để xử lý di chuyển
     if (canMove) {
         Character::Update(deltaTime, map);
@@ -266,9 +265,9 @@ void Player::Update(float deltaTime, Map& map) {
 
 // ===== RENDER =====
 void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    // NHẤP NHÁY KHI INVULNERABLE
+    // FIX: NHẤP NHÁY KHI INVULNERABLE
     if (isFlashing && (int)(iFramesTimer * 10) % 2 == 0) {
-        return;  // KHÔNG VẼ
+        return;  // KHÔNG VẼ FRAME NÀY
     }
 
     // Render projectiles trước
@@ -281,7 +280,6 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     int frameHeight = 0;
     int totalFrames = 0;
 
-    // SỬ DỤNG TEXTURES TỪ CHARACTER CLASS
     switch (playerState) {
     case PlayerState::STATE_IDLE:
         currentTexture = idleTex;
@@ -314,25 +312,25 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         totalFrames = GameConstants::DASH_FRAMES;
         break;
     case PlayerState::STATE_SHOT:
-        currentTexture = shotTex;  // Từ Character
+        currentTexture = shotTex;
         frameWidth = GameConstants::SHOT_FRAME_WIDTH;
         frameHeight = GameConstants::SHOT_FRAME_HEIGHT;
         totalFrames = GameConstants::SHOT_FRAMES;
         break;
     case PlayerState::STATE_ATTACK:
-        currentTexture = attackTex;  // Từ Character
+        currentTexture = attackTex;
         frameWidth = GameConstants::ATTACK_FRAME_WIDTH;
         frameHeight = GameConstants::ATTACK_FRAME_HEIGHT;
         totalFrames = GameConstants::ATTACK_FRAMES;
         break;
     case PlayerState::STATE_HURT:
-        currentTexture = hurtTex;  // Từ Character
+        currentTexture = hurtTex;
         frameWidth = GameConstants::HURT_FRAME_WIDTH;
         frameHeight = GameConstants::HURT_FRAME_HEIGHT;
         totalFrames = GameConstants::HURT_FRAMES;
         break;
     case PlayerState::STATE_DEAD:
-        currentTexture = deadTex;  // Từ Character
+        currentTexture = deadTex;
         frameWidth = GameConstants::DEAD_FRAME_WIDTH;
         frameHeight = GameConstants::DEAD_FRAME_HEIGHT;
         totalFrames = GameConstants::DEAD_FRAMES;
@@ -342,17 +340,16 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     float screenHeight = (float)GameConstants::LOGICAL_HEIGHT;
 
     DrawCornerHealthBar(
-        renderer,               
-        health,                 
-        maxHealth,              
-        8.0f,                   
-        screenHeight - 25.0f,    
-        150.0f,                  
-        20.0f,                   
-        true,                    
-        heartTexture             
+        renderer,
+        health,
+        maxHealth,
+        8.0f,
+        screenHeight - 25.0f,
+        150.0f,
+        20.0f,
+        true,
+        heartTexture
     );
-    
 
     if (!currentTexture) return;
 
@@ -383,25 +380,38 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     );
 }
 
-// ===== COMBAT: TAKE DAMAGE =====
+// ===== COMBAT: TAKE DAMAGE - FIX CHÍNH Ở ĐÂY =====
 void Player::TakeDamage(int damage) {
-    if (!isAlive || playerState == PlayerState::STATE_HURT) return;
+    // FIX 1: CHECK I-FRAMES TRƯỚC - KHÔNG NHẬN SÁT THƯƠNG KHI BẤT TỬ
+    if (!isAlive || iFramesTimer > 0) {
+        std::cout << "[Player] Invulnerable! Remaining: " << iFramesTimer << "s\n";
+        return;
+    }
 
     health -= damage;
+    std::cout << "[Player] Took " << damage << " damage! HP: " << health << "/" << maxHealth << "\n";
 
     if (health <= 0) {
         health = 0;
         isAlive = false;
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
-        std::cout << "Player da chet!\n";
+        std::cout << "[Player] DIED!\n";
+        return;
     }
-    else {
-        playerState = PlayerState::STATE_HURT;
-        hurtTimer = hurtDuration;
-        canMove = false;
-        std::cout << "Player nhan " << damage << " sat thuong! HP: " << health << "\n";
-    }
+
+    // FIX 2: KÍCH HOẠT I-FRAMES SAU KHI BỊ ĐÁNH
+    iFramesTimer = iFramesDuration;
+    isFlashing = true;
+    flashTimer = 0.0f;
+
+    // FIX 3: CHUYỂN SANG STATE HURT (CHỈ ẢNH HƯỞNG DI CHUYỂN)
+    playerState = PlayerState::STATE_HURT;
+    hurtTimer = hurtDuration;
+    canMove = false;
+
+    // Optional: Phát âm thanh bị đánh
+    audio.playSound("assets/audio/player_hurt.wav");
 }
 
 // ===== COMBAT: ATTACK =====

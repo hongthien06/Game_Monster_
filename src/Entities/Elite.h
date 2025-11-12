@@ -1,7 +1,5 @@
 ﻿#pragma once
 #include "Enemy.h"
-#include <vector>
-#include <memory>
 
 // Loại Troll
 enum class TrollType {
@@ -36,6 +34,10 @@ private:
     void PerformSpecialAttack();
     void HeavyAttack();
     void Roar();
+
+protected:
+    // Override: trả frames từ GameConstants
+    virtual FrameConfig GetFrameConfig(EnemyState state) const override;
 
 public:
     // ===== CONSTRUCTOR =====

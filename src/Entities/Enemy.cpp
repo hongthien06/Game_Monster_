@@ -18,9 +18,7 @@ Enemy::Enemy()
     attackCooldown(1.5f),
     attackTimer(0.0f),
     attackDamage(10),
-    patrolSpeed(50.0f),
     walkSpeed(40.0f),
-    chaseSpeed(100.0f),
     runSpeed(120.0f),
     patrolPointA(0.0f, 0.0f),
     patrolPointB(0.0f, 0.0f),
@@ -36,7 +34,9 @@ Enemy::Enemy()
     hasDroppedCoins(false),
     enemyCanJump(false),
     enemyIsOnGround(true),
-    enemyGravity(GameConstants::GRAVITY)
+    enemyGravity(GameConstants::GRAVITY),
+    renderWidth(48.0f),
+    renderHeight(48.0f)
 {
 }
 
@@ -63,9 +63,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     attackCooldown(1.5f),
     attackTimer(0.0f),
     attackDamage(10),
-    patrolSpeed(50.0f),
     walkSpeed(40.0f),
-    chaseSpeed(100.0f),
     runSpeed(120.0f),
     patrolPointA(startPos - glm::vec2(100.0f, 0.0f)),
     patrolPointB(startPos + glm::vec2(100.0f, 0.0f)),
@@ -81,7 +79,9 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     hasDroppedCoins(false),
     enemyCanJump(false),
     enemyIsOnGround(true),
-    enemyGravity(GameConstants::GRAVITY)
+    enemyGravity(GameConstants::GRAVITY),
+    renderWidth(48.0f),
+    renderHeight(48.0f)
 {
     switch (type) {
     case EnemyType::MINION:
@@ -91,6 +91,8 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         aggroRange = 200.0f;
         attackRange = 40.0f;
         coinDropAmount = 1;
+        renderWidth = 48.0f;
+        renderHeight = 48.0f;
         break;
     case EnemyType::ELITE:
         maxHealth = 150;
@@ -98,8 +100,10 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         attackDamage = 25;
         aggroRange = 300.0f;
         attackRange = 50.0f;
-        chaseSpeed = 120.0f;
+        runSpeed = 120.0f;
         coinDropAmount = 3;
+        renderWidth = 64.0f;
+        renderHeight = 64.0f;
         break;
     case EnemyType::BOSS:
         maxHealth = 500;
@@ -108,6 +112,8 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         aggroRange = 400.0f;
         attackRange = 80.0f;
         coinDropAmount = 10;
+        renderWidth = 96.0f;
+        renderHeight = 96.0f;
         break;
     }
 }
@@ -115,7 +121,7 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
 Enemy::~Enemy() {
 }
 
-// FIX: CHECK AGGRO RANGE RIÊNG
+// Kiểm tra khoảng cách
 bool Enemy::IsTargetInAggroRange() const {
     return GetDistanceToTarget() <= aggroRange;
 }
@@ -138,30 +144,30 @@ void Enemy::SetPatrolPoints(glm::vec2 pointA, glm::vec2 pointB) {
     patrolPointB = pointB;
 }
 
-// FIX: HANDLER CHO TỪNG STATE
+// === 7 STATE HANDLERS ===
 void Enemy::HandleIdle(float deltaTime) {
     velocity.x = 0.0f;
+    // Enemy đứng yên, không làm gì cả
 }
 
+//void Enemy::HandleWalk(float deltaTime) {
+//    glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
+//    glm::vec2 direction = targetPoint - position;
+//    float distance = glm::length(direction);
+//
+//    if (distance < 5.0f) {
+//        movingToB = !movingToB;
+//        velocity.x = 0.0f;
+//        return;
+//    }
+//
+//    direction = glm::normalize(direction);
+//    velocity.x = direction.x * walkSpeed;
+//    flipHorizontal = velocity.x < 0;
+//}
 void Enemy::HandleWalk(float deltaTime) {
-    glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
-    glm::vec2 direction = targetPoint - position;
-    float distance = glm::length(direction);
-
-    if (distance < 5.0f) {
-        movingToB = !movingToB;
-        velocity.x = 0.0f;
-        return;
-    }
-
-    direction = glm::normalize(direction);
-    velocity.x = direction.x * walkSpeed;
-
-    flipHorizontal = velocity.x < 0;
-}
-
-void Enemy::HandlePatrol(float deltaTime) {
-    HandleWalk(deltaTime);
+    // Không sử dụng nữa - enemy chỉ idle hoặc chase
+    velocity.x = 0.0f;
 }
 
 void Enemy::HandleRun(float deltaTime) {
@@ -175,19 +181,7 @@ void Enemy::HandleRun(float deltaTime) {
     }
 }
 
-void Enemy::HandleChase(float deltaTime) {
-    glm::vec2 direction = targetPosition - position;
-    float distance = glm::length(direction);
-
-    if (distance > 0.1f) {
-        direction = glm::normalize(direction);
-        velocity.x = direction.x * chaseSpeed;
-        flipHorizontal = velocity.x < 0;
-    }
-}
-
 void Enemy::HandleJump(float deltaTime) {
-    // CHỈ NHẢY KHI ĐƯỢC PHÉP VÀ ĐANG Ở MẶT ĐẤT
     if (enemyCanJump && enemyIsOnGround) {
         velocity.y = -GameConstants::JUMP_SPEED * 0.7f;
         enemyIsOnGround = false;
@@ -217,7 +211,7 @@ void Enemy::HandleHurt(float deltaTime) {
     }
 }
 
-// FIX: STATE MACHINE LOGIC HOÀN CHỈNH
+// === STATE MACHINE (CHỈ 7 STATE) ===
 void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
     if (!isAlive) {
         enemyState = EnemyState::STATE_DEAD;
@@ -225,18 +219,18 @@ void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
         return;
     }
 
-    // XỬ LÝ I-FRAMES
+    // I-frames
     if (iFramesTimer > 0) {
         iFramesTimer -= deltaTime;
     }
 
-    // XỬ LÝ HURT
+    // Hurt
     if (enemyState == EnemyState::STATE_HURT) {
         HandleHurt(deltaTime);
         return;
     }
 
-    // AI LOGIC - CHUYỂN STATE THEO ƯU TIÊN
+    // AI: chuyển state theo khoảng cách
     if (IsTargetInAttackRange()) {
         enemyState = EnemyState::STATE_ATTACK;
         HandleAttack(deltaTime);
@@ -245,91 +239,59 @@ void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
         enemyState = EnemyState::STATE_RUN;
         HandleRun(deltaTime);
     }
-    else if (IsTargetInRange()) {
-        enemyState = EnemyState::STATE_CHASE;
-        HandleChase(deltaTime);
-    }
     else {
-        enemyState = EnemyState::STATE_WALK;
-        HandleWalk(deltaTime);
+        // FIX: Khi không có target trong aggro range -> đứng yên
+        enemyState = EnemyState::STATE_IDLE;
+        HandleIdle(deltaTime);
     }
 }
 
+// === ANIMATION UPDATE (dùng GetFrameConfig từ lớp con) ===
 void Enemy::UpdateEnemyAnimation(float deltaTime) {
+    // Reset frame khi đổi state
     if (enemyState != previousEnemyState) {
         enemyCurrentFrame = 0;
         enemyAnimationTimer = 0.0f;
         previousEnemyState = enemyState;
     }
 
-    int totalFrames = 0;
-    float frameDuration = 0.0f;
-
-    switch (enemyState) {
-    case EnemyState::STATE_IDLE:
-        totalFrames = GameConstants::IDLE_FRAMES;
-        frameDuration = GameConstants::IDLE_FRAME_DURATION;
-        break;
-    case EnemyState::STATE_WALK:
-    case EnemyState::STATE_PATROL:
-        totalFrames = GameConstants::WALK_FRAMES;
-        frameDuration = GameConstants::WALK_FRAME_DURATION;
-        break;
-    case EnemyState::STATE_RUN:
-    case EnemyState::STATE_CHASE:
-        totalFrames = GameConstants::RUN_FRAMES;
-        frameDuration = GameConstants::RUN_FRAME_DURATION;
-        break;
-    case EnemyState::STATE_ATTACK:
-        totalFrames = GameConstants::ATTACK_FRAMES;
-        frameDuration = GameConstants::ATTACK_FRAME_DURATION;
-        break;
-    case EnemyState::STATE_HURT:
-        totalFrames = GameConstants::HURT_FRAMES;
-        frameDuration = hurtDuration / std::max(1, totalFrames);
-        break;
-    case EnemyState::STATE_DEAD:
-        totalFrames = GameConstants::DEAD_FRAMES;
-        frameDuration = GameConstants::DEAD_FRAME_DURATION;
-        break;
-    }
+    // Lấy config từ lớp con
+    FrameConfig cfg = GetFrameConfig(enemyState);
 
     enemyAnimationTimer += deltaTime;
 
-    if (enemyAnimationTimer >= frameDuration && totalFrames > 0) {
-        enemyAnimationTimer -= frameDuration;
+    if (enemyAnimationTimer >= cfg.frameDuration && cfg.frameCount > 0) {
+        enemyAnimationTimer -= cfg.frameDuration;
 
         if (enemyState == EnemyState::STATE_DEAD) {
-            enemyCurrentFrame = std::min(enemyCurrentFrame + 1, totalFrames - 1);
+            enemyCurrentFrame = std::min(enemyCurrentFrame + 1, cfg.frameCount - 1);
         }
         else {
-            enemyCurrentFrame = (enemyCurrentFrame + 1) % totalFrames;
+            enemyCurrentFrame = (enemyCurrentFrame + 1) % cfg.frameCount;
         }
     }
 }
 
-// FIX: DÙNG PHYSICS RIÊNG, KHÔNG GỌI MovementSystem
+// === UPDATE (physics riêng) ===
 void Enemy::Update(float deltaTime, Map& map) {
     UpdateEnemyState(deltaTime, map);
     UpdateEnemyAnimation(deltaTime);
 
     if (enemyState != EnemyState::STATE_DEAD) {
-        // FIX: DÙNG GRAVITY RIÊNG
+        // Gravity
         if (!enemyIsOnGround) {
             velocity.y += enemyGravity * deltaTime;
         }
 
-        // DI CHUYỂN
+        // Di chuyển
         position += velocity * deltaTime;
 
-        // CHECK COLLISION VỚI MAP
+        // Collision với map
         SDL_FRect bbox = GetBoundingBox();
-
-        // CHECK GROUND
         enemyIsOnGround = false;
+
         for (const auto& tile : map.GetCollisionTiles()) {
             if (SDL_HasRectIntersectionFloat(&bbox, &tile)) {
-                // XỬ LÝ VA CHẠM
                 if (velocity.y > 0) {
                     position.y = tile.y - (bbox.h);
                     velocity.y = 0;
@@ -339,6 +301,7 @@ void Enemy::Update(float deltaTime, Map& map) {
         }
     }
 
+    // Drop coins khi chết
     if (!isAlive) {
         deathTimer += deltaTime;
 
@@ -351,74 +314,57 @@ void Enemy::Update(float deltaTime, Map& map) {
     }
 }
 
+// === RENDER (dùng GetFrameConfig) ===
 void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     SDL_Texture* currentTexture = nullptr;
-    int frameWidth = 0;
-    int frameHeight = 0;
-    int totalFrames = 0;
+    FrameConfig cfg = GetFrameConfig(enemyState);
 
+    // Chọn texture theo state
     switch (enemyState) {
     case EnemyState::STATE_IDLE:
         currentTexture = idleTex;
-        frameWidth = GameConstants::IDLE_FRAME_WIDTH_ENEMY;
-        frameHeight = GameConstants::IDLE_FRAME_HEIGHT_ENEMY;
-        totalFrames = GameConstants::IDLE_FRAMES_ENEMY;
         break;
     case EnemyState::STATE_WALK:
-    case EnemyState::STATE_PATROL:
         currentTexture = walkTex;
-        frameWidth = GameConstants::WALK_FRAME_WIDTH_ENEMY;
-        frameHeight = GameConstants::WALK_FRAME_HEIGHT_ENEMY;
-        totalFrames = GameConstants::WALK_FRAMES_ENEMY;
         break;
     case EnemyState::STATE_RUN:
-    case EnemyState::STATE_CHASE:
         currentTexture = runTex;
-        frameWidth = GameConstants::RUN_FRAME_WIDTH_ENEMY;
-        frameHeight = GameConstants::RUN_FRAME_HEIGHT_ENEMY;
-        totalFrames = GameConstants::RUN_FRAMES_ENEMY;
+        break;
+    case EnemyState::STATE_JUMP:
+        currentTexture = jumpTex;
         break;
     case EnemyState::STATE_ATTACK:
         currentTexture = attackTex;
-        frameWidth = GameConstants::ATTACK_FRAME_WIDTH_ENEMY;
-        frameHeight = GameConstants::ATTACK_FRAME_HEIGHT_ENEMY;
-        totalFrames = GameConstants::ATTACK_FRAMES_ENEMY;
         break;
     case EnemyState::STATE_HURT:
         currentTexture = hurtTex;
-        frameWidth = GameConstants::HURT_FRAME_WIDTH_ENEMY;
-        frameHeight = GameConstants::HURT_FRAME_HEIGHT_ENEMY;
-        totalFrames = GameConstants::HURT_FRAMES_ENEMY;
         break;
     case EnemyState::STATE_DEAD:
         currentTexture = deadTex;
-        frameWidth = GameConstants::DEAD_FRAME_WIDTH_ENEMY;
-        frameHeight = GameConstants::DEAD_FRAME_HEIGHT_ENEMY;
-        totalFrames = GameConstants::DEAD_FRAMES_ENEMY;
         break;
     }
 
-    // FIX: CHỈ VẼ HEALTHBAR KHI SỐNG
+    // Vẽ healthbar (chỉ khi sống)
     if (isAlive) {
-        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, GetSpriteWidth());
+        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, renderWidth);
     }
 
     if (!currentTexture) return;
 
-    int safeFrame = std::min(enemyCurrentFrame, totalFrames - 1);
+    int safeFrame = std::min(enemyCurrentFrame, cfg.frameCount - 1);
 
     SDL_FRect srcRect = {
-        (float)(safeFrame * frameWidth),
+        (float)(safeFrame * cfg.frameWidth),
         0.0f,
-        (float)frameWidth,
-        (float)frameHeight
+        (float)cfg.frameWidth,
+        (float)cfg.frameHeight
     };
 
     SDL_FRect dstRect = {
         position.x - cameraOffset.x,
         position.y - cameraOffset.y,
-        48.0f,
-        48.0f
+        renderWidth,
+        renderHeight
     };
 
     SDL_RenderTextureRotated(
@@ -432,7 +378,7 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     );
 }
 
-// FIX: THÊM I-FRAMES
+// === TAKE DAMAGE (với i-frames) ===
 void Enemy::TakeDamage(int damage) {
     if (!isAlive || !canTakeDamage || iFramesTimer > 0) return;
 
@@ -456,13 +402,12 @@ void Enemy::Die() {
     velocity = glm::vec2(0.0f, 0.0f);
 }
 
-// FIX: HITBOX NHỎ HƠN, CÓ OFFSET
+// === HITBOX (nhỏ hơn sprite, có offset) ===
 SDL_FRect Enemy::GetBoundingBox() const {
-    float spriteW = GetSpriteWidth();
     return SDL_FRect{
-        position.x + spriteW * 0.2f,
-        position.y + spriteW * 0.15f,
-        spriteW * 0.6f,
-        spriteW * 0.8f
+        position.x + renderWidth * 0.2f,
+        position.y + renderHeight * 0.15f,
+        renderWidth * 0.6f,
+        renderHeight * 0.8f
     };
 }

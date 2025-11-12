@@ -1,12 +1,8 @@
 ﻿#include "Minion.h"
 #include <iostream>
 
-// ===== CONSTRUCTOR - PHÂN BIỆT 3 LOẠI ORC =====
 Minions::Minions(SDL_Renderer* renderer, glm::vec2 startPos, MinionType type)
-    : Enemy(renderer, startPos,
-        nullptr, nullptr, nullptr, nullptr,
-        nullptr, nullptr, nullptr,
-        EnemyType::MINION),
+    : Enemy(),
     minionType(type),
     magicTex(nullptr),
     isCastingMagic(false),
@@ -15,55 +11,47 @@ Minions::Minions(SDL_Renderer* renderer, glm::vec2 startPos, MinionType type)
     isRaging(false),
     rageThreshold(0.3f)
 {
-    // ===== THIẾT LẬP THÔNG SỐ CHO TỪNG LOẠI ORC =====
+    this->renderer = renderer;
+    this->position = startPos;
+    this->enemyType = EnemyType::MINION;
+
     std::string folderPath;
 
+    // Thiết lập theo loại
     switch (type) {
     case MinionType::ORC_BERSERK:
-        // Orc Berserk - Tấn công nhanh, dữ dội
         folderPath = "assets/images/Minions/Orc_Berserk/";
         maxHealth = 40;
         health = 40;
         attackDamage = 15;
-        attackCooldown = 0.8f;  // Tấn công nhanh
-        chaseSpeed = 120.0f;
+        attackCooldown = 0.8f;
+        runSpeed = 120.0f;
         detectionRange = 180.0f;
-        std::cout << "[Orc Berserk] Khoi tao - HP: 40, Damage: 15, Attack Speed: NHANH\n";
         break;
 
     case MinionType::ORC_SHAMAN:
-        // Orc Shaman - Tấn công từ xa bằng magic
         folderPath = "assets/images/Minions/Orc_Shaman/";
         maxHealth = 35;
         health = 35;
         attackDamage = 12;
         attackCooldown = 1.5f;
-        attackRange = 150.0f;   // Tấn công từ xa
-        chaseSpeed = 80.0f;     // Di chuyển chậm
+        attackRange = 150.0f;
+        runSpeed = 80.0f;
         detectionRange = 200.0f;
-        std::cout << "[Orc Shaman] Khoi tao - HP: 35, Damage: 12, MAGIC ATTACK\n";
         break;
 
     case MinionType::ORC_WARRIOR:
-        // Orc Warrior - Cân bằng
         folderPath = "assets/images/Minions/Orc_Warrior/";
         maxHealth = 50;
         health = 50;
         attackDamage = 12;
         attackCooldown = 1.2f;
-        chaseSpeed = 90.0f;
+        runSpeed = 90.0f;
         detectionRange = 160.0f;
-        std::cout << "[Orc Warrior] Khoi tao - HP: 50, Damage: 12, CAN BANG\n";
         break;
-
-    default:
-        std::cerr << "[Minion] Loai Orc khong hop le!\n";
-        return;
     }
 
-    // ===== LOAD TEXTURE ĐÚNG CHO TỪNG LOẠI ORC =====
-    std::cout << "Loading textures tu: " << folderPath << "\n";
-
+    // Load textures
     LoadTexture(renderer, &idleTex, (folderPath + "Idle.png").c_str());
     LoadTexture(renderer, &walkTex, (folderPath + "Walk.png").c_str());
     LoadTexture(renderer, &runTex, (folderPath + "Run.png").c_str());
@@ -72,87 +60,168 @@ Minions::Minions(SDL_Renderer* renderer, glm::vec2 startPos, MinionType type)
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
-    // ===== SHAMAN CÓ THÊM MAGIC TEXTURE =====
     if (type == MinionType::ORC_SHAMAN) {
         LoadTexture(renderer, &magicTex, (folderPath + "Magic.png").c_str());
-        std::cout << "[Orc Shaman] Load them Magic textures\n";
     }
+
+    // Size: 48x48 (bằng player)
+    renderWidth = 48.0f;
+    renderHeight = 48.0f;
 }
 
-// ===== DESTRUCTOR =====
 Minions::~Minions() {
     SDL_DestroyTexture(magicTex);
 }
 
-// ===== KÍCH HOẠT RAGE (CHỈ ORC BERSERK) =====
+// === TRẢ FRAMES TỪ GAMECONSTANTS ===
+FrameConfig Minions::GetFrameConfig(EnemyState state) const {
+    FrameConfig cfg = { 0, 0.1f, 96, 96 };
+
+    switch (minionType) {
+    case MinionType::ORC_BERSERK:
+        switch (state) {
+        case EnemyState::STATE_IDLE:
+            cfg = { GameConstants::MINION_BERSERK_IDLE_FRAMES, GameConstants::MINION_BERSERK_IDLE_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_IDLE_FRAME_WIDTH, GameConstants::MINION_BERSERK_IDLE_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_WALK:
+            cfg = { GameConstants::MINION_BERSERK_WALK_FRAMES, GameConstants::MINION_BERSERK_WALK_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_WALK_FRAME_WIDTH, GameConstants::MINION_BERSERK_WALK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_RUN:
+            cfg = { GameConstants::MINION_BERSERK_RUN_FRAMES, GameConstants::MINION_BERSERK_RUN_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_RUN_FRAME_WIDTH, GameConstants::MINION_BERSERK_RUN_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_JUMP:
+            cfg = { GameConstants::MINION_BERSERK_JUMP_FRAMES, GameConstants::MINION_BERSERK_JUMP_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_JUMP_FRAME_WIDTH, GameConstants::MINION_BERSERK_JUMP_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_ATTACK:
+            cfg = { GameConstants::MINION_BERSERK_ATTACK_FRAMES, GameConstants::MINION_BERSERK_ATTACK_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_ATTACK_FRAME_WIDTH, GameConstants::MINION_BERSERK_ATTACK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_HURT:
+            cfg = { GameConstants::MINION_BERSERK_HURT_FRAMES, GameConstants::MINION_BERSERK_HURT_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_HURT_FRAME_WIDTH, GameConstants::MINION_BERSERK_HURT_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_DEAD:
+            cfg = { GameConstants::MINION_BERSERK_DEAD_FRAMES, GameConstants::MINION_BERSERK_DEAD_FRAME_DURATION,
+                   GameConstants::MINION_BERSERK_DEAD_FRAME_WIDTH, GameConstants::MINION_BERSERK_DEAD_FRAME_HEIGHT };
+            break;
+        }
+        break;
+
+    case MinionType::ORC_SHAMAN:
+        switch (state) {
+        case EnemyState::STATE_IDLE:
+            cfg = { GameConstants::MINION_SHAMAN_IDLE_FRAMES, GameConstants::MINION_SHAMAN_IDLE_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_IDLE_FRAME_WIDTH, GameConstants::MINION_SHAMAN_IDLE_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_WALK:
+            cfg = { GameConstants::MINION_SHAMAN_WALK_FRAMES, GameConstants::MINION_SHAMAN_WALK_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_WALK_FRAME_WIDTH, GameConstants::MINION_SHAMAN_WALK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_RUN:
+            cfg = { GameConstants::MINION_SHAMAN_RUN_FRAMES, GameConstants::MINION_SHAMAN_RUN_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_RUN_FRAME_WIDTH, GameConstants::MINION_SHAMAN_RUN_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_JUMP:
+            cfg = { GameConstants::MINION_SHAMAN_JUMP_FRAMES, GameConstants::MINION_SHAMAN_JUMP_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_JUMP_FRAME_WIDTH, GameConstants::MINION_SHAMAN_JUMP_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_ATTACK:
+            cfg = { GameConstants::MINION_SHAMAN_ATTACK_FRAMES, GameConstants::MINION_SHAMAN_ATTACK_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_ATTACK_FRAME_WIDTH, GameConstants::MINION_SHAMAN_ATTACK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_HURT:
+            cfg = { GameConstants::MINION_SHAMAN_HURT_FRAMES, GameConstants::MINION_SHAMAN_HURT_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_HURT_FRAME_WIDTH, GameConstants::MINION_SHAMAN_HURT_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_DEAD:
+            cfg = { GameConstants::MINION_SHAMAN_DEAD_FRAMES, GameConstants::MINION_SHAMAN_DEAD_FRAME_DURATION,
+                   GameConstants::MINION_SHAMAN_DEAD_FRAME_WIDTH, GameConstants::MINION_SHAMAN_DEAD_FRAME_HEIGHT };
+            break;
+        }
+        break;
+
+    case MinionType::ORC_WARRIOR:
+        switch (state) {
+        case EnemyState::STATE_IDLE:
+            cfg = { GameConstants::MINION_WARRIOR_IDLE_FRAMES, GameConstants::MINION_WARRIOR_IDLE_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_IDLE_FRAME_WIDTH, GameConstants::MINION_WARRIOR_IDLE_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_WALK:
+            cfg = { GameConstants::MINION_WARRIOR_WALK_FRAMES, GameConstants::MINION_WARRIOR_WALK_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_WALK_FRAME_WIDTH, GameConstants::MINION_WARRIOR_WALK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_RUN:
+            cfg = { GameConstants::MINION_WARRIOR_RUN_FRAMES, GameConstants::MINION_WARRIOR_RUN_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_RUN_FRAME_WIDTH, GameConstants::MINION_WARRIOR_RUN_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_JUMP:
+            cfg = { GameConstants::MINION_WARRIOR_JUMP_FRAMES, GameConstants::MINION_WARRIOR_JUMP_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_JUMP_FRAME_WIDTH, GameConstants::MINION_WARRIOR_JUMP_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_ATTACK:
+            cfg = { GameConstants::MINION_WARRIOR_ATTACK_FRAMES, GameConstants::MINION_WARRIOR_ATTACK_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_ATTACK_FRAME_WIDTH, GameConstants::MINION_WARRIOR_ATTACK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_HURT:
+            cfg = { GameConstants::MINION_WARRIOR_HURT_FRAMES, GameConstants::MINION_WARRIOR_HURT_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_HURT_FRAME_WIDTH, GameConstants::MINION_WARRIOR_HURT_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_DEAD:
+            cfg = { GameConstants::MINION_WARRIOR_DEAD_FRAMES, GameConstants::MINION_WARRIOR_DEAD_FRAME_DURATION,
+                   GameConstants::MINION_WARRIOR_DEAD_FRAME_WIDTH, GameConstants::MINION_WARRIOR_DEAD_FRAME_HEIGHT };
+            break;
+        }
+        break;
+    }
+
+    return cfg;
+}
+
 void Minions::ActivateRage() {
     if (isRaging || minionType != MinionType::ORC_BERSERK) return;
 
     isRaging = true;
-    attackCooldown *= 0.5f;     // Tấn công nhanh gấp đôi
-    chaseSpeed *= 1.3f;         // Chạy nhanh hơn
-    attackDamage = (int)(attackDamage * 1.2f); // Tăng sát thương
-
-    std::cout << "[Orc Berserk] CUONG NO! Toc do va sat thuong tang manh!\n";
-    std::cout << "  -> Attack Speed: " << attackCooldown << "s\n";
-    std::cout << "  -> Chase Speed: " << chaseSpeed << "\n";
-    std::cout << "  -> Damage: " << attackDamage << "\n";
+    attackCooldown *= 0.5f;
+    runSpeed *= 1.3f;
+    attackDamage = (int)(attackDamage * 1.2f);
 }
 
-// ===== THI PHÁP THUẬT (CHỈ ORC SHAMAN) =====
 void Minions::CastMagic() {
     if (magicTimer > 0 || minionType != MinionType::ORC_SHAMAN) return;
 
     isCastingMagic = true;
     magicTimer = magicCooldown;
-
-    std::cout << "[Orc Shaman] THI PHAP THUAT! Tao projectile magic...\n";
-
-    // TODO: Tạo magic projectile bay về phía target
 }
 
-// ===== THỰC HIỆN TẤN CÔNG =====
 int Minions::PerformAttack() {
     switch (minionType) {
     case MinionType::ORC_BERSERK:
-        // Berserk - Tấn công cận chiến mạnh
         if (IsTargetInAttackRange()) {
-            if (isRaging) {
-                std::cout << "[Orc Berserk] TAN CONG CUONG NO! Damage: " << attackDamage << "\n";
-            }
-            else {
-                std::cout << "[Orc Berserk] Tan cong can chien! Damage: " << attackDamage << "\n";
-            }
             return attackDamage;
         }
         break;
 
     case MinionType::ORC_SHAMAN:
-        // Shaman - Tấn công từ xa bằng magic
         CastMagic();
-        std::cout << "[Orc Shaman] Ban magic! Damage: " << attackDamage << "\n";
         return attackDamage;
 
     case MinionType::ORC_WARRIOR:
-        // Warrior - Tấn công cận chiến cân bằng
         if (IsTargetInAttackRange()) {
-            std::cout << "[Orc Warrior] Tan cong kiem! Damage: " << attackDamage << "\n";
             return attackDamage;
         }
-        break;
-
-    default:
         break;
     }
 
     return 0;
 }
 
-// ===== UPDATE =====
 void Minions::Update(float deltaTime, Map& map) {
     Enemy::Update(deltaTime, map);
 
-    // Xử lý magic timer (Shaman)
     if (magicTimer > 0) {
         magicTimer -= deltaTime;
         if (magicTimer <= 0) {
@@ -160,7 +229,7 @@ void Minions::Update(float deltaTime, Map& map) {
         }
     }
 
-    // Kích hoạt Rage khi máu thấp (Berserk)
+    // Kích hoạt Rage khi máu thấp
     if (minionType == MinionType::ORC_BERSERK && !isRaging) {
         float healthPercent = (float)health / (float)maxHealth;
         if (healthPercent <= rageThreshold) {
@@ -169,15 +238,11 @@ void Minions::Update(float deltaTime, Map& map) {
     }
 }
 
-// ===== RENDER =====
 void Minions::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    // Render sprite chính
     Enemy::Render(renderer, cameraOffset);
 
-    // ===== HIỆU ỨNG RAGE (BERSERK) =====
+    // Aura đỏ khi Rage (Berserk)
     if (minionType == MinionType::ORC_BERSERK && isRaging) {
-        // TODO: Vẽ aura đỏ quanh Berserk
-        // Tạm thời: vẽ viền đỏ
         SDL_FRect outline = GetBoundingBox();
         outline.x -= cameraOffset.x - 2;
         outline.y -= cameraOffset.y - 2;
@@ -187,19 +252,12 @@ void Minions::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         SDL_SetRenderDrawColor(renderer, 255, 0, 0, 150);
         SDL_RenderRect(renderer, &outline);
     }
-
-    // ===== HIỆU ỨNG MAGIC (SHAMAN) =====
-    if (minionType == MinionType::ORC_SHAMAN && isCastingMagic && magicTex) {
-        // TODO: Render magic effect xung quanh Shaman
-    }
 }
 
-// ===== TAKE DAMAGE =====
 void Minions::TakeDamage(int damage) {
-    // Berserk trong trạng thái Rage nhận ít damage hơn
+    // Giảm damage khi Rage
     if (minionType == MinionType::ORC_BERSERK && isRaging) {
         damage = (int)(damage * 0.9f);
-        std::cout << "[Orc Berserk] Giam sat thuong nho Rage! Damage: " << damage << "\n";
     }
 
     Enemy::TakeDamage(damage);

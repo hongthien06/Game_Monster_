@@ -1,9 +1,8 @@
 #include "Elite.h"
 #include <iostream>
 
-// FIX: LOAD TEXTURE ?ÚNG CÁCH
 Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
-    : Enemy(),  // G?I CONSTRUCTOR M?C ??NH TR??C
+    : Enemy(),
     trollType(type),
     isPerformingSpecial(false),
     specialCooldown(5.0f),
@@ -17,14 +16,12 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
     buffDuration(10.0f),
     buffTimer(0.0f)
 {
-    // SET RENDERER & POSITION
     this->renderer = renderer;
     this->position = startPos;
     this->enemyType = EnemyType::ELITE;
 
     std::string folderPath;
 
-    // FIX: ??I TÊN FOLDER ?ÚNG
     switch (type) {
     case TrollType::TROLL_1:
         folderPath = "assets/images/Elites/1_TROLL/";
@@ -33,7 +30,7 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         attackDamage = 20;
         specialDamage = 35;
         attackCooldown = 1.5f;
-        chaseSpeed = 100.0f;
+        runSpeed = 100.0f;
         aggroRange = 250.0f;
         attackRange = 50.0f;
         break;
@@ -45,7 +42,7 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         attackDamage = 28;
         specialDamage = 45;
         attackCooldown = 1.3f;
-        chaseSpeed = 110.0f;
+        runSpeed = 110.0f;
         aggroRange = 280.0f;
         attackRange = 55.0f;
         heavyAttackChargeTime = 0.8f;
@@ -58,14 +55,14 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         attackDamage = 35;
         specialDamage = 60;
         attackCooldown = 1.0f;
-        chaseSpeed = 120.0f;
+        runSpeed = 120.0f;
         aggroRange = 300.0f;
         attackRange = 60.0f;
         specialCooldown = 4.0f;
         break;
     }
 
-    // FIX: LOAD TEXTURE SAU KHI ?Ã SET RENDERER
+    // Load textures
     LoadTexture(renderer, &idleTex, (folderPath + "Idle.png").c_str());
     LoadTexture(renderer, &walkTex, (folderPath + "Walk.png").c_str());
     LoadTexture(renderer, &runTex, (folderPath + "Run.png").c_str());
@@ -73,9 +70,121 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
     LoadTexture(renderer, &attackTex, (folderPath + "Attack.png").c_str());
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Die.png").c_str());
+
+    // Size: 64x64 (l?n h?n Minion)
+    renderWidth = 64.0f;
+    renderHeight = 64.0f;
 }
 
 Elites::~Elites() {
+}
+
+// === TR? FRAMES T? GAMECONSTANTS ===
+FrameConfig Elites::GetFrameConfig(EnemyState state) const {
+    FrameConfig cfg = { 0, 0.1f, 1600, 1000 };
+
+    switch (trollType) {
+    case TrollType::TROLL_1:
+        switch (state) {
+        case EnemyState::STATE_IDLE:
+            cfg = { GameConstants::ELITE_TROLL_1_IDLE_FRAMES, GameConstants::ELITE_TROLL_1_IDLE_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_IDLE_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_IDLE_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_WALK:
+            cfg = { GameConstants::ELITE_TROLL_1_WALK_FRAMES, GameConstants::ELITE_TROLL_1_WALK_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_WALK_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_WALK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_RUN:
+            cfg = { GameConstants::ELITE_TROLL_1_RUN_FRAMES, GameConstants::ELITE_TROLL_1_RUN_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_RUN_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_RUN_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_JUMP:
+            cfg = { GameConstants::ELITE_TROLL_1_JUMP_FRAMES, GameConstants::ELITE_TROLL_1_JUMP_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_JUMP_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_JUMP_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_ATTACK:
+            cfg = { GameConstants::ELITE_TROLL_1_ATTACK_FRAMES, GameConstants::ELITE_TROLL_1_ATTACK_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_ATTACK_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_ATTACK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_HURT:
+            cfg = { GameConstants::ELITE_TROLL_1_HURT_FRAMES, GameConstants::ELITE_TROLL_1_HURT_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_HURT_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_HURT_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_DEAD:
+            cfg = { GameConstants::ELITE_TROLL_1_DEAD_FRAMES, GameConstants::ELITE_TROLL_1_DEAD_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_1_DEAD_FRAME_WIDTH, GameConstants::ELITE_TROLL_1_DEAD_FRAME_HEIGHT };
+            break;
+        }
+        break;
+
+    case TrollType::TROLL_2:
+        switch (state) {
+        case EnemyState::STATE_IDLE:
+            cfg = { GameConstants::ELITE_TROLL_2_IDLE_FRAMES, GameConstants::ELITE_TROLL_2_IDLE_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_IDLE_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_IDLE_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_WALK:
+            cfg = { GameConstants::ELITE_TROLL_2_WALK_FRAMES, GameConstants::ELITE_TROLL_2_WALK_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_WALK_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_WALK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_RUN:
+            cfg = { GameConstants::ELITE_TROLL_2_RUN_FRAMES, GameConstants::ELITE_TROLL_2_RUN_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_RUN_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_RUN_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_JUMP:
+            cfg = { GameConstants::ELITE_TROLL_2_JUMP_FRAMES, GameConstants::ELITE_TROLL_2_JUMP_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_JUMP_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_JUMP_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_ATTACK:
+            cfg = { GameConstants::ELITE_TROLL_2_ATTACK_FRAMES, GameConstants::ELITE_TROLL_2_ATTACK_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_ATTACK_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_ATTACK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_HURT:
+            cfg = { GameConstants::ELITE_TROLL_2_HURT_FRAMES, GameConstants::ELITE_TROLL_2_HURT_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_HURT_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_HURT_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_DEAD:
+            cfg = { GameConstants::ELITE_TROLL_2_DEAD_FRAMES, GameConstants::ELITE_TROLL_2_DEAD_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_2_DEAD_FRAME_WIDTH, GameConstants::ELITE_TROLL_2_DEAD_FRAME_HEIGHT };
+            break;
+        }
+        break;
+
+    case TrollType::TROLL_3:
+        switch (state) {
+        case EnemyState::STATE_IDLE:
+            cfg = { GameConstants::ELITE_TROLL_3_IDLE_FRAMES, GameConstants::ELITE_TROLL_3_IDLE_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_IDLE_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_IDLE_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_WALK:
+            cfg = { GameConstants::ELITE_TROLL_3_WALK_FRAMES, GameConstants::ELITE_TROLL_3_WALK_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_WALK_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_WALK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_RUN:
+            cfg = { GameConstants::ELITE_TROLL_3_RUN_FRAMES, GameConstants::ELITE_TROLL_3_RUN_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_RUN_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_RUN_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_JUMP:
+            cfg = { GameConstants::ELITE_TROLL_3_JUMP_FRAMES, GameConstants::ELITE_TROLL_3_JUMP_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_JUMP_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_JUMP_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_ATTACK:
+            cfg = { GameConstants::ELITE_TROLL_3_ATTACK_FRAMES, GameConstants::ELITE_TROLL_3_ATTACK_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_ATTACK_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_ATTACK_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_HURT:
+            cfg = { GameConstants::ELITE_TROLL_3_HURT_FRAMES, GameConstants::ELITE_TROLL_3_HURT_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_HURT_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_HURT_FRAME_HEIGHT };
+            break;
+        case EnemyState::STATE_DEAD:
+            cfg = { GameConstants::ELITE_TROLL_3_DEAD_FRAMES, GameConstants::ELITE_TROLL_3_DEAD_FRAME_DURATION,
+                   GameConstants::ELITE_TROLL_3_DEAD_FRAME_WIDTH, GameConstants::ELITE_TROLL_3_DEAD_FRAME_HEIGHT };
+            break;
+        }
+        break;
+    }
+
+    return cfg;
 }
 
 void Elites::Roar() {
@@ -145,7 +254,7 @@ void Elites::Update(float deltaTime, Map& map) {
         buffTimer -= deltaTime;
     }
 
-    if (!hasRoared && enemyState == EnemyState::STATE_CHASE) {
+    if (!hasRoared && enemyState == EnemyState::STATE_RUN) {
         float healthPercent = (float)health / (float)maxHealth;
         if (healthPercent > 0.7f) {
             Roar();

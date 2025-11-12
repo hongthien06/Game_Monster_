@@ -2,9 +2,8 @@
 #include <iostream>
 #include <cmath>
 
-// FIX: LOAD TEXTURE ĐÚNG CÁCH
 Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
-    : Enemy(),  // GỌI CONSTRUCTOR MẶC ĐỊNH
+    : Enemy(),
     currentPhase(BossPhase::PHASE_1),
     hasEnteredPhase2(false),
     hasEnteredPhase3(false),
@@ -30,7 +29,6 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     isInvulnerable(true),
     introTimer(3.0f)
 {
-    // SET RENDERER & POSITION
     this->renderer = renderer;
     this->position = startPos;
     this->enemyType = EnemyType::BOSS;
@@ -40,10 +38,10 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     attackDamage = 40;
     attackCooldown = 2.0f;
     attackRange = 80.0f;
-    chaseSpeed = 80.0f;
+    runSpeed = 80.0f;
     aggroRange = 500.0f;
 
-    // FIX: LOAD TEXTURE SAU KHI SET RENDERER
+    // Load textures
     std::string folderPath = "assets/images/Bosses/";
     LoadTexture(renderer, &idleTex, (folderPath + "Idle.png").c_str());
     LoadTexture(renderer, &walkTex, (folderPath + "Walk.png").c_str());
@@ -52,9 +50,51 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     LoadTexture(renderer, &attackTex, (folderPath + "Attack.png").c_str());
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
+
+    // Size: 96x96 (lớn nhất)
+    renderWidth = 96.0f;
+    renderHeight = 96.0f;
 }
 
 Boss::~Boss() {
+}
+
+// === TRẢ FRAMES TỪ GAMECONSTANTS ===
+FrameConfig Boss::GetFrameConfig(EnemyState state) const {
+    FrameConfig cfg = { 0, 0.1f, 1600, 1000 };
+
+    switch (state) {
+    case EnemyState::STATE_IDLE:
+        cfg = { GameConstants::BOSS_IDLE_FRAMES, GameConstants::BOSS_IDLE_FRAME_DURATION,
+               GameConstants::BOSS_IDLE_FRAME_WIDTH, GameConstants::BOSS_IDLE_FRAME_HEIGHT };
+        break;
+    case EnemyState::STATE_WALK:
+        cfg = { GameConstants::BOSS_WALK_FRAMES, GameConstants::BOSS_WALK_FRAME_DURATION,
+               GameConstants::BOSS_WALK_FRAME_WIDTH, GameConstants::BOSS_WALK_FRAME_HEIGHT };
+        break;
+    case EnemyState::STATE_RUN:
+        cfg = { GameConstants::BOSS_RUN_FRAMES, GameConstants::BOSS_RUN_FRAME_DURATION,
+               GameConstants::BOSS_RUN_FRAME_WIDTH, GameConstants::BOSS_RUN_FRAME_HEIGHT };
+        break;
+    case EnemyState::STATE_JUMP:
+        cfg = { GameConstants::BOSS_JUMP_FRAMES, GameConstants::BOSS_JUMP_FRAME_DURATION,
+               GameConstants::BOSS_JUMP_FRAME_WIDTH, GameConstants::BOSS_JUMP_FRAME_HEIGHT };
+        break;
+    case EnemyState::STATE_ATTACK:
+        cfg = { GameConstants::BOSS_ATTACK_FRAMES, GameConstants::BOSS_ATTACK_FRAME_DURATION,
+               GameConstants::BOSS_ATTACK_FRAME_WIDTH, GameConstants::BOSS_ATTACK_FRAME_HEIGHT };
+        break;
+    case EnemyState::STATE_HURT:
+        cfg = { GameConstants::BOSS_HURT_FRAMES, GameConstants::BOSS_HURT_FRAME_DURATION,
+               GameConstants::BOSS_HURT_FRAME_WIDTH, GameConstants::BOSS_HURT_FRAME_HEIGHT };
+        break;
+    case EnemyState::STATE_DEAD:
+        cfg = { GameConstants::BOSS_DEAD_FRAMES, GameConstants::BOSS_DEAD_FRAME_DURATION,
+               GameConstants::BOSS_DEAD_FRAME_WIDTH, GameConstants::BOSS_DEAD_FRAME_HEIGHT };
+        break;
+    }
+
+    return cfg;
 }
 
 void Boss::PlayIntro() {
@@ -85,12 +125,11 @@ void Boss::EnterPhase2() {
     currentPhase = BossPhase::PHASE_2;
 
     attackDamage = (int)(attackDamage * 1.3f);
-    chaseSpeed *= 1.2f;
+    runSpeed *= 1.2f;
     attackCooldown *= 0.8f;
 
-    if (canSummon && summonCount < maxSummons) {
-        SummonMinions();
-    }
+    std::cout << "=== BOSS ENTERED PHASE 2 (70% HP) ===\n";
+    // LOẠI BỎ SummonMinions()
 }
 
 void Boss::EnterPhase3() {
@@ -98,13 +137,12 @@ void Boss::EnterPhase3() {
     currentPhase = BossPhase::PHASE_3;
 
     attackDamage = (int)(attackDamage * 1.5f);
-    chaseSpeed *= 1.4f;
+    runSpeed *= 1.4f;
     attackCooldown *= 0.6f;
     ultimateCooldown *= 0.7f;
 
-    if (canSummon) {
-        SummonMinions();
-    }
+    std::cout << "=== BOSS ENTERED PHASE 3 (40% HP) - ENRAGED! ===\n";
+    // LOẠI BỎ SummonMinions()
 }
 
 void Boss::SummonMinions() {
@@ -199,7 +237,7 @@ void Boss::Update(float deltaTime, Map& map) {
     }
 
     if (ultimateTimer > 0) ultimateTimer -= deltaTime;
-    if (summonTimer > 0) summonTimer -= deltaTime;
+    // LOẠI BỎ summonTimer
 
     Enemy::Update(deltaTime, map);
 }
