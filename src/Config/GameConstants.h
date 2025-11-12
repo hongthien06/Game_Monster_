@@ -134,4 +134,232 @@ namespace GameConstants {
     constexpr float DEAD_FRAME_DURATION_ENEMY = 0.2f;
     constexpr int DEAD_FRAME_WIDTH_ENEMY = 128;
     constexpr int DEAD_FRAME_HEIGHT_ENEMY = 128;
+
+
+
+
+    
+
+
+    // ===================== ELITE TROLL TYPE 1 =====================
+    constexpr int ELITE_TROLL_1_IDLE_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_IDLE_FRAME_DURATION = 0.12f;
+    constexpr int ELITE_TROLL_1_IDLE_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_IDLE_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_1_WALK_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_WALK_FRAME_DURATION = 0.10f;
+    constexpr int ELITE_TROLL_1_WALK_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_WALK_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_1_RUN_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_RUN_FRAME_DURATION = 0.08f;
+    constexpr int ELITE_TROLL_1_RUN_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_RUN_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_1_JUMP_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int ELITE_TROLL_1_JUMP_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_JUMP_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_1_ATTACK_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_ATTACK_FRAME_DURATION = 0.09f;
+    constexpr int ELITE_TROLL_1_ATTACK_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_ATTACK_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_1_HURT_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_HURT_FRAME_DURATION = 0.10f;
+    constexpr int ELITE_TROLL_1_HURT_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_HURT_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_1_DEAD_FRAMES = 10;
+    constexpr float ELITE_TROLL_1_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int ELITE_TROLL_1_DEAD_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_1_DEAD_FRAME_HEIGHT = 1000;
+
+
+    // ===================== ELITE TROLL TYPE 2 =====================
+    constexpr int ELITE_TROLL_2_IDLE_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_IDLE_FRAME_DURATION = 0.12f;
+    constexpr int ELITE_TROLL_2_IDLE_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_IDLE_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_2_WALK_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_WALK_FRAME_DURATION = 0.10f;
+    constexpr int ELITE_TROLL_2_WALK_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_WALK_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_2_RUN_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_RUN_FRAME_DURATION = 0.08f;
+    constexpr int ELITE_TROLL_2_RUN_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_RUN_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_2_JUMP_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int ELITE_TROLL_2_JUMP_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_JUMP_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_2_ATTACK_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_ATTACK_FRAME_DURATION = 0.09f;
+    constexpr int ELITE_TROLL_2_ATTACK_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_ATTACK_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_2_HURT_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_HURT_FRAME_DURATION = 0.10f;
+    constexpr int ELITE_TROLL_2_HURT_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_HURT_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_2_DEAD_FRAMES = 10;
+    constexpr float ELITE_TROLL_2_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int ELITE_TROLL_2_DEAD_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_2_DEAD_FRAME_HEIGHT = 1000;
+
+
+    // ===================== ELITE TROLL TYPE 3 =====================
+    constexpr int ELITE_TROLL_3_IDLE_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_IDLE_FRAME_DURATION = 0.12f;
+    constexpr int ELITE_TROLL_3_IDLE_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_IDLE_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_3_WALK_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_WALK_FRAME_DURATION = 0.10f;
+    constexpr int ELITE_TROLL_3_WALK_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_WALK_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_3_RUN_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_RUN_FRAME_DURATION = 0.08f;
+    constexpr int ELITE_TROLL_3_RUN_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_RUN_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_3_JUMP_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int ELITE_TROLL_3_JUMP_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_JUMP_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_3_ATTACK_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_ATTACK_FRAME_DURATION = 0.09f;
+    constexpr int ELITE_TROLL_3_ATTACK_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_ATTACK_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_3_HURT_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_HURT_FRAME_DURATION = 0.10f;
+    constexpr int ELITE_TROLL_3_HURT_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_HURT_FRAME_HEIGHT = 1000;
+
+    constexpr int ELITE_TROLL_3_DEAD_FRAMES = 10;
+    constexpr float ELITE_TROLL_3_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int ELITE_TROLL_3_DEAD_FRAME_WIDTH = 1600;
+    constexpr int ELITE_TROLL_3_DEAD_FRAME_HEIGHT = 1000;
+
+    // ===================== MINION BERSERK =====================
+    constexpr int MINION_BERSERK_IDLE_FRAMES = 5;
+    constexpr float MINION_BERSERK_IDLE_FRAME_DURATION = 0.15f;
+    constexpr int MINION_BERSERK_IDLE_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_IDLE_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_BERSERK_WALK_FRAMES = 7;
+    constexpr float MINION_BERSERK_WALK_FRAME_DURATION = 0.10f;
+    constexpr int MINION_BERSERK_WALK_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_WALK_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_BERSERK_RUN_FRAMES = 6;
+    constexpr float MINION_BERSERK_RUN_FRAME_DURATION = 0.07f;
+    constexpr int MINION_BERSERK_RUN_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_RUN_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_BERSERK_JUMP_FRAMES = 5;
+    constexpr float MINION_BERSERK_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int MINION_BERSERK_JUMP_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_JUMP_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_BERSERK_ATTACK_FRAMES = 9;
+    constexpr float MINION_BERSERK_ATTACK_FRAME_DURATION = 0.08f;
+    constexpr int MINION_BERSERK_ATTACK_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_ATTACK_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_BERSERK_DEAD_FRAMES = 4;
+    constexpr float MINION_BERSERK_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int MINION_BERSERK_DEAD_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_DEAD_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_BERSERK_HURT_FRAMES = 2;
+    constexpr float MINION_BERSERK_HURT_FRAME_DURATION = 0.10f;
+    constexpr int MINION_BERSERK_HURT_FRAME_WIDTH = 96;
+    constexpr int MINION_BERSERK_HURT_FRAME_HEIGHT = 96;
+
+
+    // ===================== MINION SHAMAN =====================
+    constexpr int MINION_SHAMAN_IDLE_FRAMES = 5;
+    constexpr float MINION_SHAMAN_IDLE_FRAME_DURATION = 0.15f;
+    constexpr int MINION_SHAMAN_IDLE_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_IDLE_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_SHAMAN_WALK_FRAMES = 7;
+    constexpr float MINION_SHAMAN_WALK_FRAME_DURATION = 0.10f;
+    constexpr int MINION_SHAMAN_WALK_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_WALK_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_SHAMAN_RUN_FRAMES = 6;
+    constexpr float MINION_SHAMAN_RUN_FRAME_DURATION = 0.07f;
+    constexpr int MINION_SHAMAN_RUN_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_RUN_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_SHAMAN_JUMP_FRAMES = 6;
+    constexpr float MINION_SHAMAN_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int MINION_SHAMAN_JUMP_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_JUMP_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_SHAMAN_ATTACK_FRAMES = 4;
+    constexpr float MINION_SHAMAN_ATTACK_FRAME_DURATION = 0.09f;
+    constexpr int MINION_SHAMAN_ATTACK_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_ATTACK_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_SHAMAN_DEAD_FRAMES = 5;
+    constexpr float MINION_SHAMAN_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int MINION_SHAMAN_DEAD_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_DEAD_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_SHAMAN_HURT_FRAMES = 2;
+    constexpr float MINION_SHAMAN_HURT_FRAME_DURATION = 0.10f;
+    constexpr int MINION_SHAMAN_HURT_FRAME_WIDTH = 96;
+    constexpr int MINION_SHAMAN_HURT_FRAME_HEIGHT = 96;
+
+
+    // ===================== MINION WARRIOR =====================
+    constexpr int MINION_WARRIOR_IDLE_FRAMES = 5;
+    constexpr float MINION_WARRIOR_IDLE_FRAME_DURATION = 0.15f;
+    constexpr int MINION_WARRIOR_IDLE_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_IDLE_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_WARRIOR_WALK_FRAMES = 7;
+    constexpr float MINION_WARRIOR_WALK_FRAME_DURATION = 0.10f;
+    constexpr int MINION_WARRIOR_WALK_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_WALK_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_WARRIOR_RUN_FRAMES = 6;
+    constexpr float MINION_WARRIOR_RUN_FRAME_DURATION = 0.07f;
+    constexpr int MINION_WARRIOR_RUN_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_RUN_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_WARRIOR_JUMP_FRAMES = 8;
+    constexpr float MINION_WARRIOR_JUMP_FRAME_DURATION = 0.12f;
+    constexpr int MINION_WARRIOR_JUMP_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_JUMP_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_WARRIOR_ATTACK_FRAMES = 11;
+    constexpr float MINION_WARRIOR_ATTACK_FRAME_DURATION = 0.08f;
+    constexpr int MINION_WARRIOR_ATTACK_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_ATTACK_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_WARRIOR_DEAD_FRAMES = 4;
+    constexpr float MINION_WARRIOR_DEAD_FRAME_DURATION = 0.15f;
+    constexpr int MINION_WARRIOR_DEAD_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_DEAD_FRAME_HEIGHT = 96;
+
+    constexpr int MINION_WARRIOR_HURT_FRAMES = 2;
+    constexpr float MINION_WARRIOR_HURT_FRAME_DURATION = 0.10f;
+    constexpr int MINION_WARRIOR_HURT_FRAME_WIDTH = 96;
+    constexpr int MINION_WARRIOR_HURT_FRAME_HEIGHT = 96;
+
+
 }
