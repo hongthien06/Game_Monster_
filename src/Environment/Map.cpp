@@ -287,6 +287,7 @@ SDL_FPoint Map::GetSpawn(int x) {
       return Heal_Spawn;
     else if (x == 6)
       return Coin_Spawn;      
+    return {0.0f,0.0f};  
 }
 
 // ===================== DRAW =====================
