@@ -37,6 +37,7 @@ private:
 
     std::vector<std::unique_ptr<Item>> items;
     SDL_Texture* coinTex;
+    SDL_Texture* healthPotionTex;
 
     // =====  ENEMY SYSTEM =====
     std::vector<std::unique_ptr<Enemy>> enemies;
@@ -57,6 +58,7 @@ public:
    // void spawnInitialItems();
     void checkItemCollisions();
     void spawnCoinAtPosition(glm::vec2 pos, int amount);
+    void spawnHealthPotionAtPosition(glm::vec2 pos);
 
 
     // ===== ENEMY METHODS =====

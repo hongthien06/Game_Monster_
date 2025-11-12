@@ -86,6 +86,13 @@ namespace GameConstants {
     constexpr int COIN_FRAME_WIDTH = 20;
     constexpr int COIN_FRAME_HEIGHT = 20;
 
+    //item health potion
+    constexpr int HEALTH_POTION_FRAMES = 1;
+    constexpr float HEALTH_POTION_FRAME_DURATION = 0.1f;
+    constexpr int HEALTH_POTION_FRAME_WIDTH = 64;
+    constexpr int HEALTH_POTION_FRAME_HEIGHT = 64;
+    constexpr int HEALTH_POTION_HEAL_AMOUNT = 30;
+
     //boss
     constexpr int BOSS_IDLE_FRAMES = 10;
     constexpr float BOSS_IDLE_FRAME_DURATION = 0.12f;

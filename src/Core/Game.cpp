@@ -26,6 +26,7 @@ Game::Game()
         GameConstants::WORLD_WIDTH,
         GameConstants::WORLD_HEIGHT),
     coinTex(nullptr),
+    healthPotionTex(nullptr),
     audio(nullptr),
     playerHUD(nullptr)
 {
@@ -223,6 +224,13 @@ bool Game::loadItemTextures() {
         return false;
     }
     SDL_SetTextureScaleMode(coinTex, SDL_SCALEMODE_NEAREST);
+
+    healthPotionTex = IMG_LoadTexture(renderer, "assets/items/potion4.png");
+    if (!coinTex) {
+        std::cerr << "ERROR: Khong the load Coin texture: " << SDL_GetError() << "\n";
+        return false;
+    }
+    SDL_SetTextureScaleMode(healthPotionTex, SDL_SCALEMODE_NEAREST);
     return true;
 }
 
@@ -257,18 +265,51 @@ void Game::checkItemCollisions() {
                 SDL_FRect itemBox = item->GetCollider();
                 bool collided = SDL_HasRectIntersectionFloat(&playerBox, &itemBox);
 
-                if (collided && item->GetType() == ItemType::COIN) {
+                if (collided) {
                     item->Collect();
-                    int coinValue = 10;
                     glm::vec2 itemPos(itemBox.x, itemBox.y);
-                    playerHUD->AddScore(coinValue);
-                    playerHUD->AddScorePopup(itemPos, coinValue);
-                    std::cout << "Player da nhat Coin! Diem: " << playerHUD->GetScore() << "\n";
-                    return true;
+                    if (item->GetType() == ItemType::COIN) {
+                        int coinValue = 10;
+                        playerHUD->AddScore(coinValue);
+                        playerHUD->AddScorePopup(itemPos, coinValue);
+                        std::cout << "Player da nhat Coin! Diem: " << playerHUD->GetScore() << "\n";
+                        return true;
+                    }
+                    else if (item->GetType() == ItemType::HEALTH_POTION) {
+                        int healAmount = GameConstants::HEALTH_POTION_HEAL_AMOUNT;
+                        player->Heal(healAmount);
+
+                        // Hiệu ứng flash xanh lá khi hồi máu
+                        effectManager.CreateFlash(
+                            player->GetPosition(),
+                            SDL_Color{ 0, 255, 100, 150 },
+                            0.5f,   // duration
+                            0.2f    // pulseSpeed
+                        );
+
+                        // Hiển thị popup "+HP"
+                        //playerHUD->AddScorePopup(itemPos, healAmount);
+
+                        std::cout << "Player da nhat Health Potion! HP: "
+                            << player->GetHealth() << "/" << player->GetMaxHealth() << "\n";
+                        return true;
+                    }
                 }
+                
+                
                 return false;
             }),
         items.end());
+}
+
+void Game::spawnHealthPotionAtPosition(glm::vec2 pos) {
+    auto potion = std::make_unique<Item>(pos, healthPotionTex, ItemType::HEALTH_POTION);
+
+    potion->floatAmplitude = 8.0f;
+    potion->floatSpeed = 2.0f;
+
+    items.push_back(std::move(potion));
+    std::cout << "Spawn Health Potion tai (" << pos.x << ", " << pos.y << ")\n";
 }
 
 // ===== KHỞI TẠO ENEMIES =====
@@ -290,6 +331,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
         });
 
     // ORC SHAMAN
@@ -305,6 +347,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
         });
 
     // ORC WARRIOR
@@ -320,6 +363,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0,0));
         });
 
     // ===== VÙNG 2: SPAWN 3 TROLL ELITES (X: 600-900) =====
@@ -337,6 +381,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
         });
 
     // TROLL 2
@@ -352,6 +397,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
         });
 
     // TROLL 3
@@ -367,6 +413,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(3);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
         });
 
     // ===== VÙNG 3: SPAWN BOSS (X: 1300+) =====
@@ -377,6 +424,7 @@ void Game::initEnemies() {
     enemies.back()->SetCoinDropAmount(10);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
         });
 
     std::cout << "===== DA SPAWN " << enemies.size() << " ENEMIES =====\n";

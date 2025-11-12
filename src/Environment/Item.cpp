@@ -18,7 +18,11 @@ Item::Item(glm::vec2 pos, SDL_Texture* tex, ItemType itemType)
         frameDuration = GameConstants::COIN_FRAME_DURATION;
         collider = { pos.x, pos.y, GameConstants::COIN_FRAME_WIDTH, GameConstants::COIN_FRAME_HEIGHT };
     }
-    // else if (type == ItemType::HEALTH_POTION) { ... }
+    else if (type == ItemType::HEALTH_POTION) {
+        totalFrames = GameConstants::HEALTH_POTION_FRAMES;
+        frameDuration = GameConstants::HEALTH_POTION_FRAME_DURATION;
+        collider = { pos.x, pos.y, GameConstants::HEALTH_POTION_FRAME_WIDTH, GameConstants::HEALTH_POTION_FRAME_HEIGHT };
+    }
 }
 
 Item::~Item() {
@@ -46,17 +50,32 @@ void Item::Update(float deltaTime) {
 void Item::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (isCollected || !texture) return;
 
-    float frameSize = 20.0f;
+    float srcFrameSize;   // Kích thước trong texture gốc
+    float displaySize;    // Kích thước hiển thị trên màn hình
 
-    // Vùng cắt
-    SDL_FRect srcRect = { (float)currentFrame * frameSize, 0.0f, frameSize, frameSize };
+    if (type == ItemType::COIN) {
+        srcFrameSize = 20.0f;
+        displaySize = 20.0f;   // Coin giữ nguyên size
+    }
+    else if (type == ItemType::HEALTH_POTION) {
+        srcFrameSize = 64.0f;  // Texture gốc 64x64
+        displaySize = 24.0f;   // Hiển thị nhỏ lại (thử 24, 28, 32...)
+    }
 
-    // Vị trí vẽ trên màn hình 
+    // Vùng cắt từ texture gốc
+    SDL_FRect srcRect = {
+        (float)currentFrame * srcFrameSize,
+        0.0f,
+        srcFrameSize,
+        srcFrameSize
+    };
+
+    // Vị trí vẽ trên màn hình với kích thước đã scale
     SDL_FRect dstRect = {
         position.x - cameraOffset.x,
         position.y - cameraOffset.y,
-        frameSize,
-        frameSize
+        displaySize,   // Dùng displaySize thay vì srcFrameSize
+        displaySize
     };
 
     SDL_RenderTexture(renderer, texture, &srcRect, &dstRect);
