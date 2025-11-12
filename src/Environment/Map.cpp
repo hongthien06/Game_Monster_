@@ -177,6 +177,36 @@ void Map::LoadObjects(const json& mapData) {
                             playerSpawn.y = obj["y"];
                             return;
                         }
+                        if (prop["name"] == "Minion_1") {
+                            minion1_Spawn.x = obj["x"];
+                            minion1_Spawn.y = obj["y"];
+                            return;
+                        }
+                        if (prop["name"] == "Minion_2") {
+                            minion2_Spawn.x = obj["x"];
+                            minion2_Spawn.y = obj["y"];
+                            return;
+                        }
+                        if (prop["name"] == "Minion_3") {
+                            minion3_Spawn.x = obj["x"];
+                            minion3_Spawn.y = obj["y"];
+                            return;
+                        }
+                        if (prop["name"] == "Boss_") {
+                            boss_Spawn.x = obj["x"];
+                            boss_Spawn.y = obj["y"];
+                            return;
+                        }
+                        if (prop["name"] == "Heal_") {
+                            Heal_Spawn.x = obj["x"];
+                            Heal_Spawn.y = obj["y"];
+                            return;
+                        }
+                        if (prop["name"] == "Coin_") {
+                            Coin_Spawn.x = obj["x"];
+                            Coin_Spawn.y = obj["y"];
+                            return;
+                        }
                     }
                 }
             }
@@ -242,8 +272,21 @@ bool Map::PointInPolygon(const SDL_FPoint& p, const std::vector<SDL_FPoint>& pol
 
 // ===================== GET PLAYER SPAWN =====================
 
-SDL_FPoint Map::GetPlayerSpawn() {
-    return playerSpawn;
+SDL_FPoint Map::GetSpawn(int x) {
+    if (x == 0)
+      return playerSpawn;
+    else if (x == 1)
+      return minion1_Spawn;
+    else if (x == 2)
+      return minion2_Spawn;
+    else if (x == 3)
+      return minion3_Spawn;  
+    else if (x == 4)
+      return boss_Spawn;
+    else if (x == 5)
+      return Heal_Spawn;
+    else if (x == 6)
+      return Coin_Spawn;      
 }
 
 // ===================== DRAW =====================

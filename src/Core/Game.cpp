@@ -75,7 +75,7 @@ bool Game::init() {
         std::cerr << "Failed to load map." << std::endl;
     }
 
-    SDL_FPoint spawn = map->GetPlayerSpawn();
+    SDL_FPoint spawn = map->GetSpawn(0);
     player = new Player(renderer, glm::vec2(spawn.x, spawn.y));
 
     // ===== SPAWN ENEMIES =====
