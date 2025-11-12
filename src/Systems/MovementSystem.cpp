@@ -28,7 +28,7 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
 
     if (keys[SDL_SCANCODE_A]) moveDir = -1;
     if (keys[SDL_SCANCODE_D]) moveDir = 1;
-    bool isRunning = keys[SDL_SCANCODE_LSHIFT];
+    character.isRunning = keys[SDL_SCANCODE_LSHIFT];
 
     if (keys[SDL_SCANCODE_SPACE] && character.isOnGround) {
         character.velocity.y = -GameConstants::JUMP_SPEED;
@@ -48,7 +48,7 @@ void MovementSystem::HandleMovement(Character& character, float deltaTime, Map& 
         }
     }
 
-    float maxSpeed = isRunning ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;
+    float maxSpeed = character.isRunning ? GameConstants::RUN_SPEED : GameConstants::WALK_SPEED;
 
     if (moveDir)
         character.velocity.x += GameConstants::ACCELERATION * moveDir * deltaTime;

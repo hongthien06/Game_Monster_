@@ -16,7 +16,7 @@ Character::Character()
     heartTexture(nullptr),dashTex(nullptr),
     renderer(nullptr),
     maxHealth(100), health(100),
-    isDashing(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
+    isDashing(false),isRunning(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
     landedSoundPlayed(false), landedSoundCooldown(0.0f)
 {
 }
@@ -42,7 +42,7 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     heartTexture(nullptr),
     renderer(renderer),
     maxHealth(100), health(100),
-    isDashing(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
+    isDashing(false), isRunning(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
     landedSoundPlayed(false), landedSoundCooldown(0.0f)
 {
     // Load 4 texture bắt buộc
@@ -103,10 +103,18 @@ void Character::Update(float deltaTime, Map& map) {
         newState = CharacterState::STATE_JUMPING;
     }
     else if (std::abs(velocity.x) > 1.0f) {
-        newState = CharacterState::STATE_WALKING;
+        newState = isRunning ? CharacterState::STATE_RUNNING
+                             : CharacterState::STATE_WALKING;
     }
     else {
         newState = CharacterState::STATE_IDLE;
+    }
+
+   
+    if (newState != currentState) {
+        currentState = newState;
+        currentFrame = 0;
+        animationTimer = 0.0f;
     }
 
 

@@ -46,7 +46,8 @@ protected:
     bool wasOnGround;          // Trạng thái ground trước đó
     bool landedSoundPlayed;    // Đã phát âm thanh chạm đất
     float landedSoundCooldown; // Cooldown âm thanh chạm đất
-    bool flipHorizontal;       // Lật sprite theo chiều ngang
+    bool flipHorizontal; 
+    bool isRunning;// Lật sprite theo chiều ngang
     bool isDashing;            // Đang dash
     float dashTimer;
     float dashCooldownTimer;

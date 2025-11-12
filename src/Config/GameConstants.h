@@ -26,7 +26,7 @@ namespace GameConstants {
 
     // Chay 
     constexpr int RUN_FRAMES = 8;//10
-    constexpr float RUN_FRAME_DURATION = 0.08f;
+    constexpr float RUN_FRAME_DURATION = 0.06f;
     constexpr int RUN_FRAME_WIDTH = 128;
     constexpr int RUN_FRAME_HEIGHT = 128;
     constexpr float RUN_SPEED = 160.0f;
@@ -85,6 +85,8 @@ namespace GameConstants {
     constexpr float COIN_FRAME_DURATION = 0.1f;
     constexpr int COIN_FRAME_WIDTH = 20;
     constexpr int COIN_FRAME_HEIGHT = 20;
+
+
 
     // cho quái
     // Dung yen
