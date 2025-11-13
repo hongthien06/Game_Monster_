@@ -35,7 +35,6 @@ namespace GameConstants {
     constexpr int JUMP_FRAMES = 9;//10
     constexpr float GRAVITY = 800.0f;
     constexpr float JUMP_SPEED = 250.0f;
-    constexpr float PLAYER_HEIGHT = 32.0f;
     constexpr float JUMP_FRAME_DURATION = 0.12f;
     constexpr int JUMP_FRAME_WIDTH = 128;
     constexpr int JUMP_FRAME_HEIGHT = 128;
@@ -75,6 +74,16 @@ namespace GameConstants {
     // Gia tri chuyen dong
     constexpr float ACCELERATION = 500.0f;
     constexpr float DECELERATION = 400.0f;
+
+    // Gia tri va cham nhan vat
+    constexpr float PLAYER_RENDER_WIDTH = 48.0f;
+    constexpr float PLAYER_RENDER_HEIGHT = 48.0f;
+
+    constexpr float PLAYER_PHYSICS_BOX_WIDTH = 11.0f;
+    constexpr float PLAYER_PHYSICS_BOX_HEIGHT = 28.0f;
+
+    constexpr float PLAYER_PHYSICS_BOX_OFFSET_X = (PLAYER_RENDER_WIDTH - PLAYER_PHYSICS_BOX_WIDTH) / 2.0f;
+    constexpr float PLAYER_PHYSICS_BOX_OFFSET_Y = (PLAYER_RENDER_HEIGHT - PLAYER_PHYSICS_BOX_HEIGHT);
 
     // Gia tri camera
     constexpr float WORLD_WIDTH = 2000.0f;
