@@ -83,4 +83,5 @@ private:
 
     // Bản đồ lưu polygon gốc theo tileID trong tileset
     unordered_map<int, std::vector<SDL_FPoint>> tilePolygons;
+    std::unordered_map<int, CollisionBox> tileBoxes;
 };

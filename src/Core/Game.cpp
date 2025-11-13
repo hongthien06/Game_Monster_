@@ -12,6 +12,7 @@
 #include "../Environment/Item.h"
 #include <algorithm>
 #include <string>
+#include "../Entities/Minion.h"
 
 
 Game::Game()
@@ -72,12 +73,18 @@ bool Game::init() {
     if (!loadItemTextures()) return false;
 
     map = new Map(renderer);
-    if (!map->loadMap("assets/tileset/Map_game.tmj")) {
+    if (!map->loadMap("assets/tileset/Map_2.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
     }
 
-    SDL_FPoint spawn = map->GetSpawn(0);
-    player = new Player(renderer, glm::vec2(spawn.x, spawn.y));
+    for (int i = 0;i < 5;i++){
+        spawn[i] = map->GetSpawn(i);
+    }
+    player = new Player(renderer, glm::vec2(spawn[0].x, spawn[0].y));
+    // (spawn[1].x, spawn[1].y), MinionType::ORC_BERSERK
+    // (spawn[2].x, spawn[2].y), MinionType::ORC_SHAMAN
+    // (spawn[3].x, spawn[3].y), MinionType::ORC_WARRIOR
+    // (spawn[4].x, spawn[4].y)), Boss
 
     // ===== SPAWN ENEMIES =====
     initEnemies();

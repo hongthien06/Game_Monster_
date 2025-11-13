@@ -15,6 +15,12 @@ Map::Map(SDL_Renderer* renderer)
       tilesetColumns(0)
 {
     playerSpawn = {0, 0};
+    minion1_Spawn = {0, 0};
+    minion2_Spawn = {0, 0};
+    minion3_Spawn = {0, 0};
+    boss_Spawn = {0, 0};
+    Heal_Spawn = {0, 0};
+    Coin_Spawn = {0, 0};
     bgFar  = IMG_LoadTexture(renderer, "assets/images/Layers/1.png");
     bgMid  = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
     bgNear = IMG_LoadTexture(renderer, "assets/images/Layers/3.png");
@@ -142,6 +148,13 @@ void Map::LoadCollisionLayer(const json& mapData) {
                         // Lưu vào danh sách collision polygon
                         collisionPolygons.push_back(poly);
                     } 
+                    // Luu hinh chu nhat con vao trong danh sach tileBoxes
+                    else if (tileBoxes.count(localID)) {
+                        auto box = tileBoxes[localID].rect;
+                        box.x += x * tileWidth;
+                        box.y += y * tileHeight;
+                        collisions.push_back({ box });
+                    }
                     else {
                         // Nếu không có polygon thì dùng full hình chữ nhật như cũ
                         CollisionBox box;
@@ -392,7 +405,7 @@ void Map::drawCollisionDebug(const glm::vec2& cameraOffset) {
 
 // ===================== Them collision cho tile nghieng =======================
 void Map::LoadTileCollisions(const json& mapData) {
-    // Kiểm tra tileset có chứa thông tin polygon không
+    // Kiểm tra tileset có chứa thông tin collision không
     if (!mapData["tilesets"][0].contains("tiles")) {
         cout << "No tile collision data found in tileset\n";
         return;
@@ -403,24 +416,38 @@ void Map::LoadTileCollisions(const json& mapData) {
         if (!tile.contains("objectgroup")) continue;
 
         for (auto& obj : tile["objectgroup"]["objects"]) {
-            if (!obj.contains("polygon")) continue;
 
-            vector<SDL_FPoint> pts;
-            float baseX = obj["x"];
-            float baseY = obj["y"];
+            // Nếu là polygon
+            if (obj.contains("polygon")) {
+                std::vector<SDL_FPoint> pts;
+                float baseX = obj["x"];
+                float baseY = obj["y"];
 
-            for (auto& p : obj["polygon"]) {
-                pts.push_back({
-                    baseX + (float)p["x"],
-                    baseY + (float)p["y"]
-                });
+                for (auto& p : obj["polygon"]) {
+                    pts.push_back({
+                        baseX + (float)p["x"],
+                        baseY + (float)p["y"]
+                    });
+                }
+
+                tilePolygons[tileId] = pts;
             }
 
-            tilePolygons[tileId] = pts;
+            // Nếu là rectangle (x, y, width, height)
+            else if (obj.contains("width") && obj.contains("height")) {
+                CollisionBox box;
+                box.rect.x = obj["x"];
+                box.rect.y = obj["y"];
+                box.rect.w = obj["width"];
+                box.rect.h = obj["height"];
+
+                tileBoxes[tileId] = box; // <- tạo map riêng cho box
+            }
         }
     }
 
-    cout << "Loaded " << tilePolygons.size() << " tile polygons\n";
+    cout << "Loaded " << tilePolygons.size() << " tile polygons, "
+         << tileBoxes.size() << " tile boxes\n";
 }
 const std::vector<SDL_FRect> Map::GetCollisionTiles() const {
     std::vector<SDL_FRect> rects;
