@@ -15,9 +15,9 @@ Map::Map(SDL_Renderer* renderer)
       tilesetColumns(0)
 {
     playerSpawn = {0, 0};
-    minion1_Spawn = {0, 0};
-    minion2_Spawn = {0, 0};
-    minion3_Spawn = {0, 0};
+    minion1_Spawns;
+    minion2_Spawns;
+    minion3_Spawns;
     boss_Spawn = {0, 0};
     Heal_Spawn = {0, 0};
     Coin_Spawn = {0, 0};
@@ -182,43 +182,32 @@ void Map::LoadObjects(const json& mapData) {
     for (auto& layer : mapData["layers"]) {
         if (layer["type"] == "objectgroup" && layer["name"] == "Spawn") {
             for (auto& obj : layer["objects"]) {
-                // Duyet qua properties d? t�m "Player_1"
                 if (obj.contains("properties")) {
                     for (auto& prop : obj["properties"]) {
-                        if (prop["name"] == "Player_1") {
-                            playerSpawn.x = obj["x"];
-                            playerSpawn.y = obj["y"];
-                            return;
+                        std::string propName = prop["name"];
+                        float x = obj["x"];
+                        float y = obj["y"];
+
+                        if (propName == "Player_1") {
+                            playerSpawn = {x, y};
                         }
-                        if (prop["name"] == "Minion_1") {
-                            minion1_Spawn.x = obj["x"];
-                            minion1_Spawn.y = obj["y"];
-                            return;
+                        else if (propName == "Minion_1") {
+                            minion1_Spawns.push_back({x, y});
                         }
-                        if (prop["name"] == "Minion_2") {
-                            minion2_Spawn.x = obj["x"];
-                            minion2_Spawn.y = obj["y"];
-                            return;
+                        else if (propName == "Minion_2") {
+                            minion2_Spawns.push_back({x, y});
                         }
-                        if (prop["name"] == "Minion_3") {
-                            minion3_Spawn.x = obj["x"];
-                            minion3_Spawn.y = obj["y"];
-                            return;
+                        else if (propName == "Minion_3") {
+                            minion3_Spawns.push_back({x, y});
                         }
-                        if (prop["name"] == "Boss_") {
-                            boss_Spawn.x = obj["x"];
-                            boss_Spawn.y = obj["y"];
-                            return;
+                        else if (propName == "Boss_") {
+                            boss_Spawn = {x, y};
                         }
-                        if (prop["name"] == "Heal_") {
-                            Heal_Spawn.x = obj["x"];
-                            Heal_Spawn.y = obj["y"];
-                            return;
+                        else if (propName == "Heal_") {
+                            Heal_Spawn = {x, y};
                         }
-                        if (prop["name"] == "Coin_") {
-                            Coin_Spawn.x = obj["x"];
-                            Coin_Spawn.y = obj["y"];
-                            return;
+                        else if (propName == "Coin_") {
+                            Coin_Spawn = {x, y};
                         }
                     }
                 }
@@ -285,22 +274,22 @@ bool Map::PointInPolygon(const SDL_FPoint& p, const std::vector<SDL_FPoint>& pol
 
 // ===================== GET PLAYER SPAWN =====================
 
-SDL_FPoint Map::GetSpawn(int x) {
+vector<SDL_FPoint> Map::GetSpawn(int x) {
     if (x == 0)
-      return playerSpawn;
+      return {playerSpawn};
     else if (x == 1)
-      return minion1_Spawn;
+      return minion1_Spawns;
     else if (x == 2)
-      return minion2_Spawn;
+      return minion2_Spawns;
     else if (x == 3)
-      return minion3_Spawn;  
+      return minion3_Spawns;  
     else if (x == 4)
-      return boss_Spawn;
+      return {boss_Spawn};
     else if (x == 5)
-      return Heal_Spawn;
+      return {Heal_Spawn};
     else if (x == 6)
-      return Coin_Spawn;      
-    return {0.0f,0.0f};  
+      return {Coin_Spawn};      
+    return {{0.0f,0.0f}};  
 }
 
 // ===================== DRAW =====================

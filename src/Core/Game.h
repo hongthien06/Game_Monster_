@@ -33,7 +33,6 @@ private:
     Player* player;
     Minions* minion;
     Boss* boss;
-    SDL_FPoint spawn[5];
     Camera camera;
     Audio* audio;
     HUD* playerHUD;

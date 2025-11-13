@@ -76,15 +76,19 @@ bool Game::init() {
     if (!map->loadMap("assets/tileset/Map_2.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
     }
+ // Tai vi tri spawn
+    auto playerSpawns = map->GetSpawn(0);
+    player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
 
-    for (int i = 0;i < 5;i++){
-        spawn[i] = map->GetSpawn(i);
-    }
-    player = new Player(renderer, glm::vec2(spawn[0].x, spawn[0].y));
-    // (spawn[1].x, spawn[1].y), MinionType::ORC_BERSERK
-    // (spawn[2].x, spawn[2].y), MinionType::ORC_SHAMAN
-    // (spawn[3].x, spawn[3].y), MinionType::ORC_WARRIOR
-    // (spawn[4].x, spawn[4].y)), Boss
+    for (auto& pos : map->GetSpawn(1)) {
+    std::cout << "Minion1: " << pos.x << "," << pos.y << "\n";
+}
+    for (auto& pos : map->GetSpawn(2)) {
+    std::cout << "Minion2: " << pos.x << "," << pos.y << "\n";
+}
+    for (auto& pos : map->GetSpawn(3)) {
+    std::cout << "Minion3: " << pos.x << "," << pos.y << "\n";
+}
 
     // ===== SPAWN ENEMIES =====
     initEnemies();
@@ -326,52 +330,59 @@ void Game::initEnemies() {
     // ===== VÙNG 1: SPAWN 3 ORC MINIONS (X: 200-400) =====
 
     // ORC BERSERK
+for (auto& pos : map->GetSpawn(1)) {
     enemies.push_back(std::make_unique<Minions>(
         renderer,
-        glm::vec2(200.0f, GameConstants::FLOOR_Y - 48.0f),  // Spawn trên mặt đất
+        glm::vec2(pos.x, pos.y),
         MinionType::ORC_BERSERK
     ));
     enemies.back()->SetPatrolPoints(
-        glm::vec2(150.0f, GameConstants::FLOOR_Y - 48.0f),
-        glm::vec2(250.0f, GameConstants::FLOOR_Y - 48.0f)
+        glm::vec2(pos.x, pos.y - 48.0f),
+        glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-        });
+    });
+}
 
     // ORC SHAMAN
+for (auto& pos : map->GetSpawn(2)) {
     enemies.push_back(std::make_unique<Minions>(
         renderer,
-        glm::vec2(300.0f, GameConstants::FLOOR_Y - 48.0f),
-        MinionType::ORC_SHAMAN
+        glm::vec2(pos.x, pos.y),
+        MinionType::ORC_BERSERK
     ));
     enemies.back()->SetPatrolPoints(
-        glm::vec2(270.0f, GameConstants::FLOOR_Y - 48.0f),
-        glm::vec2(330.0f, GameConstants::FLOOR_Y - 48.0f)
+        glm::vec2(pos.x, pos.y - 48.0f),
+        glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-        });
+    });
+}
 
     // ORC WARRIOR
+for (auto& pos : map->GetSpawn(3)) {
     enemies.push_back(std::make_unique<Minions>(
         renderer,
-        glm::vec2(400.0f, GameConstants::FLOOR_Y - 48.0f),
-        MinionType::ORC_WARRIOR
+        glm::vec2(pos.x, pos.y),
+        MinionType::ORC_BERSERK
     ));
     enemies.back()->SetPatrolPoints(
-        glm::vec2(370.0f, GameConstants::FLOOR_Y - 48.0f),
-        glm::vec2(430.0f, GameConstants::FLOOR_Y - 48.0f)
+        glm::vec2(pos.x, pos.y - 48.0f),
+        glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0,0));
-        });
+        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+    });
+}
+
 
     // ===== VÙNG 2: SPAWN 3 TROLL ELITES (X: 600-900) =====
 

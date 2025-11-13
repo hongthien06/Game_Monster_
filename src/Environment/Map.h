@@ -37,7 +37,7 @@ public:
     void drawMap(const glm::vec2& cameraOffset);
 
     // ===== Getter =====
-    SDL_FPoint GetSpawn(int x);
+    vector<SDL_FPoint> GetSpawn(int x);
     bool checkCollision(const SDL_FRect& playerRect);    // Kiem tra va cham voi dat nha Duc Anh
     
     void drawCollisionDebug(const glm::vec2& cameraOffset);  // Ve hitbox quanh cac o dat
@@ -68,9 +68,10 @@ private:
 
     // ===== Game data =====
     SDL_FPoint playerSpawn;
-    SDL_FPoint minion1_Spawn;
-    SDL_FPoint minion2_Spawn;
-    SDL_FPoint minion3_Spawn;
+    vector<SDL_FPoint> minion1_Spawns;
+    vector<SDL_FPoint> minion2_Spawns;
+    vector<SDL_FPoint> minion3_Spawns;
+
     SDL_FPoint boss_Spawn;
     SDL_FPoint Heal_Spawn;
     SDL_FPoint Coin_Spawn;
@@ -79,9 +80,9 @@ private:
     vector<CollisionBox> collisions;
 
     // Cac polygon va cham (cho tile nghieng, hinh phuc tap)
-    vector<std::vector<SDL_FPoint>> collisionPolygons;
+    vector<vector<SDL_FPoint>> collisionPolygons;
 
     // Bản đồ lưu polygon gốc theo tileID trong tileset
     unordered_map<int, std::vector<SDL_FPoint>> tilePolygons;
-    std::unordered_map<int, CollisionBox> tileBoxes;
+    unordered_map<int, CollisionBox> tileBoxes;
 };
