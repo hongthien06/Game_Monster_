@@ -80,7 +80,7 @@ namespace GameConstants {
     constexpr float PLAYER_RENDER_HEIGHT = 48.0f;
 
     constexpr float PLAYER_PHYSICS_BOX_WIDTH = 11.0f;
-    constexpr float PLAYER_PHYSICS_BOX_HEIGHT = 28.0f;
+    constexpr float PLAYER_PHYSICS_BOX_HEIGHT = 26.0f;
 
     constexpr float PLAYER_PHYSICS_BOX_OFFSET_X = (PLAYER_RENDER_WIDTH - PLAYER_PHYSICS_BOX_WIDTH) / 2.0f;
     constexpr float PLAYER_PHYSICS_BOX_OFFSET_Y = (PLAYER_RENDER_HEIGHT - PLAYER_PHYSICS_BOX_HEIGHT);
