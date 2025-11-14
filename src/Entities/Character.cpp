@@ -157,6 +157,7 @@ void Character::Update(float deltaTime, Map& map) {
     //    velocity = { 0.0f, 0.0f };
     //    isOnGround = false;
     //}
+    wasOnGround = isOnGround;
 }
 
 // ===== RENDER =====

@@ -88,7 +88,7 @@ bool Game::init() {
  // Tai vi tri spawn
     auto playerSpawns = map->GetSpawn(0);
     player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
-
+    player->SnapToGround(*map); 
     playerStartPos = player->GetPosition();
 
     for (auto& pos : map->GetSpawn(1)) {

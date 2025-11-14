@@ -253,7 +253,7 @@ void Player::Update(float deltaTime, Map& map) {
     // Roi ra khoi ban do
     if (isAlive && position.y > GameConstants::WORLD_HEIGHT + 100.0f) {
         std::cout << "[Player] Fell out of the world! DIED!\n";
-        TakeDamage(9999);
+        TakeDamage(999);
     }
 
     // Xử lý input
@@ -526,4 +526,21 @@ void Player::Reset(glm::vec2 startPos) {
     isFlashing = false;
 
     projectiles.clear();
+}
+void Player::SnapToGround(Map& map) {
+    SDL_FRect bbox = GetBoundingBox();
+    float originalY = position.y;
+    position.y += 1.0f;
+
+    SDL_FRect snapBox = GetBoundingBox();
+    for (const auto& tile : map.GetCollisionTiles()) {
+        if (SDL_HasRectIntersectionFloat(&snapBox, &tile)) {
+            position.y = tile.y - snapBox.h - 0.01f; 
+            velocity.y = 0.0f;
+            isOnGround = true;
+            return;
+        }
+    }
+
+    position.y = originalY;
 }

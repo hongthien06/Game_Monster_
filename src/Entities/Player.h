@@ -112,4 +112,5 @@ public:
 
     //bool IsInvulnerable() const { return isInvulnerable; }
     void Reset(glm::vec2 startPos);
+    void SnapToGround(Map& map);
 };
