@@ -151,12 +151,12 @@ void Character::Update(float deltaTime, Map& map) {
         currentFrame = (currentFrame + 1) % totalFrames;
     }
 
-    // Kiểm tra rơi ra ngoài bản đồ
-    if (position.y > GameConstants::WORLD_HEIGHT) {
-        position = { 100.0f, 100.0f };
-        velocity = { 0.0f, 0.0f };
-        isOnGround = false;
-    }
+    //// Kiểm tra rơi ra ngoài bản đồ
+    //if (position.y > GameConstants::WORLD_HEIGHT) {
+    //    position = { 100.0f, 100.0f };
+    //    velocity = { 0.0f, 0.0f };
+    //    isOnGround = false;
+    //}
 }
 
 // ===== RENDER =====

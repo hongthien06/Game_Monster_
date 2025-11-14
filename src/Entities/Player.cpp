@@ -250,6 +250,12 @@ void Player::Update(float deltaTime, Map& map) {
         Character::Update(deltaTime, map);
     }
 
+    // Roi ra khoi ban do
+    if (isAlive && position.y > GameConstants::WORLD_HEIGHT + 100.0f) {
+        std::cout << "[Player] Fell out of the world! DIED!\n";
+        TakeDamage(9999);
+    }
+
     // Xử lý input
     HandleInput();
 
@@ -394,8 +400,9 @@ void Player::TakeDamage(int damage) {
     if (health <= 0) {
         health = 0;
         isAlive = false;
-        playerState = PlayerState::STATE_DEAD;
+        /*playerState = PlayerState::STATE_DEAD;*/
         canMove = false;
+        velocity = glm::vec2(0.0f);
         std::cout << "[Player] DIED!\n";
         return;
     }
@@ -497,4 +504,26 @@ SDL_FRect Player::GetBoundingBox() const {
 // ===== GET ARROW SPAWN POSITION =====
 glm::vec2 Player::GetArrowSpawnPosition() const {
     return position + glm::vec2(24.0f, 24.0f);
+}
+
+
+void Player::Reset(glm::vec2 startPos) {
+    position = startPos;
+    isAlive = true;
+    canMove = true;
+    playerState = PlayerState::STATE_IDLE;
+    previousPlayerState = PlayerState::STATE_IDLE;
+    playerCurrentFrame = 0;
+
+    health = maxHealth;
+
+    velocity = glm::vec2(0.0f, 0.0f);
+
+    attackTimer = 0.0f;
+    shootTimer = 0.0f;
+    hurtTimer = 0.0f;
+    iFramesTimer = 0.0f;
+    isFlashing = false;
+
+    projectiles.clear();
 }

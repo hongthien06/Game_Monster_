@@ -14,6 +14,7 @@
 #include "../Environment/Item.h"
 #include "../Core/Audio.h"
 #include "../Core/HUD.h" 
+#include "../Core/GameOverMenu.h"
 #include <SDL3_ttf/SDL_ttf.h>
 
 // ===== INCLUDE ENEMY SYSTEM =====
@@ -22,6 +23,11 @@
 #include "../Entities/Elite.h"
 #include "../Entities/Boss.h"
 #include "../Components/Effect.h"
+
+enum class GameState {
+    PLAYING,
+    GAME_OVER
+};
 
 class Game {
 private:
@@ -45,6 +51,13 @@ private:
     std::vector<std::unique_ptr<Enemy>> enemies;
     EffectManager effectManager;
 
+
+    GameState currentGameState;
+    glm::vec2 playerStartPos;
+
+    TTF_Font* mainFont; // Font dùng chung (bạn sẽ cần load nó trong init)
+    std::unique_ptr<GameOverMenu> gameOverMenu;
+
 public:
     Game();
     ~Game();
@@ -67,4 +80,7 @@ public:
     void initEnemies();
     void updateEnemies(float deltaTime);
     void checkEnemyCollisions();
+
+private:
+    void resetGame();
 };

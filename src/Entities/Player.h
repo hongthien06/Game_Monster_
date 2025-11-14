@@ -111,4 +111,5 @@ public:
     void SetArrowSpawnFrame(int frame) { arrowSpawnFrame = frame; }
 
     //bool IsInvulnerable() const { return isInvulnerable; }
+    void Reset(glm::vec2 startPos);
 };

@@ -29,7 +29,10 @@ Game::Game()
     coinTex(nullptr),
     healthPotionTex(nullptr),
     audio(nullptr),
-    playerHUD(nullptr)
+    playerHUD(nullptr),
+    currentGameState(GameState::PLAYING), // <-- THÊM VÀO
+    mainFont(nullptr),                     // <-- THÊM VÀO
+    gameOverMenu(nullptr)
 {
 }
 
@@ -45,6 +48,12 @@ bool Game::init() {
     }
     if (!TTF_Init()) {
         std::cerr << "TTF Init Error: " << SDL_GetError() << std::endl;
+        return false;
+    }
+
+    mainFont = TTF_OpenFont("assets/fonts/StackSansHeadline-VariableFont_wght.ttf", 30);
+    if (!mainFont) {
+        std::cerr << "Failed to load mainFont: " << SDL_GetError() << std::endl;
         return false;
     }
 
@@ -80,6 +89,8 @@ bool Game::init() {
     auto playerSpawns = map->GetSpawn(0);
     player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
 
+    playerStartPos = player->GetPosition();
+
     for (auto& pos : map->GetSpawn(1)) {
     std::cout << "Minion1: " << pos.x << "," << pos.y << "\n";
 }
@@ -99,6 +110,9 @@ bool Game::init() {
     audio = new Audio();
     audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+
+    gameOverMenu = std::make_unique<GameOverMenu>(renderer, mainFont);
+    currentGameState = GameState::PLAYING;
 
     return true;
 }
@@ -136,28 +150,50 @@ void Game::handleEvents() {
 // Cap nhat logic gameplay
 void Game::update(float deltaTime) {
     // Cap nhat chuyen dong, hoat anh nhan vat
-    if (player && map)
-        player->Update(deltaTime, *map);
+    switch (currentGameState) {
 
-    for (const auto& item : items)
-        if (!item->IsCollected()) item->Update(deltaTime);
+    case GameState::PLAYING:
+    {
+        // Cap nhat chuyen dong, hoat anh nhan vat
+        if (player && map)
+            player->Update(deltaTime, *map);
 
-    //kiem tra item da nhat chua
-    checkItemCollisions();
+        for (const auto& item : items)
+            if (!item->IsCollected()) item->Update(deltaTime);
 
-    // ===== THÊM MỚI: CẬP NHẬT ENEMIES =====
-    updateEnemies(deltaTime);
+        checkItemCollisions();
+        updateEnemies(deltaTime);
+        checkEnemyCollisions();
+        effectManager.Update(deltaTime);
+        camera.update(player->GetPosition(), deltaTime);
 
-    // ===== KIỂM TRA VA CHẠM ENEMIES =====
-    checkEnemyCollisions();
+        if (playerHUD) playerHUD->Update(deltaTime);
+        if (audio) audio->update(deltaTime);
 
-    // ===== CẬP NHẬT EFFECTS =====
-    effectManager.Update(deltaTime);
+        // ** KIỂM TRA CHẾT **
+        if (!player->IsAlive()) {
+            currentGameState = GameState::GAME_OVER;
+            gameOverMenu->Reset(); 
+        }
+        break;
+    }
 
-    camera.update(player->GetPosition(), deltaTime);
+    case GameState::GAME_OVER:
+    {
+        gameOverMenu->Update(deltaTime); 
+        gameOverMenu->HandleInput();     
 
-    if (playerHUD) playerHUD->Update(deltaTime);
-    if (audio) audio->update(deltaTime);
+        MenuChoice choice = gameOverMenu->GetChoice();
+
+        if (choice == MenuChoice::REPLAY) {
+            resetGame();
+        }
+        else if (choice == MenuChoice::QUIT) {
+            isGameRunning = false; 
+        }
+        break;
+    }
+    }
 }
 
 // Ve len man hinh
@@ -206,6 +242,10 @@ void Game::render() {
 
     if (playerHUD) playerHUD->Render(offset);
 
+    if (currentGameState == GameState::GAME_OVER) {
+        gameOverMenu->Render();
+    }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -219,6 +259,8 @@ void Game::cleanup() {
 
     // ===== THÊM MỚI: XÓA ENEMIES =====
     enemies.clear();
+
+    TTF_CloseFont(mainFont);
 
     SDL_DestroyTexture(coinTex);
     SDL_DestroyRenderer(renderer);
@@ -529,4 +571,11 @@ void Game::checkEnemyCollisions() {
             }
         }
     }
+}
+void Game::resetGame() {
+    player->Reset(playerStartPos);
+    enemies.clear();
+    initEnemies(); 
+    items.clear();
+    currentGameState = GameState::PLAYING;
 }
