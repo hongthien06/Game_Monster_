@@ -42,6 +42,14 @@ private:
     bool isFlashing;
     float flashTimer;
 
+    // ===== LIVES SYSTEM - HỆ THỐNG TRÁI TIM =====
+    int lives;              // Số mạng còn lại
+    int maxLives;           // Số mạng tối đa
+    glm::vec2 respawnPoint; // Điểm hồi sinh
+    bool isDying;           // Đang trong trạng thái chết
+    float deathTimer;       // Timer để delay respawn
+    float deathDelay;
+
     // ====== AUDIO ======
     Audio audio;
 
@@ -64,6 +72,8 @@ private:
     void UpdateProjectiles(float deltaTime);
     glm::vec2 GetArrowSpawnPosition() const;
     void SpawnArrow();
+    void Respawn();         // Hồi sinh
+    void LoseLife();
 
     // THÊM MỚI: Knockback & I-frames
     bool isInvulnerable;
@@ -92,6 +102,13 @@ public:
     void Attack();
     void Shot();
     void Heal(int amount);
+
+    // ===== LIVES METHODS =====
+    void CheckFallDeath();      // Kiểm tra rơi khỏi map
+    int GetLives() const { return lives; }
+    int GetMaxLives() const { return maxLives; }
+    void AddLife();             // Thêm 1 mạng
+    void SetRespawnPoint(glm::vec2 point) { respawnPoint = point; }
 
     // ===== MOUSE/SHOOTING =====
     void HandleMouseClick(float mouseScreenX, float mouseScreenY, glm::vec2 cameraOffset);

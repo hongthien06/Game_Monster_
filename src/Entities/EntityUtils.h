@@ -4,42 +4,56 @@
 #include <cmath>
 
 // ===== VẼ THANH MÁU Ở TRÊN ĐẦU  =====
+// ===== VẼ THANH MÁU Ở TRÊN ĐẦU  =====
 inline void DrawHealthBar(SDL_Renderer* renderer, int currentHP, int maxHP,
-    glm::vec2 position, glm::vec2 cameraOffset, float width) {
+    glm::vec2 position, glm::vec2 cameraOffset, float width, bool isPlayer = false) {
     if (currentHP <= 0 || maxHP <= 0) return;
 
     float healthPercent = (float)currentHP / (float)maxHP;
 
     // Vị trí thanh máu (phía trên đầu entity)
-    float barX = position.x - cameraOffset.x;
-    float barY = position.y - cameraOffset.y - 10.0f;
+    float barX = position.x - cameraOffset.x - width / 2.0f + 24.0f; // Center thanh máu
+    float barY = position.y - cameraOffset.y - 12.0f;
     float barWidth = width;
-    float barHeight = 4.0f;
+    float barHeight = 5.0f;
 
-    // Vẽ background (đen)
+    // Vẽ background (đen với opacity)
     SDL_FRect bgRect = { barX, barY, barWidth, barHeight };
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_SetRenderDrawColor(renderer, 30, 30, 30, 200);
     SDL_RenderFillRect(renderer, &bgRect);
 
-    // Chọn màu dựa vào % HP
+    // Chọn màu dựa vào % HP và loại entity
     SDL_Color barColor;
-    if (healthPercent > 0.6f) {
-        barColor = { 0, 255, 0, 255 };     // Xanh lá
-    }
-    else if (healthPercent > 0.3f) {
-        barColor = { 255, 255, 0, 255 };   // Vàng
+
+    if (isPlayer) {
+        // PLAYER: Xanh lá → Vàng → Đỏ
+        if (healthPercent > 0.6f) {
+            barColor = { 46, 204, 113, 255 };     // Xanh lá đậm
+        }
+        else if (healthPercent > 0.3f) {
+            barColor = { 241, 196, 15, 255 };     // Vàng
+        }
+        else {
+            barColor = { 231, 76, 60, 255 };      // Đỏ
+        }
     }
     else {
-        barColor = { 255, 0, 0, 255 };     // Đỏ
+        // ENEMY: Đỏ → Vàng (khi yếu)
+        if (healthPercent > 0.3f) {
+            barColor = { 231, 76, 60, 255 };      // Đỏ
+        }
+        else {
+            barColor = { 241, 196, 15, 255 };     // Vàng khi yếu
+        }
     }
 
-    // Vẽ thanh máu hiện tại
-    SDL_FRect hpRect = { barX, barY, barWidth * healthPercent, barHeight };
+    // Vẽ thanh máu hiện tại với border radius giả lập
+    SDL_FRect hpRect = { barX + 1, barY + 1, (barWidth - 2) * healthPercent, barHeight - 2 };
     SDL_SetRenderDrawColor(renderer, barColor.r, barColor.g, barColor.b, barColor.a);
     SDL_RenderFillRect(renderer, &hpRect);
 
-    // Vẽ viền trắng
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    // Vẽ viền trắng mỏng
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 180);
     SDL_RenderRect(renderer, &bgRect);
 }
 
@@ -93,52 +107,52 @@ inline void DrawCornerHealthBar(SDL_Renderer* renderer, int currentHP, int maxHP
     SDL_RenderRect(renderer, &bgRect);
 
     // ===== VẼ TRÁI TIM TỪ TEXTURE =====
-    if (showHearts && heartTexture) {
-        int hearts = (currentHP + 19) / 20; // Mỗi trái tim = 20 HP
-        int maxHearts = (maxHP + 19) / 20;
+    //if (showHearts && heartTexture) {
+    //    int hearts = (currentHP + 19) / 20; // Mỗi trái tim = 20 HP
+    //    int maxHearts = (maxHP + 19) / 20;
 
-        float heartSize = 16.0f * 1.2f;
-        float heartSpacing = 20.0f;
-        float heartY = y - heartSize - 8.0f; // Vẽ trên thanh máu
+    //    float heartSize = 16.0f * 1.2f;
+    //    float heartSpacing = 20.0f;
+    //    float heartY = y - heartSize - 8.0f; // Vẽ trên thanh máu
 
-        // Kích thước mỗi frame trong sprite sheet
-        float frameWidth = 16.0f;
-        float frameHeight = 16.0f;
+    //    // Kích thước mỗi frame trong sprite sheet
+    //    float frameWidth = 16.0f;
+    //    float frameHeight = 16.0f;
 
-        for (int i = 0; i < maxHearts; i++) {
-            float heartX = x + i * heartSpacing;
+    //    for (int i = 0; i < maxHearts; i++) {
+    //        float heartX = x + i * heartSpacing;
 
-            // Xác định frame
-            int frameIndex;
-            if (i < hearts) {
-                frameIndex = 0; // Trái tim đầy (đỏ)
-            }
-            else if (i == hearts && (currentHP % 20) > 0) {
-                frameIndex = 1; // Trái tim nửa (đen)
-            }
-            else {
-                frameIndex = 2; // Trái tim rỗng (xám)
-            }
+    //        // Xác định frame
+    //        int frameIndex;
+    //        if (i < hearts) {
+    //            frameIndex = 0; // Trái tim đầy (đỏ)
+    //        }
+    //        else if (i == hearts && (currentHP % 20) > 0) {
+    //            frameIndex = 1; // Trái tim nửa (đen)
+    //        }
+    //        else {
+    //            frameIndex = 2; // Trái tim rỗng (xám)
+    //        }
 
-            // Source rect
-            SDL_FRect srcRect = {
-                frameIndex * frameWidth,
-                0.0f,
-                frameWidth,
-                frameHeight
-            };
+    //        // Source rect
+    //        SDL_FRect srcRect = {
+    //            frameIndex * frameWidth,
+    //            0.0f,
+    //            frameWidth,
+    //            frameHeight
+    //        };
 
-            // Destination rect
-            SDL_FRect dstRect = {
-                heartX,
-                heartY,
-                heartSize,
-                heartSize
-            };
+    //        // Destination rect
+    //        SDL_FRect dstRect = {
+    //            heartX,
+    //            heartY,
+    //            heartSize,
+    //            heartSize
+    //        };
 
-            SDL_RenderTexture(renderer, heartTexture, &srcRect, &dstRect);
-        }
-    }
+    //        SDL_RenderTexture(renderer, heartTexture, &srcRect, &dstRect);
+    //    }
+    //}
 }
 
 // ===== KIỂM TRA VA CHẠM GIỮA 2 RECT =====

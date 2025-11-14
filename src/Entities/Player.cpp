@@ -29,6 +29,13 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     attackTimer(0.0f),
     hurtDuration(0.3f),
     hurtTimer(0.0f),
+    // ===== LIVES SYSTEM =====
+    lives(3),               // Bắt đầu với 3 mạng
+    maxLives(3),            // Tối đa 3 mạng
+    respawnPoint(startPos), // Điểm hồi sinh = điểm bắt đầu
+    isDying(false),
+    deathTimer(0.0f),
+    deathDelay(2.0f),
     // FIX: KHỞI TẠO I-FRAMES
     iFramesDuration(1.2f),      // 1.2 giây bất tử
     iFramesTimer(0.0f),
@@ -227,6 +234,72 @@ void Player::UpdateProjectiles(float deltaTime) {
         projectiles.end()
     );
 }
+// ===== CHECK FALL DEATH =====
+void Player::CheckFallDeath() {
+    // Kiểm tra nếu rơi xuống dưới WORLD_HEIGHT + 100
+    if (position.y > GameConstants::WORLD_HEIGHT + 100.0f && !isDying && isAlive) {
+        std::cout << "[Player] Roi khoi map! Mat 1 mang!\n";
+        health = 0;  // Set máu = 0 trước
+        LoseLife();  // Sau đó gọi LoseLife
+    }
+}
+
+// ===== LOSE LIFE =====
+void Player::LoseLife() {
+    if (isDying) return;  // Đang chết rồi thì không xử lý nữa
+
+    lives--;
+    std::cout << "[Player] MAT 1 MANG! Con lai: " << lives << "/" << maxLives << "\n";
+
+    if (lives <= 0) {
+        // HẾT MẠNG - GAME OVER
+        isAlive = false;
+        playerState = PlayerState::STATE_DEAD;
+        canMove = false;
+        std::cout << "[Player] GAME OVER! Het mang!\n";
+        // TODO: Có thể thêm màn hình Game Over ở đây
+    }
+    else {
+        // CÒN MẠNG - CHUẨN BỊ RESPAWN
+        isDying = true;
+        deathTimer = deathDelay;
+        playerState = PlayerState::STATE_DEAD;
+        canMove = false;
+        //audio.playSound("assets/audio/player_death.wav");
+    }
+}
+
+void Player::Respawn() {
+    std::cout << "[Player] HOI SINH tai (" << respawnPoint.x << ", " << respawnPoint.y << ")\n";
+
+    // Reset vị trí
+    position = respawnPoint;
+    velocity = glm::vec2(0.0f, 0.0f);
+
+    // Reset máu đầy
+    health = maxHealth;
+
+    // Reset trạng thái
+    isDying = false;
+    isAlive = true;
+    canMove = true;
+    playerState = PlayerState::STATE_IDLE;
+
+    // Kích hoạt I-frames sau khi hồi sinh
+    iFramesTimer = iFramesDuration * 2.0f;  // Bất tử lâu hơn sau respawn
+    isFlashing = true;
+
+    //audio.playSound("assets/audio/respawn.wav");
+}
+
+// ===== ADD LIFE =====
+void Player::AddLife() {
+    if (lives < maxLives) {
+        lives++;
+        std::cout << "[Player] NHAN THEM 1 MANG! Hien tai: " << lives << "/" << maxLives << "\n";
+    }
+}
+
 
 // ===== MAIN UPDATE =====
 void Player::Update(float deltaTime, Map& map) {
@@ -244,6 +317,8 @@ void Player::Update(float deltaTime, Map& map) {
     else {
         isFlashing = false;
     }
+
+    CheckFallDeath();
 
     // Gọi Character::Update() để xử lý di chuyển
     if (canMove) {
@@ -344,18 +419,49 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     }
 
     float screenHeight = (float)GameConstants::LOGICAL_HEIGHT;
+    float screenWidth = (float)GameConstants::LOGICAL_WIDTH;
 
-    DrawCornerHealthBar(
-        renderer,
-        health,
-        maxHealth,
-        8.0f,
-        screenHeight - 25.0f,
-        150.0f,
-        20.0f,
-        true,
-        heartTexture
-    );
+    if (isAlive) {
+        DrawHealthBar(
+            renderer,
+            health,
+            maxHealth,
+            position,
+            cameraOffset,
+            45.0f,   // Độ rộng thanh máu
+            true      // isPlayer = true (màu xanh lá)
+        );
+    }
+
+    // ===== VẼ SỐ MẠNG CÒN LẠI (LIVES) Ở GÓC TRÊN =====
+    // Mỗi mạng = 1 trái tim lớn
+    float liveHeartSize = 20.0f;
+    float liveHeartSpacing = 24.0f;
+    float liveHeartX = screenWidth - 80.0f;
+    float liveHeartY = screenHeight - 285.0f; // Vẽ phía trên thanh máu
+
+    for (int i = 0; i < maxLives; i++) {
+        float heartX = liveHeartX + i * liveHeartSpacing;
+
+        // Frame 0 = trái tim đỏ (còn mạng), Frame 1 = trái tim xám (hết mạng)
+        int frameIndex = (i < lives) ? 0 : 1;
+
+        SDL_FRect srcRect = {
+            frameIndex * 16.0f,
+            0.0f,
+            16.0f,
+            16.0f
+        };
+
+        SDL_FRect dstRect = {
+            heartX,
+            liveHeartY,
+            liveHeartSize,
+            liveHeartSize
+        };
+
+        SDL_RenderTexture(renderer, heartTexture, &srcRect, &dstRect);
+    }
 
     if (!currentTexture) return;
 
