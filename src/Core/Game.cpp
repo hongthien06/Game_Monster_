@@ -30,8 +30,8 @@ Game::Game()
     healthPotionTex(nullptr),
     audio(nullptr),
     playerHUD(nullptr),
-    currentGameState(GameState::PLAYING), // <-- THÊM VÀO
-    mainFont(nullptr),                     // <-- THÊM VÀO
+    currentGameState(GameState::PLAYING), 
+    mainFont(nullptr),                     
     gameOverMenu(nullptr)
 {
 }
