@@ -36,7 +36,10 @@ Enemy::Enemy()
     enemyIsOnGround(true),
     enemyGravity(GameConstants::GRAVITY),
     renderWidth(48.0f),
-    renderHeight(48.0f)
+    renderHeight(48.0f),
+    initialPosition(0.0f, 0.0f),
+    initialPatrolPointA(0.0f, 0.0f),
+    initialPatrolPointB(0.0f, 0.0f)
 {
 }
 
@@ -81,7 +84,10 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     enemyIsOnGround(true),
     enemyGravity(GameConstants::GRAVITY),
     renderWidth(48.0f),
-    renderHeight(48.0f)
+    renderHeight(48.0f),
+    initialPosition(startPos), // Ghi nhớ vị trí spawn chính xác
+    initialPatrolPointA(startPos - glm::vec2(100.0f, 0.0f)), // Lưu điểm A ban đầu
+    initialPatrolPointB(startPos + glm::vec2(100.0f, 0.0f))
 {
     switch (type) {
     case EnemyType::MINION:
@@ -142,6 +148,8 @@ bool Enemy::IsTargetInAttackRange() const {
 void Enemy::SetPatrolPoints(glm::vec2 pointA, glm::vec2 pointB) {
     patrolPointA = pointA;
     patrolPointB = pointB;
+    initialPatrolPointA = pointA;
+    initialPatrolPointB = pointB;
 }
 
 // === 7 STATE HANDLERS ===
@@ -410,4 +418,25 @@ SDL_FRect Enemy::GetBoundingBox() const {
         renderWidth * 0.6f,
         renderHeight * 0.8f
     };
+}
+void Enemy::ResetToStartPosition() {
+    position = initialPosition;
+    velocity = glm::vec2(0.0f, 0.0f);
+    enemyIsOnGround = true; 
+
+    health = maxHealth;
+    isAlive = true;
+
+    enemyState = EnemyState::STATE_IDLE;
+    previousEnemyState = EnemyState::STATE_IDLE;
+    enemyCurrentFrame = 0;
+    enemyAnimationTimer = 0.0f;
+    deathTimer = 0.0f;
+    hasDroppedCoins = false; 
+    canTakeDamage = true;
+    iFramesTimer = 0.0f;
+
+    patrolPointA = initialPatrolPointA;
+    patrolPointB = initialPatrolPointB;
+    movingToB = true;
 }

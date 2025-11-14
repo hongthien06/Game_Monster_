@@ -574,8 +574,9 @@ void Game::checkEnemyCollisions() {
 }
 void Game::resetGame() {
     player->Reset(playerStartPos);
-    enemies.clear();
-    initEnemies(); 
+    for (auto& enemy : enemies) {
+        enemy->ResetToStartPosition();
+    }
     items.clear();
     currentGameState = GameState::PLAYING;
 }

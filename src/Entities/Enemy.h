@@ -74,6 +74,11 @@ protected:
     float renderWidth;
     float renderHeight;
 
+
+    glm::vec2 initialPosition;
+    glm::vec2 initialPatrolPointA;
+    glm::vec2 initialPatrolPointB;
+
     // VIRTUAL: lớp con override để trả frames riêng
     virtual FrameConfig GetFrameConfig(EnemyState state) const = 0;
 
@@ -113,6 +118,8 @@ public:
 
     virtual void TakeDamage(int damage) override;
     virtual void Die();
+
+    virtual void ResetToStartPosition();
 
     void SetTargetPosition(glm::vec2 pos) { targetPosition = pos; }
     void SetPatrolPoints(glm::vec2 pointA, glm::vec2 pointB);

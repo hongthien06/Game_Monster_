@@ -68,11 +68,11 @@ void Player::HandleInput() {
 
 // ===== UPDATE PLAYER STATE =====
 void Player::UpdatePlayerState(float deltaTime) {
-    if (!isAlive) {
+    /*if (!isAlive) {
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
         return;
-    }
+    }*/
 
     if (attackTimer > 0) {
         attackTimer -= deltaTime;
