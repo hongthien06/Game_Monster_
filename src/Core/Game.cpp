@@ -31,8 +31,9 @@ Game::Game()
     audio(nullptr),
     playerHUD(nullptr),
     currentGameState(GameState::PLAYING), 
-    mainFont(nullptr),                     
-    gameOverMenu(nullptr)
+    mainFont(nullptr)                     
+    //gameOverMenu(nullptr),    // THÊM DÒNG NÀY
+    //showGameOverMenu(false)
 {
 }
 

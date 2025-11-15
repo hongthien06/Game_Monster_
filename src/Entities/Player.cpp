@@ -75,11 +75,20 @@ void Player::HandleInput() {
 
 // ===== UPDATE PLAYER STATE =====
 void Player::UpdatePlayerState(float deltaTime) {
-    /*if (!isAlive) {
+    // ===== XỬ LÝ TRẠNG THÁI CHẾT =====
+    if (isDying) {
+        deathTimer -= deltaTime;
+        if (deathTimer <= 0) {
+            Respawn();
+        }
+        return;
+    }
+
+    if (!isAlive) {
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
         return;
-    }*/
+    }
 
     if (attackTimer > 0) {
         attackTimer -= deltaTime;
@@ -505,11 +514,12 @@ void Player::TakeDamage(int damage) {
 
     if (health <= 0) {
         health = 0;
-        isAlive = false;
+        LoseLife();
+        //isAlive = false;
         /*playerState = PlayerState::STATE_DEAD;*/
-        canMove = false;
+        /*canMove = false;
         velocity = glm::vec2(0.0f);
-        std::cout << "[Player] DIED!\n";
+        std::cout << "[Player] DIED!\n";*/
         return;
     }
 

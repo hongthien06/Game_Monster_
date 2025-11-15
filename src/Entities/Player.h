@@ -49,6 +49,7 @@ private:
     bool isDying;           // Đang trong trạng thái chết
     float deathTimer;       // Timer để delay respawn
     float deathDelay;
+    bool isGameOver;        // Đã hết mạng - Game Over
 
     // ====== AUDIO ======
     Audio audio;
@@ -109,6 +110,8 @@ public:
     int GetMaxLives() const { return maxLives; }
     void AddLife();             // Thêm 1 mạng
     void SetRespawnPoint(glm::vec2 point) { respawnPoint = point; }
+    bool IsGameOver() const { return isGameOver; }  // Kiểm tra game over
+    void ResetGame();           // Reset game để chơi lại
 
     // ===== MOUSE/SHOOTING =====
     void HandleMouseClick(float mouseScreenX, float mouseScreenY, glm::vec2 cameraOffset);
@@ -130,4 +133,6 @@ public:
     //bool IsInvulnerable() const { return isInvulnerable; }
     void Reset(glm::vec2 startPos);
     void SnapToGround(Map& map);
+
+    void SetPosition(glm::vec2 pos) { position = pos; }
 };
