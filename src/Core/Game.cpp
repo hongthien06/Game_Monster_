@@ -69,6 +69,11 @@ bool Game::init() {
     }
 
     renderer = SDL_CreateRenderer(window, nullptr);
+    if (SDL_SetRenderVSync(renderer, 1) != 0) {
+    SDL_Log("Failed to enable VSYNC: %s", SDL_GetError());
+}
+    //SDL_SetRenderVSync(renderer, 0); // tắt VSYNC
+    
     if (!renderer) {
         std::cerr << "Renderer Creation Error: " << SDL_GetError() << std::endl;
         return false;
