@@ -65,8 +65,12 @@ Minions::Minions(SDL_Renderer* renderer, glm::vec2 startPos, MinionType type)
     }
 
     // Size: 48x48 (bằng player)
-    renderWidth = 48.0f;
-    renderHeight = 48.0f;
+    renderWidth = GameConstants::MINION_RENDER_WIDTH;
+    renderHeight = GameConstants::MINION_RENDER_HEIGHT;
+    hitboxWidth = GameConstants::MINION_HITBOX_WIDTH;
+    hitboxHeight = GameConstants::MINION_HITBOX_HEIGHT;
+    hitboxOffsetX = GameConstants::MINION_HITBOX_OFFSET_X;
+    hitboxOffsetY = GameConstants::MINION_HITBOX_OFFSET_Y;
 }
 
 Minions::~Minions() {

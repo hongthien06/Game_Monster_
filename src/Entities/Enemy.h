@@ -48,6 +48,11 @@ protected:
     float walkSpeed;
     float runSpeed;
 
+    float hitboxWidth;
+    float hitboxHeight;
+    float hitboxOffsetX;
+    float hitboxOffsetY;
+
     glm::vec2 patrolPointA;
     glm::vec2 patrolPointB;
     bool movingToB;

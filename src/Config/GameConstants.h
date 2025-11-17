@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 
 namespace GameConstants {
@@ -84,6 +84,24 @@ namespace GameConstants {
 
     constexpr float PLAYER_PHYSICS_BOX_OFFSET_X = (PLAYER_RENDER_WIDTH - PLAYER_PHYSICS_BOX_WIDTH) / 2.0f;
     constexpr float PLAYER_PHYSICS_BOX_OFFSET_Y = (PLAYER_RENDER_HEIGHT - PLAYER_PHYSICS_BOX_HEIGHT);
+
+    // ===================== BASE MINION (Pixel Orc) =====================
+    constexpr float MINION_RENDER_WIDTH = 48.0f;
+    constexpr float MINION_RENDER_HEIGHT = 48.0f;
+    constexpr float MINION_HITBOX_WIDTH = 18.0f;
+    constexpr float MINION_HITBOX_HEIGHT = 30.0f;
+    // Offset Y cho Minion (đặt hitbox ở dưới cùng)
+    constexpr float MINION_HITBOX_OFFSET_X = (MINION_RENDER_WIDTH - MINION_HITBOX_WIDTH) / 2.0f;
+    constexpr float MINION_HITBOX_OFFSET_Y = MINION_RENDER_HEIGHT - MINION_HITBOX_HEIGHT;
+
+    // ===================== BASE ELITE (Vector Troll) =====================
+    constexpr float ELITE_RENDER_WIDTH = 64.0f;
+    constexpr float ELITE_RENDER_HEIGHT = 64.0f;
+    constexpr float ELITE_HITBOX_WIDTH = 22.0f;
+    constexpr float ELITE_HITBOX_HEIGHT = 30.0f;
+    // Offset Y cho Elite (căn giữa hitbox do có padding)
+    constexpr float ELITE_HITBOX_OFFSET_X = (ELITE_RENDER_WIDTH - ELITE_HITBOX_WIDTH) / 2.0f;
+    constexpr float ELITE_HITBOX_OFFSET_Y = (ELITE_RENDER_HEIGHT - ELITE_HITBOX_HEIGHT) / 2.0f + 8.5f;
 
     // Gia tri camera
     constexpr float WORLD_WIDTH = 2000.0f;

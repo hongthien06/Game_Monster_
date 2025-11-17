@@ -1,5 +1,6 @@
 ﻿#include "Enemy.h"
 #include "../Systems/MovementSystem.h"
+#include "../Config/GameConstants.h"
 #include <iostream>
 #include <cmath>
 #include "EntityUtils.h"
@@ -35,8 +36,12 @@ Enemy::Enemy()
     enemyCanJump(false),
     enemyIsOnGround(true),
     enemyGravity(GameConstants::GRAVITY),
-    renderWidth(48.0f),
-    renderHeight(48.0f),
+    renderWidth(GameConstants::MINION_RENDER_WIDTH),
+    renderHeight(GameConstants::MINION_RENDER_HEIGHT),
+    hitboxWidth(GameConstants::MINION_HITBOX_WIDTH),
+    hitboxHeight(GameConstants::MINION_HITBOX_HEIGHT),
+    hitboxOffsetX(GameConstants::MINION_HITBOX_OFFSET_X),
+    hitboxOffsetY(GameConstants::MINION_HITBOX_OFFSET_Y),
     initialPosition(0.0f, 0.0f),
     initialPatrolPointA(0.0f, 0.0f),
     initialPatrolPointB(0.0f, 0.0f)
@@ -97,8 +102,12 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         aggroRange = 200.0f;
         attackRange = 40.0f;
         coinDropAmount = 1;
-        renderWidth = 48.0f;
-        renderHeight = 48.0f;
+        renderWidth = GameConstants::MINION_RENDER_WIDTH;
+        renderHeight = GameConstants::MINION_RENDER_HEIGHT;
+        hitboxWidth = GameConstants::MINION_HITBOX_WIDTH;
+        hitboxHeight = GameConstants::MINION_HITBOX_HEIGHT;
+        hitboxOffsetX = GameConstants::MINION_HITBOX_OFFSET_X;
+        hitboxOffsetY = GameConstants::MINION_HITBOX_OFFSET_Y;
         break;
     case EnemyType::ELITE:
         maxHealth = 150;
@@ -108,8 +117,12 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         attackRange = 50.0f;
         runSpeed = 120.0f;
         coinDropAmount = 3;
-        renderWidth = 64.0f;
-        renderHeight = 64.0f;
+        renderWidth = GameConstants::ELITE_RENDER_WIDTH;
+        renderHeight = GameConstants::ELITE_RENDER_HEIGHT;
+        hitboxWidth = GameConstants::ELITE_HITBOX_WIDTH;
+        hitboxHeight = GameConstants::ELITE_HITBOX_HEIGHT;
+        hitboxOffsetX = GameConstants::ELITE_HITBOX_OFFSET_X;
+        hitboxOffsetY = GameConstants::ELITE_HITBOX_OFFSET_Y;
         break;
     case EnemyType::BOSS:
         maxHealth = 500;
@@ -300,8 +313,10 @@ void Enemy::Update(float deltaTime, Map& map) {
 
         for (const auto& tile : map.GetCollisionTiles()) {
             if (SDL_HasRectIntersectionFloat(&bbox, &tile)) {
-                if (velocity.y > 0) {
-                    position.y = tile.y - (bbox.h);
+                if (velocity.y > 0) { // Đang rơi xuống và va chạm
+                    // Đặt vị trí Y = mép trên của tile - chiều cao hitbox - offset Y của hitbox
+                    position.y = tile.y - hitboxHeight - hitboxOffsetY; // <-- ĐÂY LÀ DÒNG ĐÃ SỬA
+
                     velocity.y = 0;
                     enemyIsOnGround = true;
                 }
@@ -413,10 +428,10 @@ void Enemy::Die() {
 // === HITBOX (nhỏ hơn sprite, có offset) ===
 SDL_FRect Enemy::GetBoundingBox() const {
     return SDL_FRect{
-        position.x + renderWidth * 0.2f,
-        position.y + renderHeight * 0.15f,
-        renderWidth * 0.6f,
-        renderHeight * 0.8f
+        position.x + hitboxOffsetX,
+        position.y + hitboxOffsetY,
+        hitboxWidth,
+        hitboxHeight
     };
 }
 void Enemy::ResetToStartPosition() {

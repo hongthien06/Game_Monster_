@@ -72,8 +72,12 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
     LoadTexture(renderer, &deadTex, (folderPath + "Die.png").c_str());
 
     // Size: 64x64 (l?n h?n Minion)
-    renderWidth = 64.0f;
-    renderHeight = 64.0f;
+    renderWidth = GameConstants::ELITE_RENDER_WIDTH;
+    renderHeight = GameConstants::ELITE_RENDER_HEIGHT;
+    hitboxWidth = GameConstants::ELITE_HITBOX_WIDTH;
+    hitboxHeight = GameConstants::ELITE_HITBOX_HEIGHT;
+    hitboxOffsetX = GameConstants::ELITE_HITBOX_OFFSET_X;
+    hitboxOffsetY = GameConstants::ELITE_HITBOX_OFFSET_Y;
 }
 
 Elites::~Elites() {
