@@ -124,37 +124,37 @@ namespace GameConstants {
     constexpr int BOSS_IDLE_FRAMES = 10;
     constexpr float BOSS_IDLE_FRAME_DURATION = 0.12f;
     constexpr int BOSS_IDLE_FRAME_WIDTH = 700;
-    constexpr int BOSS_IDLE_FRAME_HEIGHT = 600;
+    constexpr int BOSS_IDLE_FRAME_HEIGHT = 641;
 
     constexpr int BOSS_WALK_FRAMES = 9;
     constexpr float BOSS_WALK_FRAME_DURATION = 0.10f;
     constexpr int BOSS_WALK_FRAME_WIDTH = 700;
-    constexpr int BOSS_WALK_FRAME_HEIGHT = 600;
+    constexpr int BOSS_WALK_FRAME_HEIGHT = 641;
 
     constexpr int BOSS_RUN_FRAMES = 10;
     constexpr float BOSS_RUN_FRAME_DURATION = 0.08f;
     constexpr int BOSS_RUN_FRAME_WIDTH = 700;
-    constexpr int BOSS_RUN_FRAME_HEIGHT = 600;
+    constexpr int BOSS_RUN_FRAME_HEIGHT = 641;
 
     constexpr int BOSS_JUMP_FRAMES = 10;
     constexpr float BOSS_JUMP_FRAME_DURATION = 0.12f;
     constexpr int BOSS_JUMP_FRAME_WIDTH = 700;
-    constexpr int BOSS_JUMP_FRAME_HEIGHT = 600;
+    constexpr int BOSS_JUMP_FRAME_HEIGHT = 641;
 
     constexpr int BOSS_ATTACK_FRAMES = 10;
     constexpr float BOSS_ATTACK_FRAME_DURATION = 0.09f;
     constexpr int BOSS_ATTACK_FRAME_WIDTH = 700;
-    constexpr int BOSS_ATTACK_FRAME_HEIGHT = 600;
+    constexpr int BOSS_ATTACK_FRAME_HEIGHT = 641;
 
     constexpr int BOSS_HURT_FRAMES = 10;
     constexpr float BOSS_HURT_FRAME_DURATION = 0.10f;
     constexpr int BOSS_HURT_FRAME_WIDTH = 700;
-    constexpr int BOSS_HURT_FRAME_HEIGHT = 600;
+    constexpr int BOSS_HURT_FRAME_HEIGHT = 641;
 
     constexpr int BOSS_DEAD_FRAMES = 10;
     constexpr float BOSS_DEAD_FRAME_DURATION = 0.15f;
     constexpr int BOSS_DEAD_FRAME_WIDTH = 700;
-    constexpr int BOSS_DEAD_FRAME_HEIGHT = 600;
+    constexpr int BOSS_DEAD_FRAME_HEIGHT = 641;
 
     // ===================== ELITE TROLL TYPE 1 =====================
     constexpr int ELITE_TROLL_1_IDLE_FRAMES = 10;
