@@ -68,7 +68,7 @@ private:
 
     // ===== PRIVATE METHODS =====
     void UpdatePlayerAnimation(float deltaTime);
-    void UpdatePlayerState(float deltaTime);
+    void UpdatePlayerState(float deltaTime, bool wasOnGroundOld);
     void HandleInput();
     void UpdateProjectiles(float deltaTime);
     glm::vec2 GetArrowSpawnPosition() const;

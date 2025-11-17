@@ -74,7 +74,7 @@ void Player::HandleInput() {
 }
 
 // ===== UPDATE PLAYER STATE =====
-void Player::UpdatePlayerState(float deltaTime) {
+void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
     // ===== XỬ LÝ TRẠNG THÁI CHẾT =====
     if (isDying) {
         deathTimer -= deltaTime;
@@ -130,9 +130,19 @@ void Player::UpdatePlayerState(float deltaTime) {
     // ===== HIỆU ỨNG CHẠM ĐẤT (CÓ COOL-DOWN) =====
     landedSoundCooldown -= deltaTime;
 
-    if (!wasOnGround && isOnGround && landedSoundCooldown <= 0.0f) {
+    // Chỉ phát âm thanh khi vừa chạm đất và cooldown hết, và player đang có vận tốc Y cao (bất kỳ)
+    if (!wasOnGroundOld && isOnGround && landedSoundCooldown <= 0.0f) {
+        std::cout << "Playing jump_landed sound! wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";
         audio.playSound("assets/audio/jump_landed.wav");
-        landedSoundCooldown = 0.10f;
+        landedSoundCooldown = 0.4f;  // Tăng cooldown thành 0.3s để tránh lặp
+    }
+    
+    // DEBUG
+    static float debugTimer = 0.0f;
+    debugTimer += deltaTime;
+    if (debugTimer > 0.5f) {
+        std::cout << "wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";
+        debugTimer = 0.0f;
     }
 
     // Đồng bộ với Character state
@@ -312,6 +322,9 @@ void Player::AddLife() {
 
 // ===== MAIN UPDATE =====
 void Player::Update(float deltaTime, Map& map) {
+    // Lưu trạng thái cũ TRƯỚC KHI cập nhật
+    bool wasOnGroundOld = isOnGround;
+    
     // FIX: XỬ LÝ I-FRAMES - GIẢM DẦN TIMER
     if (iFramesTimer > 0) {
         iFramesTimer -= deltaTime;
@@ -344,7 +357,7 @@ void Player::Update(float deltaTime, Map& map) {
     HandleInput();
 
     // Cập nhật trạng thái
-    UpdatePlayerState(deltaTime);
+    UpdatePlayerState(deltaTime, wasOnGroundOld);
 
     // Cập nhật animation
     UpdatePlayerAnimation(deltaTime);
