@@ -43,7 +43,7 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     flashTimer(0.0f),
     shootCooldown(0.3f),
     shootTimer(0.0f),
-    projectileDamage(15),
+    projectileDamage(30),
     projectileSpeed(600.0f),
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),

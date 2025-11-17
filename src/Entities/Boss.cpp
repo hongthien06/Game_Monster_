@@ -61,7 +61,7 @@ Boss::~Boss() {
 
 // === TRẢ FRAMES TỪ GAMECONSTANTS ===
 FrameConfig Boss::GetFrameConfig(EnemyState state) const {
-    FrameConfig cfg = { 0, 0.1f, 1600, 1000 };
+    FrameConfig cfg = { 0, 0.1f, 700, 600 };
 
     switch (state) {
     case EnemyState::STATE_IDLE:
