@@ -18,6 +18,10 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
 {
     this->renderer = renderer;
     this->position = startPos;
+    // Lưu vị trí ban đầu để ResetToStartPosition có thể trả về đúng vị trí
+    this->initialPosition = startPos;
+    this->initialPatrolPointA = startPos - glm::vec2(100.0f, 0.0f);
+    this->initialPatrolPointB = startPos + glm::vec2(100.0f, 0.0f);
     this->enemyType = EnemyType::ELITE;
 
     std::string folderPath;

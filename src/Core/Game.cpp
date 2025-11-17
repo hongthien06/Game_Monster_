@@ -661,7 +661,10 @@ void Game::resetGame() {
     
     // Reset tất cả enemies về trạng thái ban đầu (chứ không xóa)
     for (auto& enemy : enemies) {
-        enemy->ResetToStartPosition();
+        // Chỉ reset những enemy còn sống — giữ nguyên trạng thái của các enemy đã chết
+        if (enemy->IsAlive()) {
+            enemy->ResetToStartPosition();
+        }
     }
     
     items.clear();
