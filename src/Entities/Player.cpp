@@ -347,11 +347,11 @@ void Player::Update(float deltaTime, Map& map) {
         Character::Update(deltaTime, map);
     }
 
-    // Roi ra khoi ban do
-    if (isAlive && position.y > GameConstants::WORLD_HEIGHT + 100.0f) {
-        std::cout << "[Player] Fell out of the world! DIED!\n";
-        TakeDamage(999);
-    }
+    //// Roi ra khoi ban do
+    //if (isAlive && position.y > GameConstants::WORLD_HEIGHT + 100.0f) {
+    //    std::cout << "[Player] Fell out of the world! DIED!\n";
+    //    TakeDamage(999);
+    //}
 
     // Xử lý input
     HandleInput();
