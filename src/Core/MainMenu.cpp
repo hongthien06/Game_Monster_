@@ -1,18 +1,14 @@
 ﻿#include "MainMenu.h"
 #include <iostream>
 #include <algorithm>
-#include "../Config/GameConstants.h" // Giả sử tồn tại file này
+#include "../Config/GameConstants.h" 
 
-// Hàm RenderText (lấy từ GameOverMenu)
 void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
     glm::vec2 pos, SDL_Color color, bool center)
 {
     if (!font) return;
-
-    // Chuyển đổi màu từ SDL_Color sang Uint8 cho hàm TTF_RenderText_Blended
-    SDL_Color black = { 0, 0, 0, 255 }; // Màu nền text
-    // SỬA LỖI: Dùng 4 tham số (font, text, foreground, background)
-    SDL_Color background_color = { 0, 0, 0, 0 }; // Background trong suốt (alpha = 0)
+    SDL_Color black = { 0, 0, 0, 255 };
+    SDL_Color background_color = { 0, 0, 0, 0 }; 
     SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(),0,color);
     if (!surface) {
         std::cerr << "TTF_RenderText_Blended Error: " << SDL_GetError() << std::endl;
@@ -64,14 +60,14 @@ void MainMenu::Reset() {
 
 void MainMenu::SetupButtons() {
     float centerX = GameConstants::LOGICAL_WIDTH / 2.0f;
-    float startY = GameConstants::LOGICAL_HEIGHT / 2.0f;
-    float spacing = 50.0f;
-    float buttonWidth = 250.0f;
-    float buttonHeight = 35.0f; // Ước tính chiều cao text
+    float startY = GameConstants::LOGICAL_HEIGHT / 2.5f;
+    float spacing = 55.0f;
+    float buttonWidth = 200.0f;
+    float buttonHeight = 35.0f; 
 
     // START GAME
     buttons[0] = {
-        "BAT DAU",
+        "PLAY",
         { centerX, startY + 10.0f },
         buttonWidth, buttonHeight,
         MainMenuChoice::START_GAME
@@ -79,7 +75,7 @@ void MainMenu::SetupButtons() {
 
     // OPTIONS
     buttons[1] = {
-        "THIET LAP",
+        "SETTINGS",
         { centerX, startY + 10.0f + spacing },
         buttonWidth, buttonHeight,
         MainMenuChoice::OPTIONS
@@ -87,7 +83,7 @@ void MainMenu::SetupButtons() {
 
     // QUIT
     buttons[2] = {
-        "THOAT GAME",
+        "EXIT",
         { centerX, startY + 10.0f + spacing * 2 },
         buttonWidth, buttonHeight,
         MainMenuChoice::QUIT
@@ -100,13 +96,12 @@ void MainMenu::Update(float deltaTime) {
     }
 }
 
-// Xử lý Input bằng bàn phím
 void MainMenu::HandleKeyboardInput() {
     if (inputTimer > 0) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
 
-    int maxOption = 2; // 0, 1, 2
+    int maxOption = 2;
 
     if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
         selectedOption = (selectedOption - 1 + (maxOption + 1)) % (maxOption + 1);
@@ -122,27 +117,24 @@ void MainMenu::HandleKeyboardInput() {
     }
 }
 
-// Xử lý BẤM CHUỘT (Click)
+
 void MainMenu::HandleMouseClick(float mouseX, float mouseY) {
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
 
-        // Tính toán hộp va chạm (Hitbox) của nút
         float buttonX = button.pos.x - button.width / 2.0f;
         float buttonY = button.pos.y - button.height / 2.0f;
 
-        // Kiểm tra xem chuột có nằm trong hitbox không
         if (mouseX >= buttonX && mouseX <= buttonX + button.width &&
             mouseY >= buttonY && mouseY <= buttonY + button.height) {
 
-            selectedOption = i; // Cập nhật tùy chọn được chọn
+            selectedOption = i; 
             currentChoice = button.choice;
             return;
         }
     }
 }
 
-// Xử lý DI CHUỘT (Motion/Hover)
 void MainMenu::HandleMouseMotion(float mouseX, float mouseY) {
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
@@ -153,7 +145,7 @@ void MainMenu::HandleMouseMotion(float mouseX, float mouseY) {
         if (mouseX >= buttonX && mouseX <= buttonX + button.width &&
             mouseY >= buttonY && mouseY <= buttonY + button.height) {
 
-            selectedOption = i; // Tô sáng nút khi di chuột qua
+            selectedOption = i; 
             return;
         }
     }
@@ -161,39 +153,44 @@ void MainMenu::HandleMouseMotion(float mouseX, float mouseY) {
 
 
 void MainMenu::Render() {
-    // Không cần lớp phủ đen nếu đây là Main Menu (thường vẽ background riêng)
-    // Nếu muốn giống Game Over Menu:
-    /*
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
-    SDL_FRect overlayRect = { 0.0f, 0.0f, (float)GameConstants::LOGICAL_WIDTH, (float)GameConstants::LOGICAL_HEIGHT };
-    SDL_RenderFillRect(renderer, &overlayRect);
-    */
 
     float centerX = GameConstants::LOGICAL_WIDTH / 2.0f;
     float centerY = GameConstants::LOGICAL_HEIGHT / 2.0f;
 
-    SDL_Color colorTitle = { 0, 255, 0, 255 }; // Xanh lá cây
-    SDL_Color colorDefault = { 255, 255, 255, 255 }; // Trắng
-    SDL_Color colorSelected = { 255, 255, 0, 255 }; // Vàng
+    SDL_Color colorTitle = { 0, 255, 0, 255 }; 
+    SDL_Color colorDefault = { 255, 255, 255, 255 }; 
+    SDL_Color colorSelected = { 255, 255, 0, 255 };
 
-    // Tiêu đề
-    RenderText(renderer, font, "GAME TITLE", { centerX, centerY - 100.0f }, colorTitle, true);
 
-    // Render các nút
+    const SDL_Color selectionFillColor = { 0, 0, 0, 150 }; 
+    const SDL_Color borderColor = { 255, 255, 255, 255 }; 
+    const float paddingX = 6.0f; 
+    const float paddingY = 6.0f;
+
+  
+    RenderText(renderer, font, "GAME MONSTER", { centerX, centerY - 100.0f }, colorTitle, true);
+
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
 
-        SDL_Color color = (i == selectedOption) ? colorSelected : colorDefault;
+        SDL_Color textColor = (i == selectedOption) ? colorSelected : colorDefault; 
 
-        // Vẽ Hitbox (chỉ để Debug)
-        /*
-        SDL_SetRenderDrawColor(renderer, 0, 255, 0, 100);
-        SDL_FRect debugRect = { button.pos.x - button.width / 2.0f, button.pos.y - button.height / 2.0f, button.width, button.height };
-        SDL_RenderFillRect(renderer, &debugRect);
-        */
+        SDL_FRect frameRect = {
+            button.pos.x - button.width / 2.0f - paddingX,
+            button.pos.y - button.height / 2.0f - paddingY,
+            button.width + paddingX * 2.0f,
+            button.height + paddingY * 2.0f
+        };
 
-        // Vẽ Text
-        RenderText(renderer, font, button.text, button.pos, color, true);
+        if (i == selectedOption) {
+            SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+            SDL_SetRenderDrawColor(renderer, selectionFillColor.r, selectionFillColor.g, selectionFillColor.b, selectionFillColor.a);
+            SDL_RenderFillRect(renderer, &frameRect);
+        }
+
+        SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, borderColor.a);
+        SDL_RenderRect(renderer, &frameRect);
+
+        RenderText(renderer, font, button.text, button.pos, textColor, true);
     }
 }

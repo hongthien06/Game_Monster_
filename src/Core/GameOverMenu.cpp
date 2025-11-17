@@ -98,6 +98,6 @@ void GameOverMenu::Render() {
     SDL_Color colorQuit = (selectedOption == 1) ? SDL_Color{ 255, 255, 0, 255 } : SDL_Color{ 255, 255, 255, 255 };
 
     RenderText(renderer, font, "GAME OVER", { centerX, centerY - 50.0f }, colorTitle, true);
-    RenderText(renderer, font, "Choi Lai", { centerX, centerY + 10.0f }, colorReplay, true);
+    RenderText(renderer, font, "Quay Lai", { centerX, centerY + 10.0f }, colorReplay, true);
     RenderText(renderer, font, "Thoat Game", { centerX, centerY + 40.0f }, colorQuit, true);
 }
