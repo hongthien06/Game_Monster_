@@ -110,6 +110,9 @@ bool Game::init() {
     // ===== SPAWN ENEMIES =====
     initEnemies();
 
+    // ===== SPAWN ITEMS =====
+    initItems();
+
     playerHUD = new HUD(renderer);
     playerHUD->LoadResources();
 
@@ -293,6 +296,31 @@ bool Game::loadItemTextures() {
     return true;
 }
 
+// ===== KHỞI TẠO CÁC ITEM TRÊN BẢN ĐỒ =====
+void Game::initItems() {
+    std::cout << "===== BAT DAU SPAWN ITEMS =====\n";
+    
+    // Spawn các Health Potion từ Heal_Spawn points
+    for (auto& pos : map->GetSpawn(8)) {
+        auto potion = std::make_unique<Item>(glm::vec2(pos.x, pos.y), healthPotionTex, ItemType::HEALTH_POTION);
+        potion->floatAmplitude = 8.0f;
+        potion->floatSpeed = 2.0f;
+        items.push_back(std::move(potion));
+        std::cout << "Spawn Health Potion tai (" << pos.x << ", " << pos.y << ")\n";
+    }
+    
+    // Spawn các Coin từ Coin_Spawn points
+    for (auto& pos : map->GetSpawn(9)) {
+        auto coin = std::make_unique<Item>(glm::vec2(pos.x, pos.y), coinTex, ItemType::COIN);
+        coin->floatAmplitude = 6.0f;
+        coin->floatSpeed = 3.0f;
+        items.push_back(std::move(coin));
+        std::cout << "Spawn Coin tai (" << pos.x << ", " << pos.y << ")\n";
+    }
+    
+    std::cout << "===== DA SPAWN " << items.size() << " ITEMS =====\n";
+}
+
 void Game::spawnCoinAtPosition(glm::vec2 pos, int amount) {
     // Spawn nhiều coins rải rác xung quanh vị trí
     for (int i = 0; i < amount; i++) {
@@ -435,52 +463,58 @@ for (auto& pos : map->GetSpawn(3)) {
     // ===== VÙNG 2: SPAWN 3 TROLL ELITES (X: 600-900) =====
 
     // TROLL 1
+for (auto& pos : map->GetSpawn(4)) {
     enemies.push_back(std::make_unique<Elites>(
         renderer,
-        glm::vec2(600.0f, GameConstants::FLOOR_Y - 64.0f),  // Lớn hơn nên offset lớn hơn
+        glm::vec2(pos.x, pos.y),
         TrollType::TROLL_1
     ));
     enemies.back()->SetPatrolPoints(
-        glm::vec2(550.0f, GameConstants::FLOOR_Y - 64.0f),
-        glm::vec2(650.0f, GameConstants::FLOOR_Y - 64.0f)
+        glm::vec2(pos.x, pos.y - 48.0f),
+        glm::vec2(pos.x, pos.y - 48.0f)
     );
-    enemies.back()->SetCoinDropAmount(3);
+    enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-        });
+    });
+}
 
     // TROLL 2
+for (auto& pos : map->GetSpawn(5)) {
     enemies.push_back(std::make_unique<Elites>(
         renderer,
-        glm::vec2(750.0f, GameConstants::FLOOR_Y - 64.0f),
+        glm::vec2(pos.x, pos.y),
         TrollType::TROLL_2
     ));
     enemies.back()->SetPatrolPoints(
-        glm::vec2(700.0f, GameConstants::FLOOR_Y - 64.0f),
-        glm::vec2(800.0f, GameConstants::FLOOR_Y - 64.0f)
+        glm::vec2(pos.x, pos.y - 48.0f),
+        glm::vec2(pos.x, pos.y - 48.0f)
     );
-    enemies.back()->SetCoinDropAmount(3);
+    enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-        });
+    });
+}
 
     // TROLL 3
+    for (auto& pos : map->GetSpawn(6)) {
     enemies.push_back(std::make_unique<Elites>(
         renderer,
-        glm::vec2(900.0f, GameConstants::FLOOR_Y - 64.0f),
+        glm::vec2(pos.x, pos.y),
         TrollType::TROLL_3
     ));
     enemies.back()->SetPatrolPoints(
-        glm::vec2(850.0f, GameConstants::FLOOR_Y - 64.0f),
-        glm::vec2(950.0f, GameConstants::FLOOR_Y - 64.0f)
+        glm::vec2(pos.x, pos.y - 48.0f),
+        glm::vec2(pos.x, pos.y - 48.0f)
     );
-    enemies.back()->SetCoinDropAmount(3);
+    enemies.back()->SetCoinDropAmount(1);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-        });
+    });
+}
 
     // ===== VÙNG 3: SPAWN BOSS (X: 1300+) =====
     enemies.push_back(std::make_unique<Boss>(

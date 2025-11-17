@@ -71,10 +71,13 @@ private:
     vector<SDL_FPoint> minion1_Spawns;
     vector<SDL_FPoint> minion2_Spawns;
     vector<SDL_FPoint> minion3_Spawns;
-
+    vector<SDL_FPoint> elite1_Spawns;
+    vector<SDL_FPoint> elite2_Spawns;
+    vector<SDL_FPoint> elite3_Spawns;
+    vector<SDL_FPoint> Heal_Spawn;
+    vector<SDL_FPoint> Coin_Spawn;
+    
     SDL_FPoint boss_Spawn;
-    SDL_FPoint Heal_Spawn;
-    SDL_FPoint Coin_Spawn;
 
     vector<TileLayer> tileLayers;
     vector<CollisionBox> collisions;
@@ -83,6 +86,6 @@ private:
     vector<vector<SDL_FPoint>> collisionPolygons;
 
     // Bản đồ lưu polygon gốc theo tileID trong tileset
-    unordered_map<int, std::vector<SDL_FPoint>> tilePolygons;
+    unordered_map<int, vector<SDL_FPoint>> tilePolygons;
     unordered_map<int, CollisionBox> tileBoxes;
 };

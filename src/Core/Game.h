@@ -70,7 +70,7 @@ public:
     void cleanup();
 
     bool loadItemTextures();
-   // void spawnInitialItems();
+    void initItems();
     void checkItemCollisions();
     void spawnCoinAtPosition(glm::vec2 pos, int amount);
     void spawnHealthPotionAtPosition(glm::vec2 pos);

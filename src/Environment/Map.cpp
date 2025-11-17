@@ -18,9 +18,12 @@ Map::Map(SDL_Renderer* renderer)
     minion1_Spawns;
     minion2_Spawns;
     minion3_Spawns;
+    elite1_Spawns;
+    elite2_Spawns;
+    elite3_Spawns;
     boss_Spawn = {0, 0};
-    Heal_Spawn = {0, 0};
-    Coin_Spawn = {0, 0};
+    Heal_Spawn;
+    Coin_Spawn;
     bgFar  = IMG_LoadTexture(renderer, "assets/images/Layers/1.png");
     bgMid  = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
     bgNear = IMG_LoadTexture(renderer, "assets/images/Layers/3.png");
@@ -191,6 +194,15 @@ void Map::LoadObjects(const json& mapData) {
                         if (propName == "Player_1") {
                             playerSpawn = {x, y};
                         }
+                        else if (propName == "Elite_1") {
+                            elite1_Spawns.push_back({x, y});
+                        }
+                        else if (propName == "Elite_2") {
+                            elite2_Spawns.push_back({x, y});
+                        }
+                        else if (propName == "Elite_3") {
+                            elite3_Spawns.push_back({x, y});
+                        }
                         else if (propName == "Minion_1") {
                             minion1_Spawns.push_back({x, y});
                         }
@@ -204,10 +216,10 @@ void Map::LoadObjects(const json& mapData) {
                             boss_Spawn = {x, y};
                         }
                         else if (propName == "Heal_") {
-                            Heal_Spawn = {x, y};
+                            Heal_Spawn.push_back({x, y});
                         }
                         else if (propName == "Coin_") {
-                            Coin_Spawn = {x, y};
+                            Coin_Spawn.push_back({x, y});
                         }
                     }
                 }
@@ -284,11 +296,17 @@ vector<SDL_FPoint> Map::GetSpawn(int x) {
     else if (x == 3)
       return minion3_Spawns;  
     else if (x == 4)
-      return {boss_Spawn};
+      return elite1_Spawns;  
     else if (x == 5)
-      return {Heal_Spawn};
+      return elite2_Spawns;
     else if (x == 6)
-      return {Coin_Spawn};      
+      return elite3_Spawns;
+    else if (x == 7)
+      return {boss_Spawn};
+    else if (x == 8)
+      return Heal_Spawn;
+    else if (x == 9)
+      return Coin_Spawn;      
     return {{0.0f,0.0f}};  
 }
 
