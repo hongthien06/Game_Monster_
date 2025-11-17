@@ -132,7 +132,7 @@ void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
 
     // Chỉ phát âm thanh khi vừa chạm đất và cooldown hết, và player đang có vận tốc Y cao (bất kỳ)
     if (!wasOnGroundOld && isOnGround && landedSoundCooldown <= 0.0f) {
-        std::cout << "Playing jump_landed sound! wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";
+        /*std::cout << "Playing jump_landed sound! wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";*/
         audio.playSound("assets/audio/jump_landed.wav");
         landedSoundCooldown = 0.4f;  // Tăng cooldown thành 0.3s để tránh lặp
     }
@@ -141,7 +141,7 @@ void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
     static float debugTimer = 0.0f;
     debugTimer += deltaTime;
     if (debugTimer > 0.5f) {
-        std::cout << "wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";
+        /*std::cout << "wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";*/
         debugTimer = 0.0f;
     }
 
