@@ -1,6 +1,7 @@
 ﻿#include "MainMenu.h"
 #include <glm/glm.hpp>
 #include "../Config/GameConstants.h"
+#include <string>
 
 void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
     glm::vec2 pos, SDL_Color color, bool center = false)
