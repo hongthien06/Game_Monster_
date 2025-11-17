@@ -30,8 +30,9 @@ Game::Game()
     healthPotionTex(nullptr),
     audio(nullptr),
     playerHUD(nullptr),
-    currentGameState(GameState::PLAYING), 
-    mainFont(nullptr)                     
+    currentGameState(GameState::MAIN_MENU), 
+    mainFont(nullptr),
+    mainMenu(nullptr)
     //gameOverMenu(nullptr),    // THÊM DÒNG NÀY
     //showGameOverMenu(false)
 {
@@ -121,8 +122,9 @@ bool Game::init() {
     audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
+    mainMenu = std::make_unique<MainMenu>(renderer, mainFont);
     gameOverMenu = std::make_unique<GameOverMenu>(renderer, mainFont);
-    currentGameState = GameState::PLAYING;
+    currentGameState = GameState::MAIN_MENU;
 
     return true;
 }
@@ -153,6 +155,25 @@ void Game::handleEvents() {
     while (SDL_PollEvent(&event)) {
         if (event.type == SDL_EVENT_QUIT)
             isGameRunning = false;
+        if (currentGameState == GameState::MAIN_MENU) {
+            // Xử lý Phím (Chuyển giữa các lựa chọn)
+            mainMenu->HandleKeyboardInput();
+
+            // Xử lý Di chuột (Tô sáng lựa chọn)
+            if (event.type == SDL_EVENT_MOUSE_MOTION) {
+                mainMenu->HandleMouseMotion((float)event.motion.x, (float)event.motion.y);
+            }
+
+            // Xử lý Click chuột (Chọn)
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
+                mainMenu->HandleMouseClick((float)event.button.x, (float)event.button.y);
+            }
+        }
+        else if (currentGameState == GameState::GAME_OVER) {
+            // Xử lý input cho Game Over Menu
+            gameOverMenu->HandleInput(); // Hàm này đã có xử lý phím
+            // Nếu bạn muốn thêm chuột cho GameOver, làm tương tự như Main Menu ở đây
+        }
     }
     SDL_PumpEvents();
 }
@@ -162,6 +183,21 @@ void Game::update(float deltaTime) {
     // Cap nhat chuyen dong, hoat anh nhan vat
     switch (currentGameState) {
 
+    case GameState::MAIN_MENU: // <-- THÊM KHỐI MAIN MENU
+    {
+        mainMenu->Update(deltaTime);
+        MainMenuChoice choice = mainMenu->GetChoice();
+
+        if (choice == MainMenuChoice::START_GAME) {
+            resetGame(); // Chuẩn bị game
+            currentGameState = GameState::PLAYING; // Bắt đầu chơi
+        }
+        else if (choice == MainMenuChoice::QUIT) {
+            isGameRunning = false;
+        }
+        // Thêm logic cho OPTIONS tại đây nếu cần (chuyển sang trạng thái OPTIONS)
+        break;
+    }
     case GameState::PLAYING:
     {
         // Cap nhat chuyen dong, hoat anh nhan vat
@@ -254,6 +290,9 @@ void Game::render() {
 
     if (currentGameState == GameState::GAME_OVER) {
         gameOverMenu->Render();
+    }
+    else if (currentGameState == GameState::MAIN_MENU) { // <-- THÊM KHỐI MAIN MENU
+        mainMenu->Render();
     }
 
     SDL_RenderPresent(renderer);
@@ -627,4 +666,6 @@ void Game::resetGame() {
     
     items.clear();
     currentGameState = GameState::PLAYING;
+    mainMenu->Reset(); // <-- RESET MAIN MENU
+    gameOverMenu->Reset();
 }

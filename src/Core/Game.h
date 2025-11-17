@@ -14,6 +14,7 @@
 #include "../Environment/Item.h"
 #include "../Core/Audio.h"
 #include "../Core/HUD.h" 
+#include "../Core/MainMenu.h"
 #include "../Core/GameOverMenu.h"
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -25,6 +26,7 @@
 #include "../Components/Effect.h"
 
 enum class GameState {
+    MAIN_MENU,
     PLAYING,
     GAME_OVER
 };
@@ -57,7 +59,8 @@ private:
     GameState currentGameState;
     glm::vec2 playerStartPos;
 
-    TTF_Font* mainFont; // Font dùng chung (bạn sẽ cần load nó trong init)
+    TTF_Font* mainFont;
+    std::unique_ptr<MainMenu> mainMenu;
     std::unique_ptr<GameOverMenu> gameOverMenu;
 
 public:
