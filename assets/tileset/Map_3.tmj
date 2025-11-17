@@ -43,7 +43,7 @@
                  "visible":true,
                  "width":38.6667,
                  "x":60,
-                 "y":181.333333333333
+                 "y":181.333
                 }, 
                 {
                  "height":108,
@@ -129,6 +129,57 @@
                  "width":32,
                  "x":1456,
                  "y":137.333
+                }, 
+                {
+                 "height":30,
+                 "id":8,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"Heal_",
+                         "type":"object",
+                         "value":8
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":26,
+                 "x":618,
+                 "y":149.333333333333
+                }, 
+                {
+                 "height":34,
+                 "id":9,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"Heal_",
+                         "type":"object",
+                         "value":9
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":32,
+                 "x":192,
+                 "y":208
+                }, 
+                {
+                 "height":38,
+                 "id":10,
+                 "name":"",
+                 "properties":[
+                        {
+                         "name":"Heal_",
+                         "type":"object",
+                         "value":10
+                        }],
+                 "rotation":0,
+                 "type":"",
+                 "visible":true,
+                 "width":28,
+                 "x":253.333333333333,
+                 "y":205.333333333333
                 }],
          "opacity":1,
          "type":"objectgroup",
@@ -158,7 +209,7 @@
          "y":0
         }],
  "nextlayerid":5,
- "nextobjectid":8,
+ "nextobjectid":11,
  "orientation":"orthogonal",
  "renderorder":"right-up",
  "tiledversion":"1.11.2",

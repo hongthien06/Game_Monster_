@@ -88,9 +88,10 @@ bool Game::init() {
     if (!loadItemTextures()) return false;
 
     map = new Map(renderer);
-    if (!map->loadMap("assets/tileset/Map_2.tmj")) {
+    if (!map->loadMap("assets/tileset/Map_1.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
     }
+    currentMapName = "Map_3.tmj";  // Lưu tên map hiện tại
  // Tai vi tri spawn
     auto playerSpawns = map->GetSpawn(0);
     player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
@@ -241,7 +242,7 @@ void Game::render() {
     #endif  // Thêm dòng này
 
     // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
-    map->drawCollisionDebug(offset);
+    //map->drawCollisionDebug(offset);
 
     for (const auto& item : items)
         item->Render(renderer, offset);
@@ -516,16 +517,27 @@ for (auto& pos : map->GetSpawn(5)) {
     });
 }
 
-    // ===== VÙNG 3: SPAWN BOSS (X: 1300+) =====
-    enemies.push_back(std::make_unique<Boss>(
-        renderer,
-        glm::vec2(1300.0f, GameConstants::FLOOR_Y - 96.0f)  // Boss lớn nhất
-    ));
-    enemies.back()->SetCoinDropAmount(10);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-        });
+    // ===== VÙNG 3: SPAWN BOSS (CHỈ TRONG MAP_3) =====
+    if (currentMapName == "Map_3.tmj") {
+        auto bossSpawn = map->GetSpawn(7);
+        if (!bossSpawn.empty()) {
+            enemies.push_back(std::make_unique<Boss>(
+                renderer,
+                glm::vec2(bossSpawn[0].x, bossSpawn[0].y)
+            ));
+        } else {
+            // Fallback nếu không có spawn point
+            enemies.push_back(std::make_unique<Boss>(
+                renderer,
+                glm::vec2(1300.0f, GameConstants::FLOOR_Y - 96.0f)
+            ));
+        }
+        enemies.back()->SetCoinDropAmount(10);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
 
     std::cout << "===== DA SPAWN " << enemies.size() << " ENEMIES =====\n";
 }
@@ -542,14 +554,7 @@ void Game::updateEnemies(float deltaTime) {
         enemy->Update(deltaTime, *map);
     }
 
-    // Xóa enemies đã chết sau 2 giây
-    enemies.erase(
-        std::remove_if(enemies.begin(), enemies.end(),
-            [](const std::unique_ptr<Enemy>& e) {
-                return !e->IsAlive() && e->GetDeathTimer() > 2.0f;
-            }),
-        enemies.end()
-    );
+    // Không xóa enemies đã chết - giữ lại để reset khi chơi lại
 }
 
 // ===== KIỂM TRA VA CHẠM =====
@@ -614,9 +619,12 @@ void Game::checkEnemyCollisions() {
 }
 void Game::resetGame() {
     player->Reset(playerStartPos);
+    
+    // Reset tất cả enemies về trạng thái ban đầu (chứ không xóa)
     for (auto& enemy : enemies) {
         enemy->ResetToStartPosition();
     }
+    
     items.clear();
     currentGameState = GameState::PLAYING;
 }

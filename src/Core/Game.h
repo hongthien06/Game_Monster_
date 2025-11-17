@@ -43,6 +43,8 @@ private:
     Audio* audio;
     HUD* playerHUD;
 
+    std::string currentMapName;  // Lưu tên map hiện tại
+
     std::vector<std::unique_ptr<Item>> items;
     SDL_Texture* coinTex;
     SDL_Texture* healthPotionTex;
