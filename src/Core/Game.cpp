@@ -97,7 +97,7 @@ bool Game::init() {
     if (!map->loadMap("assets/tileset/Map_1.tmj")) {
         std::cerr << "Failed to load map." << std::endl;
     }
-    currentMapName = "Map_3.tmj";  // Lưu tên map hiện tại
+    currentMapName = "assets/tileset/Map_1.tmj";  // Lưu tên map hiện tại
  // Tai vi tri spawn
     auto playerSpawns = map->GetSpawn(0);
     player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
@@ -572,7 +572,7 @@ void Game::initEnemies() {
         enemies.push_back(std::make_unique<Minions>(
             renderer,
             glm::vec2(pos.x, pos.y),
-            MinionType::ORC_BERSERK
+            MinionType::ORC_SHAMAN
         ));
 
         // ===== SỬA ĐÂY =====
@@ -596,7 +596,7 @@ void Game::initEnemies() {
         enemies.push_back(std::make_unique<Minions>(
             renderer,
             glm::vec2(pos.x, pos.y),
-            MinionType::ORC_BERSERK
+            MinionType::ORC_WARRIOR
         ));
 
         // ===== SỬA ĐÂY =====
@@ -744,6 +744,18 @@ void Game::updateEnemies(float deltaTime) {
         }
 
         enemy->Update(deltaTime, *map);
+        // Xóa enemy đã chết
+enemies.erase(
+    std::remove_if(enemies.begin(), enemies.end(),
+        [](auto& e) { return !e->IsAlive(); }),
+    enemies.end()
+);
+
+// Nếu hết quái => chuyển map
+if (enemies.empty()) {
+    LoadNextMap();
+}
+
     }
 }
 
@@ -853,3 +865,36 @@ void Game::resetGame() {
     mainMenu->Reset(); // <-- RESET MAIN MENU
     gameOverMenu->Reset();
 }
+
+void Game::LoadNextMap() {
+    // Xác định map kế tiếp
+    if (currentMapName == "assets/tileset/Map_1.tmj")
+        currentMapName = "assets/tileset/Map_2.tmj";
+    else if (currentMapName == "assets/tileset/Map_2.tmj")
+        currentMapName = "assets/tileset/Map_3.tmj";
+    else {
+        std::cout << "No more maps!\n";
+        return;
+    }
+
+    // Load map mới
+    delete map;
+    map = new Map(renderer);
+    map->loadMap(currentMapName);
+
+    // Clear dữ liệu cũ
+    enemies.clear();
+    items.clear();
+
+    // Spawn mới
+    initEnemies();
+    initItems();
+
+    // Cập nhật lại vị trí player
+    auto spawn = map->GetSpawn(0);
+    if (!spawn.empty()) {
+        player->SetPosition(glm::vec2(spawn[0].x, spawn[0].y));
+        player->SnapToGround(*map);
+    }
+}
+

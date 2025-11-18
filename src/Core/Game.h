@@ -91,6 +91,7 @@ public:
     void checkItemCollisions();
     void spawnCoinAtPosition(glm::vec2 pos, int amount);
     void spawnHealthPotionAtPosition(glm::vec2 pos);
+    void LoadNextMap();
 
 
     // ===== ENEMY METHODS =====
