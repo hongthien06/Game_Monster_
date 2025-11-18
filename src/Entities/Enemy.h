@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "Character.h"
 #include <functional>
+#include "../Core/Audio.h"
 
 // CHỈ 7 TRẠNG THÁI
 enum class EnemyState {
@@ -84,6 +85,9 @@ protected:
     glm::vec2 initialPatrolPointA;
     glm::vec2 initialPatrolPointB;
 
+    // Audio system
+    Audio* audioSystem;
+
     // VIRTUAL: lớp con override để trả frames riêng
     virtual FrameConfig GetFrameConfig(EnemyState state) const = 0;
 
@@ -139,6 +143,7 @@ public:
         onDeathCallback = callback;
     }
     void SetRenderSize(float w, float h) { renderWidth = w; renderHeight = h; }
+    void SetAudioSystem(Audio* audio) { audioSystem = audio; }
 
     bool IsAlive() const { return isAlive; }
     EnemyState GetEnemyState() const { return enemyState; }

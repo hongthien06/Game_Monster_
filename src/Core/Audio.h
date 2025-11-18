@@ -24,6 +24,7 @@ public:
     ~Audio();
     void update(float deltaTime); 
     void playSound(const std::string& filePath, bool loop = false);
+    void playSound(const std::string& filePath, bool loop, float volume);
     void stopAll();
     void playBGM(const std::string& filePath, bool loop, float volume);
     void stopBGM();

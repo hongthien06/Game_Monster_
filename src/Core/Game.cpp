@@ -474,6 +474,7 @@ for (auto& pos : map->GetSpawn(1)) {
         glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
+    enemies.back()->SetAudioSystem(audio);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -492,6 +493,7 @@ for (auto& pos : map->GetSpawn(2)) {
         glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
+    enemies.back()->SetAudioSystem(audio);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -510,6 +512,7 @@ for (auto& pos : map->GetSpawn(3)) {
         glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
+    enemies.back()->SetAudioSystem(audio);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -531,6 +534,7 @@ for (auto& pos : map->GetSpawn(4)) {
         glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
+    enemies.back()->SetAudioSystem(audio);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -549,6 +553,7 @@ for (auto& pos : map->GetSpawn(5)) {
         glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
+    enemies.back()->SetAudioSystem(audio);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -567,6 +572,7 @@ for (auto& pos : map->GetSpawn(5)) {
         glm::vec2(pos.x, pos.y - 48.0f)
     );
     enemies.back()->SetCoinDropAmount(1);
+    enemies.back()->SetAudioSystem(audio);
     enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
         spawnCoinAtPosition(pos, amount);
         spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -589,6 +595,7 @@ for (auto& pos : map->GetSpawn(5)) {
             ));
         }
         enemies.back()->SetCoinDropAmount(10);
+        enemies.back()->SetAudioSystem(audio);
         enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
             spawnCoinAtPosition(pos, amount);
             spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
@@ -642,6 +649,11 @@ void Game::checkEnemyCollisions() {
                     15.0f,
                     SDL_Color{ 255, 150, 0, 255 }
                 );
+
+                // Phát âm thanh khi mũi tên trúng
+                if (audio) {
+                    audio->playSound("assets/audio/bantrung.mp3", false, 0.5f);
+                }
 
                 std::cout << "Projectile trung Enemy!\n";
                 break;
