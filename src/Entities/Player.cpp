@@ -599,6 +599,9 @@ void Player::SpawnArrow() {
 
     projectile->SetTrailColor({ 100, 200, 255, 255 });
     projectiles.push_back(std::move(projectile));
+
+    // Phát âm thanh bay đi của mũi tên
+    audio.playSound("assets/audio/ten_bay_ra.mp3", false);
 }
 
 // ===== HEAL =====

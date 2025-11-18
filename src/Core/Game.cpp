@@ -626,6 +626,11 @@ void Game::checkEnemyCollisions() {
                     SDL_Color{ 255, 150, 0, 255 }
                 );
 
+                // Phát âm thanh khi mũi tên trúng
+                if (audio) {
+                    audio->playSound("assets/audio/bantrung.mp3", false);
+                }
+
                 std::cout << "Projectile trung Enemy!\n";
                 break;
             }
