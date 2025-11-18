@@ -628,7 +628,7 @@ void Game::checkEnemyCollisions() {
 
                 // Phát âm thanh khi mũi tên trúng
                 if (audio) {
-                    audio->playSound("assets/audio/bantrung.mp3", false);
+                    audio->playSound("assets/audio/bantrung.mp3", false, 0.5f);
                 }
 
                 std::cout << "Projectile trung Enemy!\n";

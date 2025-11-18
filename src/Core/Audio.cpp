@@ -45,6 +45,22 @@ void Audio::playSound(const std::string& filePath, bool loop) {
     activeSounds.push_back(sound);
 }
 
+void Audio::playSound(const std::string& filePath, bool loop, float volume) {
+    cleanupFinishedSounds();
+
+    ma_sound* sound = new ma_sound;
+    if (ma_sound_init_from_file(&engine, filePath.c_str(), 0, NULL, NULL, sound) != MA_SUCCESS) {
+        cerr << "Khong the tai am thanh: " << filePath << "\n";
+        delete sound;
+        return;
+    }
+
+    ma_sound_set_looping(sound, loop);
+    ma_sound_set_volume(sound, volume);
+    ma_sound_start(sound);
+    activeSounds.push_back(sound);
+}
+
 void Audio::cleanupFinishedSounds() {
     auto it = activeSounds.begin();
     while (it != activeSounds.end()) {
