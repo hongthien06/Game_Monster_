@@ -47,7 +47,10 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     projectileSpeed(600.0f),
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
-    arrowSpawnFrame(13)
+    arrowSpawnFrame(13),
+    // ===== INVENTORY - KHỞI TẠO TÚI ĐỒ =====
+    healthPotionCount(0),      // Bắt đầu không có potion
+    maxHealthPotions(5)        // Tối đa 5 potion
 {
     // Không cần LoadAllTextures() nữa - đã load trong Character constructor
 }
@@ -71,6 +74,61 @@ void Player::HandleInput() {
     if (keys[SDL_SCANCODE_K]) {
         Shot();
     }
+
+    static bool hKeyWasPressed = false;
+    bool hKeyPressed = keys[SDL_SCANCODE_H];
+
+    if (hKeyPressed && !hKeyWasPressed) {
+        UseHealthPotion();
+    }
+
+    hKeyWasPressed = hKeyPressed;
+}
+
+// ===== THÊM MỚI: SỬ DỤNG HEALTH POTION =====
+void Player::UseHealthPotion() {
+    // Kiểm tra điều kiện sử dụng
+    if (!isAlive) {
+        std::cout << "[Player] Khong the dung potion khi da chet!\n";
+        return;
+    }
+
+    if (healthPotionCount <= 0) {
+        std::cout << "[Player] Khong co Health Potion de dung!\n";
+        //audio.playSound("assets/audio/error.wav");  // Optional: âm thanh lỗi
+        return;
+    }
+
+    if (health >= maxHealth) {
+        std::cout << "[Player] Mau da day, khong can dung potion!\n";
+        return;
+    }
+
+    // Sử dụng potion
+    healthPotionCount--;
+    int healAmount = GameConstants::HEALTH_POTION_HEAL_AMOUNT;
+    health = std::min(health + healAmount, maxHealth);
+
+    std::cout << "[Player] Da su dung Health Potion! (" << healthPotionCount << " con lai) HP: "
+        << health << "/" << maxHealth << "\n";
+
+    // Phát âm thanh (nếu có)
+    //audio.playSound("assets/audio/heal");
+}
+
+// ===== THÊM MỚI: THÊM POTION VÀO TÚI =====
+void Player::AddHealthPotion() {
+    if (healthPotionCount >= maxHealthPotions) {
+        std::cout << "[Player] Tui da day! Khong the mang them potion.\n";
+        return;
+    }
+
+    healthPotionCount++;
+    std::cout << "[Player] Nhat duoc Health Potion! Hien co: "
+        << healthPotionCount << "/" << maxHealthPotions << "\n";
+
+    // Phát âm thanh nhặt đồ
+    //audio.playSound("assets/audio/pickup.wav");
 }
 
 // ===== UPDATE PLAYER STATE =====
@@ -368,12 +426,11 @@ void Player::Update(float deltaTime, Map& map) {
 
 // ===== RENDER =====
 void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    // FIX: NHẤP NHÁY KHI INVULNERABLE
     if (isFlashing && (int)(iFramesTimer * 10) % 2 == 0) {
-        return;  // KHÔNG VẼ FRAME NÀY
+        return;
     }
 
-    // Render projectiles trước
+    // Render projectiles
     for (auto& proj : projectiles) {
         proj->Render(renderer, cameraOffset);
     }
@@ -450,22 +507,19 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
             maxHealth,
             position,
             cameraOffset,
-            45.0f,   // Độ rộng thanh máu
-            true      // isPlayer = true (màu xanh lá)
+            45.0f,
+            true
         );
     }
 
-    // ===== VẼ SỐ MẠNG CÒN LẠI (LIVES) Ở GÓC TRÊN =====
-    // Mỗi mạng = 1 trái tim lớn
+    // ===== VẼ SỐ MẠNG (LIVES) =====
     float liveHeartSize = 20.0f;
     float liveHeartSpacing = 24.0f;
     float liveHeartX = screenWidth - 80.0f;
-    float liveHeartY = screenHeight - 285.0f; // Vẽ phía trên thanh máu
+    float liveHeartY = screenHeight - 285.0f;
 
     for (int i = 0; i < maxLives; i++) {
         float heartX = liveHeartX + i * liveHeartSpacing;
-
-        // Frame 0 = trái tim đỏ (còn mạng), Frame 1 = trái tim xám (hết mạng)
         int frameIndex = (i < lives) ? 0 : 1;
 
         SDL_FRect srcRect = {

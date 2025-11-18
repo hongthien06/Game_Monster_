@@ -2,9 +2,16 @@
 #include <SDL3_image/SDL_image.h>
 #include <iostream>
 #include <algorithm>
+#include "../Entities/Player.h"
 
 HUD::HUD(SDL_Renderer* renderer)
-    : renderer(renderer), font(nullptr), coinIconTex(nullptr), score(0) {
+    : renderer(renderer),
+    font(nullptr),
+    coinIconTex(nullptr),
+    potionIconTex(nullptr),
+    score(0),
+    playerRef(nullptr)
+{
 }
 
 HUD::~HUD() {
@@ -23,6 +30,14 @@ bool HUD::LoadResources() {
         std::cerr << "Failed to load coin icon: " << SDL_GetError() << std::endl;
         return false;
     }
+
+    // DEBUG: Kiểm tra load potion icon
+    potionIconTex = IMG_LoadTexture(renderer, "assets/items/potion4.png");
+    if (!potionIconTex) {
+        std::cerr << "ERROR: Failed to load potion icon: " << SDL_GetError() << std::endl;
+        return false;
+    }
+    std::cout << "[HUD] Potion icon loaded successfully!" << std::endl;
 
     return true;
 }
@@ -77,7 +92,7 @@ void HUD::Render(glm::vec2 cameraOffset) {
         SDL_DestroyTexture(texture);
     }
 
-    // --- Vẽ điểm tổng ---
+    // --- Vẽ điểm tổng (Coin) ---
     std::string scoreText = std::to_string(score) + "$";
     SDL_Color textColor = { 255, 235, 0, 255 };
 
@@ -93,10 +108,56 @@ void HUD::Render(glm::vec2 cameraOffset) {
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
     SDL_DestroyTexture(texture);
 
+    // Vẽ coin icon
     if (coinIconTex) {
         SDL_FRect iconRect = { 9.0f, 13.0f, 20.0f, 20.0f };
         SDL_FRect iconSrc = { 0, 0, 18, 18 };
         SDL_RenderTexture(renderer, coinIconTex, &iconSrc, &iconRect);
+    }
+
+    // ===== DEBUG: VẼ SỐ LƯỢNG HEALTH POTION =====
+    // Kiểm tra từng điều kiện
+    if (!playerRef) {
+        std::cerr << "[HUD] ERROR: playerRef is NULL!" << std::endl;
+        return;
+    }
+
+    if (!potionIconTex) {
+        std::cerr << "[HUD] ERROR: potionIconTex is NULL!" << std::endl;
+        return;
+    }
+
+    // Nếu đến đây là OK, vẽ potion UI
+    int potionCount = playerRef->GetHealthPotionCount();
+    int maxPotions = playerRef->GetMaxHealthPotions();
+
+    //// DEBUG: In ra console
+    //static float debugTimer = 0.0f;
+    //debugTimer += 0.016f; // Giả sử 60 FPS
+    //if ((int)debugTimer % 60 == 0) {
+    //    std::cout << "[HUD] Rendering potion: " << potionCount << "/" << maxPotions << std::endl;
+    //}
+
+    // Vẽ icon potion
+    SDL_FRect potionIconRect = { 70.0f, 13.0f, 24.0f, 24.0f };
+    SDL_FRect potionIconSrc = { 0, 0, 64, 64 };
+    SDL_RenderTexture(renderer, potionIconTex, &potionIconSrc, &potionIconRect);
+
+    // Vẽ text số lượng
+    std::string potionText = std::to_string(potionCount) + "/" + std::to_string(maxPotions);
+    SDL_Color potionColor = { 0, 255, 100, 255 };
+
+    SDL_Surface* potionSurface = TTF_RenderText_Blended(font, potionText.c_str(), 4, potionColor);
+    if (potionSurface) {
+        SDL_Texture* potionTexture = SDL_CreateTextureFromSurface(renderer, potionSurface);
+        SDL_DestroySurface(potionSurface);
+
+        float potionTextW, potionTextH;
+        SDL_GetTextureSize(potionTexture, &potionTextW, &potionTextH);
+
+        SDL_FRect potionTextRect = { 95.0f, 17.0f, potionTextW, potionTextH };
+        SDL_RenderTexture(renderer, potionTexture, nullptr, &potionTextRect);
+        SDL_DestroyTexture(potionTexture);
     }
 }
 
@@ -108,5 +169,9 @@ void HUD::Cleanup() {
     if (coinIconTex) {
         SDL_DestroyTexture(coinIconTex);
         coinIconTex = nullptr;
+    }
+    if (potionIconTex) {
+        SDL_DestroyTexture(potionIconTex);
+        potionIconTex = nullptr;
     }
 }

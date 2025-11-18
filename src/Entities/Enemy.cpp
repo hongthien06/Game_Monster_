@@ -371,7 +371,7 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
     // Vẽ healthbar (chỉ khi sống)
     if (isAlive) {
-        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, renderWidth);
+        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, renderWidth-10.0f);
     }
 
     if (!currentTexture) return;

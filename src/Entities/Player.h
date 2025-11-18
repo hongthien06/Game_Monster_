@@ -51,6 +51,10 @@ private:
     float deathDelay;
     bool isGameOver;        // Đã hết mạng - Game Over
 
+    // ===== INVENTORY SYSTEM - HỆ THỐNG TÚI ĐỒ =====
+    int healthPotionCount;  // Số lượng health potion trong túi
+    int maxHealthPotions;   // Số lượng tối đa có thể mang
+
     // ====== AUDIO ======
     Audio audio;
 
@@ -103,6 +107,13 @@ public:
     void Attack();
     void Shot();
     void Heal(int amount);
+
+    // ===== INVENTORY METHODS =====
+    void UseHealthPotion();                      // Sử dụng potion từ túi (phím H)
+    void AddHealthPotion();                      // Thêm potion vào túi khi nhặt
+    int GetHealthPotionCount() const { return healthPotionCount; }
+    int GetMaxHealthPotions() const { return maxHealthPotions; }
+
 
     // ===== LIVES METHODS =====
     void CheckFallDeath();      // Kiểm tra rơi khỏi map

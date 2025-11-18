@@ -85,6 +85,8 @@ bool Game::init() {
         GameConstants::LOGICAL_HEIGHT,
         SDL_LOGICAL_PRESENTATION_STRETCH);
 
+  
+
     //tao Item
     if (!loadItemTextures()) return false;
 
@@ -98,6 +100,20 @@ bool Game::init() {
     player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
     player->SnapToGround(*map); 
     playerStartPos = player->GetPosition();
+
+    playerHUD = new HUD(renderer);
+    playerHUD->LoadResources();
+
+    if (player) {
+        playerHUD->SetPlayerReference(player);
+        std::cout << "[Game] PlayerHUD reference set successfully!" << std::endl;
+        std::cout << "[Game] Player potion count: " << player->GetHealthPotionCount()
+            << "/" << player->GetMaxHealthPotions() << std::endl;
+    }
+    else {
+        std::cerr << "[Game] ERROR: Player is NULL when setting HUD reference!" << std::endl;
+    }
+
 
     for (auto& pos : map->GetSpawn(1)) {
     std::cout << "Minion1: " << pos.x << "," << pos.y << "\n";
@@ -117,6 +133,7 @@ bool Game::init() {
 
     playerHUD = new HUD(renderer);
     playerHUD->LoadResources();
+    playerHUD->SetPlayerReference(player);
 
     audio = new Audio();
     audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
@@ -434,8 +451,8 @@ void Game::checkItemCollisions() {
                         return true;
                     }
                     else if (item->GetType() == ItemType::HEALTH_POTION) {
-                        int healAmount = GameConstants::HEALTH_POTION_HEAL_AMOUNT;
-                        player->Heal(healAmount);
+                        // ===== THAY ĐỔI: THÊM VÀO TÚI THAY VÌ HỒI NGAY =====
+                        player->AddHealthPotion();
 
                         // Hiệu ứng flash xanh lá khi hồi máu
                         effectManager.CreateFlash(
