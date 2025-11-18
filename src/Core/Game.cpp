@@ -284,12 +284,25 @@ void Game::update(float deltaTime) {
             int aliveCount = 0;
             int deadCount = 0;
             for (const auto& enemy : enemies) {
-                if (enemy->IsAlive()) aliveCount++;
-                else deadCount++;
+                if (enemy->IsAlive()) {
+                    aliveCount++;
+                    // ✅ THÊM: In vị trí của enemy còn sống
+                    glm::vec2 pos = enemy->GetPosition();
+                    std::cout << "[Game] Alive enemy at: (" << pos.x << ", " << pos.y << ")\n";
+                }
+                else {
+                    deadCount++;
+                }
             }
             std::cout << "[Game] Enemies alive: " << aliveCount 
                       << " | dead: " << deadCount 
                       << " | total: " << enemies.size() << "\n";
+            
+            // ✅ THÊM: In vị trí player để so sánh
+            if (player) {
+                glm::vec2 playerPos = player->GetPosition();
+                std::cout << "[Game] Player at: (" << playerPos.x << ", " << playerPos.y << ")\n";
+            }
         }
         
         // ✅ SAU ĐÓ mới check collisions
@@ -772,6 +785,13 @@ void Game::updateEnemies(float deltaTime) {
     for (auto& enemy : enemies) {
         enemy->SetTargetPosition(playerPos);
 
+        // ✅ THÊM: Kiểm tra enemy có rơi xuống hố không
+        glm::vec2 enemyPos = enemy->GetPosition();
+        if (enemyPos.y > GameConstants::WORLD_HEIGHT + 200.0f) {
+            std::cout << "[Game] Enemy fell off map! Killing it.\n";
+            enemy->TakeDamage(9999); // Kill ngay
+        }
+
         // Trigger boss intro khi player đến gần
         if (enemy->GetEnemyType() == EnemyType::BOSS) {
             Boss* boss = dynamic_cast<Boss*>(enemy.get());
@@ -807,7 +827,6 @@ void Game::updateEnemies(float deltaTime) {
                   << " dead enemies. Remaining: " << afterSize << "\n";
     }
 }
-
 
 // ===== KIỂM TRA VA CHẠM =====
 void Game::checkEnemyCollisions() {
