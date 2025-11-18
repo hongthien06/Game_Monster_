@@ -189,23 +189,23 @@ void Enemy::HandleIdle(float deltaTime) {
 //    flipHorizontal = velocity.x < 0;
 //}
 void Enemy::HandleWalk(float deltaTime) {
-    //// Chọn điểm đích dựa vào hướng di chuyển
-    //glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
+    // Chọn điểm đích dựa vào hướng di chuyển
+    glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
 
-    //// Tính khoảng cách đến điểm đích
-    //glm::vec2 direction = targetPoint - position;
-    //float distance = glm::length(direction);
+    // Tính khoảng cách đến điểm đích
+    glm::vec2 direction = targetPoint - position;
+    float distance = glm::length(direction);
 
     //// Nếu đến gần điểm đích (trong vòng 10 pixel)
-    //if (distance < 10.0f) {
-    //    // Đổi hướng di chuyển
-    //    movingToB = !movingToB;
-    //    velocity.x = 0.0f;
+    if (distance < 10.0f) {
+        // Đổi hướng di chuyển
+        movingToB = !movingToB;
+        velocity.x = 0.0f;
 
-    //    // Dừng lại 0.5 giây tại điểm đích (optional)
+    //   // Dừng lại 0.5 giây tại điểm đích (optional)
     //    // Bạn có thể thêm timer nếu muốn enemy dừng lại
-    //    return;
-    //}
+        return;
+    }
 
     //// Di chuyển về phía điểm đích
     //if (distance > 0.1f) {
@@ -214,28 +214,28 @@ void Enemy::HandleWalk(float deltaTime) {
     //    flipHorizontal = velocity.x < 0;
     //}
 
-    glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
+  /*  glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
     glm::vec2 direction = targetPoint - position;
-    float distance = glm::length(direction);
+    float distance = glm::length(direction);*/
 
-    // DEBUG: In ra lần đầu enemy đổi hướng
-    static bool hasReachedPoint = false;
-    if (distance < 10.0f && !hasReachedPoint) {
-        std::cout << "[Enemy] Reached patrol point! Switching direction.\n";
-        hasReachedPoint = true;
-        movingToB = !movingToB;
-        velocity.x = 0.0f;
-        return;
-    }
-    else if (distance >= 10.0f) {
-        hasReachedPoint = false;
-    }
+    //// DEBUG: In ra lần đầu enemy đổi hướng
+    //static bool hasReachedPoint = false;
+    //if (distance < 10.0f && !hasReachedPoint) {
+    //    std::cout << "[Enemy] Reached patrol point! Switching direction.\n";
+    //    hasReachedPoint = true;
+    //    movingToB = !movingToB;
+    //    velocity.x = 0.0f;
+    //    return;
+    //}
+    //else if (distance >= 10.0f) {
+    //    hasReachedPoint = false;
+    //}
 
-    if (distance > 0.1f) {
-        direction = glm::normalize(direction);
-        velocity.x = direction.x * walkSpeed;
-        flipHorizontal = velocity.x < 0;
-    }
+    //if (distance > 0.1f) {
+    //    direction = glm::normalize(direction);
+    //    velocity.x = direction.x * walkSpeed;
+    //    flipHorizontal = velocity.x < 0;
+    //}
 }
 
 void Enemy::HandleRun(float deltaTime) {
