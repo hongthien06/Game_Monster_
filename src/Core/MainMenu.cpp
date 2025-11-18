@@ -97,6 +97,7 @@ void MainMenu::Update(float deltaTime) {
 }
 
 void MainMenu::HandleKeyboardInput() {
+    if (isTransitioning) return;
     if (inputTimer > 0) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
@@ -118,6 +119,7 @@ void MainMenu::HandleKeyboardInput() {
 
 
 void MainMenu::HandleMouseClick(float mouseX, float mouseY) {
+    if (isTransitioning) return;
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
         float buttonX = button.pos.x - button.width / 2.0f;

@@ -29,6 +29,9 @@ public:
     MainMenuChoice GetChoice() const { return currentChoice; }
     void ResetChoice() { currentChoice = MainMenuChoice::NONE; } 
 
+    void SetTransitioning(bool value) { isTransitioning = value; }
+    bool IsTransitioning() const { return isTransitioning; }
+
 private:
     SDL_Renderer* renderer;
     TTF_Font* font;
@@ -49,4 +52,6 @@ private:
 
     void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
         glm::vec2 pos, SDL_Color color, bool center = false);
+
+    bool isTransitioning = false;
 };

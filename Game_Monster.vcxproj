@@ -139,6 +139,7 @@ if %ERRORLEVEL% LSS 8 exit 0 else exit %ERRORLEVEL%
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="src\Components\ScreenTransition.h" />
     <ClInclude Include="src\Core\GameOverMenu.h" />
     <ClInclude Include="src\Components\Animation.h" />
     <ClInclude Include="src\Components\Attack.h" />

@@ -31,6 +31,9 @@ Game::Game()
     audio(nullptr),
     playerHUD(nullptr),
     currentGameState(GameState::MAIN_MENU), 
+    targetState(GameState::MAIN_MENU),  // THÊM
+    menuBackgroundTex(nullptr),         // THÊM
+    gameBackgroundTex(nullptr),         // THÊM
     mainFont(nullptr),
     mainMenu(nullptr)
     //gameOverMenu(nullptr),    // THÊM DÒNG NÀY
@@ -142,6 +145,20 @@ bool Game::init() {
     mainMenu = std::make_unique<MainMenu>(renderer, mainFont);
     gameOverMenu = std::make_unique<GameOverMenu>(renderer, mainFont);
     tutorialMenu = std::make_unique<TutorialMenu>(renderer, mainFont);
+
+    // THÊM: Khởi tạo ScreenTransition
+    screenTransition = std::make_unique<ScreenTransition>(
+        renderer,
+        GameConstants::LOGICAL_WIDTH,
+        GameConstants::LOGICAL_HEIGHT,
+        TransitionType::FADE,
+        0.5f  // Nhanh hơn (0.3 giây)
+        // hoặc 0.5f để chậm hơn một chút
+    );
+    // THÊM: Load background textures (optional)
+    menuBackgroundTex = IMG_LoadTexture(renderer, "assets/backgrounds/menu_bg.png");
+    gameBackgroundTex = IMG_LoadTexture(renderer, "assets/backgrounds/game_bg.png");
+
     currentGameState = GameState::MAIN_MENU;
 
     return true;
@@ -218,15 +235,32 @@ void Game::update(float deltaTime) {
         MainMenuChoice choice = mainMenu->GetChoice();
 
         if (choice == MainMenuChoice::START_GAME) {
-            resetGame(); 
-            currentGameState = GameState::PLAYING; 
+            startTransition(GameState::PLAYING);
         }
         else if (choice == MainMenuChoice::QUIT) {
             isGameRunning = false;
         }
         else if (choice == MainMenuChoice::TUTORIAL) { 
             mainMenu->ResetChoice(); 
-            currentGameState = GameState::TUTORIAL; 
+            startTransition(GameState::TUTORIAL);  // SỬA: Dùng transition
+        }
+        break;
+    }
+    case GameState::TRANSITIONING:
+    {
+        screenTransition->Update(deltaTime);
+
+        // Khi transition hoàn tất
+        if (!screenTransition->IsActive()) {
+            currentGameState = targetState;
+
+            // Reset game nếu chuyển sang PLAYING
+            if (targetState == GameState::PLAYING) {
+                resetGame();
+            }
+
+            mainMenu->ResetChoice();
+            mainMenu->SetTransitioning(false);
         }
         break;
     }
@@ -263,7 +297,7 @@ void Game::update(float deltaTime) {
         MenuChoice choice = gameOverMenu->GetChoice();
 
         if (choice == MenuChoice::REPLAY) {
-            resetGame();
+            startTransition(GameState::PLAYING);
         }
         else if (choice == MenuChoice::QUIT) {
             isGameRunning = false; 
@@ -278,7 +312,7 @@ void Game::update(float deltaTime) {
 
             if (choice == TutorialChoice::BACK) {
                 tutorialMenu->ResetChoice(); 
-                currentGameState = GameState::MAIN_MENU; 
+                startTransition(GameState::MAIN_MENU);
             }
         }
         break;
@@ -291,51 +325,57 @@ void Game::render() {
     SDL_SetRenderDrawColor(renderer, 255, 255, 200, 255);
     SDL_RenderClear(renderer);
 
-    // ===== APPLY CAMERA SHAKE =====
-    glm::vec2 shake = effectManager.GetCameraShake();
-    glm::vec2 offset = camera.getOffset() + shake;
+    // Xác định nên render screen nào
+    bool renderGameplay = (currentGameState == GameState::PLAYING);
 
-    if (map) map->drawMap(offset);
-
-    if (player) player->Render(renderer, offset);
-
-    // =====RENDER ENEMIES =====
-    for (auto& enemy : enemies) {
-        enemy->Render(renderer, offset);
-    }
-
-    // DEBUG: VẼ HITBOX CHO ENEMY (Comment khi release)
-    #ifdef DEBUG_DRAW_HITBOX  // Thêm dòng này
-    for (auto& enemy : enemies) {
-        if (enemy->IsAlive()) {
-            SDL_FRect box = enemy->GetBoundingBox();
-            SDL_FRect screenBox = {
-                box.x - offset.x,
-                box.y - offset.y,
-                box.w,
-                box.h
-            };
-            SDL_SetRenderDrawColor(renderer, 255, 0, 0, 100);
-            SDL_RenderRect(renderer, &screenBox);
+    if (currentGameState == GameState::TRANSITIONING) {
+        // Nếu đang transition, kiểm tra đã qua nửa chặng chưa
+        if (screenTransition->ShouldSwitchScreen()) {
+            renderGameplay = (targetState == GameState::PLAYING);
+        }
+        else {
+            renderGameplay = false;  // Vẫn render menu
         }
     }
-    #endif  // Thêm dòng này
 
-    // Dong nay dong de ve ra khung vien do cua cac o dat co hop va cham. Khi khong can nua thi comment dong nay, khong can xoa
-    //map->drawCollisionDebug(offset);
+    // RENDER BACKGROUND
+    if (renderGameplay) {
+        // Render game background
+        if (gameBackgroundTex) {
+            SDL_RenderTexture(renderer, gameBackgroundTex, nullptr, nullptr);
+        }
+    }
+    else {
+        // Render menu background
+        if (menuBackgroundTex) {
+            SDL_RenderTexture(renderer, menuBackgroundTex, nullptr, nullptr);
+        }
+    }
 
-    for (const auto& item : items)
-        item->Render(renderer, offset);
+    // RENDER GAME ELEMENTS
+    if (renderGameplay) {
+        glm::vec2 shake = effectManager.GetCameraShake();
+        glm::vec2 offset = camera.getOffset() + shake;
 
-    // ===== THÊM MỚI: RENDER EFFECTS =====
-    effectManager.Render(renderer, offset);
+        if (map) map->drawMap(offset);
+        if (player) player->Render(renderer, offset);
 
-    if (playerHUD) playerHUD->Render(offset);
+        for (auto& enemy : enemies) {
+            enemy->Render(renderer, offset);
+        }
 
+        for (const auto& item : items)
+            item->Render(renderer, offset);
+
+        effectManager.Render(renderer, offset);
+        if (playerHUD) playerHUD->Render(offset);
+    }
+
+    // RENDER UI OVERLAYS
     if (currentGameState == GameState::GAME_OVER) {
         gameOverMenu->Render();
     }
-    else if (currentGameState == GameState::MAIN_MENU) { // <-- THÊM KHỐI MAIN MENU
+    else if (currentGameState == GameState::MAIN_MENU) {
         mainMenu->Render();
     }
     else if (currentGameState == GameState::TUTORIAL) {
@@ -343,6 +383,12 @@ void Game::render() {
             tutorialMenu->Render();
         }
     }
+
+    // RENDER TRANSITION EFFECT (vẽ cuối cùng)
+    if (currentGameState == GameState::TRANSITIONING) {
+        screenTransition->Render();
+    }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -360,6 +406,8 @@ void Game::cleanup() {
     TTF_CloseFont(mainFont);
 
     SDL_DestroyTexture(coinTex);
+    SDL_DestroyTexture(menuBackgroundTex);      // THÊM
+    SDL_DestroyTexture(gameBackgroundTex);      // THÊM
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
 
@@ -767,6 +815,14 @@ void Game::checkEnemyCollisions() {
             }
         }
     }
+}
+void Game::startTransition(GameState nextState) {
+    currentGameState = GameState::TRANSITIONING;
+    targetState = nextState;
+    mainMenu->SetTransitioning(true);
+    screenTransition->Start();
+
+    std::cout << "Bat dau transition den state: " << (int)nextState << "\n";
 }
 void Game::resetGame() {
     player->Reset(playerStartPos);

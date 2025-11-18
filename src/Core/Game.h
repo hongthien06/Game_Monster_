@@ -18,6 +18,7 @@
 #include "../Core/TutorialMenu.h"
 #include "../Core/GameOverMenu.h"
 #include <SDL3_ttf/SDL_ttf.h>
+#include "../Components/ScreenTransition.h"
 
 // ===== INCLUDE ENEMY SYSTEM =====
 #include "../Entities/Enemy.h"
@@ -26,8 +27,10 @@
 #include "../Entities/Boss.h"
 #include "../Components/Effect.h"
 
+
 enum class GameState {
     MAIN_MENU,
+    TRANSITIONING,
     PLAYING,
     GAME_OVER,
     TUTORIAL
@@ -66,6 +69,12 @@ private:
     std::unique_ptr<GameOverMenu> gameOverMenu;
     std::unique_ptr<TutorialMenu> tutorialMenu;
 
+    std::unique_ptr<ScreenTransition> screenTransition;
+    GameState targetState;  // State sẽ chuyển đến sau transition
+
+    SDL_Texture* menuBackgroundTex;
+    SDL_Texture* gameBackgroundTex;
+
 public:
     Game();
     ~Game();
@@ -91,4 +100,5 @@ public:
 
 private:
     void resetGame();
+    void startTransition(GameState nextState);
 };
