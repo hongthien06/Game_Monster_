@@ -57,8 +57,8 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
     // Size: 96x96 (lớn nhất)
-    renderWidth = 128.0f;
-    renderHeight = 128.0f;
+    renderWidth = 194.0f;
+    renderHeight = 194.0f;
 }
 
 Boss::~Boss() {

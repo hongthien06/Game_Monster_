@@ -87,7 +87,7 @@ public:
     // ===== GETTERS =====
     BossPhase GetCurrentPhase() const { return currentPhase; }
     bool IsInIntro() const { return !hasIntroPlayed; }
-    virtual float GetSpriteWidth() const override { return 128.0f; }
+    virtual float GetSpriteWidth() const override { return 194.0f; }
 
     // ===== BOSS SPECIFIC =====
     void TriggerIntro();
