@@ -1,5 +1,6 @@
 #pragma once
 #include "Enemy.h"
+#include "../Components/Effect.h" 
 #include <vector>
 #include <memory>
 
@@ -7,7 +8,7 @@
 enum class BossPhase {
     PHASE_1,    // 100% - 70% HP
     PHASE_2,    // 70% - 40% HP
-    PHASE_3     // 40% - 0% HP (Cu?ng n?)
+    PHASE_3     // 40% - 0% HP 
 };
 
 // CLASS BOSS - FINAL BOSS
@@ -49,6 +50,9 @@ private:
     bool isInvulnerable;
     float introTimer;
 
+    // ===== EFFECT MANAGER ===== 
+    EffectManager* effectManager;
+
     // ===== PRIVATE METHODS =====
     void CheckPhaseTransition();
     void EnterPhase2();
@@ -62,7 +66,7 @@ private:
     void PlayIntro();
 
 protected:
-    // Override: tr? frames t? GameConstants
+    // Override: GameConstants
     virtual FrameConfig GetFrameConfig(EnemyState state) const override;
 
 public:
@@ -76,10 +80,14 @@ public:
     virtual int PerformAttack() override;
     virtual void TakeDamage(int damage) override;
 
+    // M?I: Setter cho EffectManager
+    void SetEffectManager(EffectManager* manager) { effectManager = manager; }
+
+
     // ===== GETTERS =====
     BossPhase GetCurrentPhase() const { return currentPhase; }
     bool IsInIntro() const { return !hasIntroPlayed; }
-    virtual float GetSpriteWidth() const override { return 96.0f; }
+    virtual float GetSpriteWidth() const override { return 128.0f; }
 
     // ===== BOSS SPECIFIC =====
     void TriggerIntro();

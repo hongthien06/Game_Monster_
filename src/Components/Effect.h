@@ -11,7 +11,9 @@ enum class EffectType {
     SCREEN_SHAKE,   // Rung màn hình
     PARTICLE,       // Hạt
     TRAIL,          // Vệt sáng
-    AURA            // Hào quang
+    AURA,           // Hào quang
+    BOSS_INTRO,     // MỚI: Hiệu ứng xuất hiện boss
+    BOSS_ATTACK     // MỚI: Hiệu ứng đánh boss
 };
 
 // ===== PARTICLE STRUCT =====
@@ -109,6 +111,37 @@ public:
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
 };
 
+// ===== BOSS INTRO EFFECT (Fade từ trong ra) =====
+class BossIntroEffect : public Effect {
+private:
+    std::vector<Particle> particles;
+    float currentRadius;
+    float maxRadius;
+    SDL_Color primaryColor;
+    SDL_Color secondaryColor;
+    float pulseTimer;
+
+public:
+    BossIntroEffect(glm::vec2 pos, float maxRad, SDL_Color col1, SDL_Color col2);
+    virtual void Update(float deltaTime) override;
+    virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
+};
+
+// ===== BOSS ATTACK EFFECT (Sóng năng lượng) =====
+class BossAttackEffect : public Effect {
+private:
+    std::vector<Particle> shockwave;
+    float currentRadius;
+    float maxRadius;
+    SDL_Color attackColor;
+    float rotationAngle;
+
+public:
+    BossAttackEffect(glm::vec2 pos, float maxRad, SDL_Color col);
+    virtual void Update(float deltaTime) override;
+    virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
+};
+
 // ===== SCREEN SHAKE =====
 class ScreenShake {
 private:
@@ -137,10 +170,15 @@ public:
     EffectManager();
     ~EffectManager();
 
-    // Tạo hiệu ứng
+    // Tạo hiệu ứng cơ bản
     void CreateExplosion(glm::vec2 pos, float radius, SDL_Color color);
     void CreateFlash(glm::vec2 pos, SDL_Color color, float intensity, float duration);
     void CreateTrail(glm::vec2 pos, SDL_Color color, float width);
+
+    // MỚI: Hiệu ứng Boss
+    void CreateBossIntro(glm::vec2 pos, float radius = 200.0f);
+    void CreateBossAttack(glm::vec2 pos, float radius = 150.0f, SDL_Color color = { 255, 50, 50, 255 });
+    void CreateBigExplosion(glm::vec2 pos, float radius = 100.0f); // Explosion lớn hơn
 
     // Rung màn hình
     void TriggerScreenShake(float intensity, float duration);

@@ -27,7 +27,8 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     slamDamage(50),
     hasIntroPlayed(false),
     isInvulnerable(true),
-    introTimer(3.0f)
+    introTimer(3.0f),
+    effectManager(nullptr)
 {
     this->renderer = renderer;
     this->position = startPos;
@@ -56,8 +57,8 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
     // Size: 96x96 (lớn nhất)
-    renderWidth = 96.0f;
-    renderHeight = 96.0f;
+    renderWidth = 128.0f;
+    renderHeight = 128.0f;
 }
 
 Boss::~Boss() {
@@ -65,7 +66,7 @@ Boss::~Boss() {
 
 // === TRẢ FRAMES TỪ GAMECONSTANTS ===
 FrameConfig Boss::GetFrameConfig(EnemyState state) const {
-    FrameConfig cfg = { 0, 0.1f, 700, 600 };
+    FrameConfig cfg = { 0, 0.1f, 700, 626 };
 
     switch (state) {
     case EnemyState::STATE_IDLE:
@@ -103,6 +104,12 @@ FrameConfig Boss::GetFrameConfig(EnemyState state) const {
 
 void Boss::PlayIntro() {
     std::cout << "=== BOSS XUAT HIEN ===\n";
+
+    // HIỆU ỨNG: Boss xuất hiện với hiệu ứng fade từ trong ra
+    if (effectManager) {
+        //effectManager->CreateBossIntro(position, 200.0f);
+        effectManager->TriggerScreenShake(3.0f, 0.5f);
+    }
 }
 
 void Boss::TriggerIntro() {
@@ -133,7 +140,17 @@ void Boss::EnterPhase2() {
     attackCooldown *= 0.8f;
 
     std::cout << "=== BOSS ENTERED PHASE 2 (70% HP) ===\n";
-    // LOẠI BỎ SummonMinions()
+
+    // ✅ SỬA: Flash cam mạnh + rung màn hình (bỏ explosion)
+    if (effectManager) {
+        effectManager->CreateFlash(
+            position,
+            { 255, 150, 0, 220 },  // Cam đậm
+            0.6f,
+            0.3f
+        );
+        effectManager->TriggerScreenShake(10.0f, 0.5f);
+    }
 }
 
 void Boss::EnterPhase3() {
@@ -146,7 +163,17 @@ void Boss::EnterPhase3() {
     ultimateCooldown *= 0.7f;
 
     std::cout << "=== BOSS ENTERED PHASE 3 (40% HP) - ENRAGED! ===\n";
-    // LOẠI BỎ SummonMinions()
+
+    // ✅ SỬA: Flash đỏ rất mạnh + rung màn hình mạnh (bỏ explosion)
+    if (effectManager) {
+        effectManager->CreateFlash(
+            position,
+            { 255, 0, 0, 240 },  // Đỏ rất đậm
+            0.8f,    // Intensity rất cao
+            0.5f     // Duration dài
+        );
+        effectManager->TriggerScreenShake(15.0f, 0.8f);
+    }
 }
 
 void Boss::SummonMinions() {
@@ -162,6 +189,16 @@ void Boss::ChargeAttack() {
     isCharging = true;
     chargeTimer = chargeDuration;
     chargeDirection = glm::normalize(targetPosition - position);
+
+    // ✅ SỬA: Flash vàng nhẹ khi bắt đầu charge (không dùng Trail)
+    if (effectManager) {
+        effectManager->CreateFlash(
+            position,
+            { 255, 255, 200, 100 },  // Vàng nhạt
+            0.3f,
+            0.15f
+        );
+    }
 }
 
 void Boss::GroundSlam() {
@@ -172,6 +209,17 @@ void Boss::GroundSlam() {
     float distToTarget = GetDistanceToTarget();
     if (distToTarget <= slamRadius) {
         std::cout << "Boss dap dat! Damage: " << slamDamage << "\n";
+    }
+
+    // ✅ SỬA: Chỉ dùng flash vàng + rung màn hình (bỏ BossAttack effect)
+    if (effectManager) {
+        effectManager->CreateFlash(
+            position,
+            { 255, 200, 0, 180 },  // Vàng đậm
+            0.5f,    // Intensity cao
+            0.2f     // Duration dài hơn
+        );
+        effectManager->TriggerScreenShake(8.0f, 0.5f);
     }
 
     isSlamming = false;
@@ -186,6 +234,20 @@ void Boss::UseUltimate() {
     float distToTarget = GetDistanceToTarget();
     if (distToTarget <= ultimateRadius) {
         std::cout << "Target nhan " << ultimateDamage << " damage!\n";
+    }
+
+    // ✅ SỬA: Ultimate chỉ dùng flash đỏ mạnh + rung màn hình
+    if (effectManager) {
+        // Flash đỏ toàn màn hình
+        effectManager->CreateFlash(
+            position,
+            { 255, 50, 50, 200 },  // Đỏ đậm
+            0.7f,    // Intensity rất cao
+            0.4f     // Duration dài
+        );
+
+        // Rung màn hình mạnh
+        effectManager->TriggerScreenShake(12.0f, 0.6f);
     }
 
     isUsingUltimate = false;
@@ -210,6 +272,15 @@ int Boss::PerformAttack() {
             return slamDamage;
         }
         else {
+            // ✅ SỬA: Attack thường - chỉ lóe sáng vàng nhẹ
+            if (effectManager) {
+                effectManager->CreateFlash(
+                    position,
+                    { 255, 200, 100, 80 },  // Vàng nhạt
+                    0.15f,
+                    0.08f
+                );
+            }
             return attackDamage;
         }
     }
@@ -234,6 +305,11 @@ void Boss::Update(float deltaTime, Map& map) {
         chargeTimer -= deltaTime;
         velocity = chargeDirection * chargeSpeed;
 
+        // ✅ XÓA: Không tạo trail nữa
+        // if (effectManager) {
+        //     effectManager->CreateTrail(position, { 255, 200, 0, 255 }, 4.0f);
+        // }
+
         if (chargeTimer <= 0) {
             isCharging = false;
             velocity.x = 0.0f;
@@ -241,7 +317,6 @@ void Boss::Update(float deltaTime, Map& map) {
     }
 
     if (ultimateTimer > 0) ultimateTimer -= deltaTime;
-    // LOẠI BỎ summonTimer
 
     Enemy::Update(deltaTime, map);
 }
@@ -257,6 +332,16 @@ void Boss::TakeDamage(int damage) {
 
     if (currentPhase == BossPhase::PHASE_3) {
         damage = (int)(damage * 0.8f);
+    }
+
+    //  Lóe sáng trắng ngắn thay vì explosion cam
+    if (effectManager) {
+        effectManager->CreateFlash(
+            position,
+            { 255, 255, 255, 120 },  // Trắng, alpha 120
+            0.2f,    // Intensity thấp
+            0.08f    // Duration ngắn
+        );
     }
 
     Enemy::TakeDamage(damage);

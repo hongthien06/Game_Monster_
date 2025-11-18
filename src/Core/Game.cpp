@@ -634,13 +634,22 @@ for (auto& pos : map->GetSpawn(5)) {
                 renderer,
                 glm::vec2(bossSpawn[0].x, bossSpawn[0].y)
             ));
-        } else {
+        }
+        else {
             // Fallback nếu không có spawn point
             enemies.push_back(std::make_unique<Boss>(
                 renderer,
                 glm::vec2(1300.0f, GameConstants::FLOOR_Y - 96.0f)
             ));
         }
+
+        //  Liên kết EffectManager với Boss
+        Boss* boss = dynamic_cast<Boss*>(enemies.back().get());
+        if (boss) {
+            boss->SetEffectManager(&effectManager);
+            boss->TriggerIntro();  // Hoặc trigger trong updateEnemies()
+        }
+
         enemies.back()->SetCoinDropAmount(10);
         enemies.back()->SetAudioSystem(audio);
         enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
@@ -656,15 +665,25 @@ for (auto& pos : map->GetSpawn(5)) {
 void Game::updateEnemies(float deltaTime) {
     if (!player) return;
 
-    // Set vị trí Player cho tất cả enemies
     glm::vec2 playerPos = player->GetPosition();
 
     for (auto& enemy : enemies) {
         enemy->SetTargetPosition(playerPos);
+
+        // ✅ THÊM: Trigger boss intro khi player đến gần
+        if (enemy->GetEnemyType() == EnemyType::BOSS) {
+            Boss* boss = dynamic_cast<Boss*>(enemy.get());
+            if (boss && boss->IsInIntro()) {
+                float distToBoss = glm::length(playerPos - boss->GetPosition());
+                if (distToBoss < 300.0f) {  // Player trong bán kính 300px
+                    boss->TriggerIntro();
+                    std::cout << "[Game] Boss fight begins!\n";
+                }
+            }
+        }
+
         enemy->Update(deltaTime, *map);
     }
-
-    // Không xóa enemies đã chết - giữ lại để reset khi chơi lại
 }
 
 // ===== KIỂM TRA VA CHẠM =====
@@ -712,7 +731,6 @@ void Game::checkEnemyCollisions() {
     for (auto& enemy : enemies) {
         if (!enemy->IsAlive()) continue;
 
-        // Chỉ gây damage khi đang tấn công
         if (enemy->GetEnemyState() == EnemyState::STATE_ATTACK) {
             SDL_FRect enemyBox = enemy->GetBoundingBox();
 
@@ -721,12 +739,30 @@ void Game::checkEnemyCollisions() {
                 if (damage > 0 && !player->IsInvulnerable()) {
                     player->TakeDamage(damage);
 
-                    effectManager.CreateFlash(
-                        player->GetPosition(),
-                        SDL_Color{ 255, 0, 0, 100 },
-                        0.3f,
-                        0.15f
-                    );
+                    // ✅ SỬA: Kiểm tra nếu là boss thì flash mạnh hơn
+                    if (enemy->GetEnemyType() == EnemyType::BOSS) {
+                        // Flash trắng mạnh cho boss hit
+                        effectManager.CreateFlash(
+                            player->GetPosition(),
+                            SDL_Color{ 255, 255, 255, 150 },  // Trắng
+                            0.4f,   // Intensity cao hơn
+                            0.15f   // Duration dài hơn một chút
+                        );
+
+                        // Rung màn hình mạnh hơn
+                        effectManager.TriggerScreenShake(8.0f, 0.3f);
+                    }
+                    else {
+                        // Flash đỏ nhẹ cho enemy thường
+                        effectManager.CreateFlash(
+                            player->GetPosition(),
+                            SDL_Color{ 255, 0, 0, 60 },
+                            0.15f,
+                            0.08f
+                        );
+
+                        effectManager.TriggerScreenShake(3.0f, 0.2f);
+                    }
                 }
             }
         }

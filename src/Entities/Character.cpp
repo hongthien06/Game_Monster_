@@ -45,7 +45,7 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     isDashing(false), isRunning(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
     landedSoundPlayed(false), landedSoundCooldown(0.0f)
 {
-    // Load 4 texture bắt buộc
+    // Load  texture bắt buộc
     LoadTexture(renderer, &idleTex, idlePath);
     LoadTexture(renderer, &walkTex, walkPath);
     LoadTexture(renderer, &runTex, runPath);
