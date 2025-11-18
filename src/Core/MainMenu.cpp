@@ -44,7 +44,7 @@ void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::str
 
 
 MainMenu::MainMenu(SDL_Renderer* ren, TTF_Font* fnt)
-    : renderer(ren), font(fnt) {
+    : renderer(ren), font(fnt), isMusicOn(true) {
     SetupButtons();
     Reset();
 }
@@ -56,6 +56,21 @@ void MainMenu::Reset() {
     selectedOption = 0;
     inputTimer = inputCooldown;
     currentChoice = MainMenuChoice::NONE;
+}
+
+void MainMenu::ToggleMusicState() {
+    // 1. Đảo ngược trạng thái
+    isMusicOn = !isMusicOn;
+
+    // 2. Cập nhật text hiển thị của nút
+    if (isMusicOn) {
+        buttons[1].text = "MUSIC: ON";
+        // THÊM: Gọi hàm bật nhạc tại đây (ví dụ: GameState::PlayMusic())
+    }
+    else {
+        buttons[1].text = "MUSIC: OFF";
+        // THÊM: Gọi hàm tắt nhạc tại đây (ví dụ: GameState::StopMusic())
+    }
 }
 
 void MainMenu::SetupButtons() {
@@ -75,10 +90,10 @@ void MainMenu::SetupButtons() {
 
     // OPTIONS
     buttons[1] = {
-        "SETTINGS",
+        isMusicOn ? "MUSIC: ON" : "MUSIC: OFF",
         { centerX, startY + 10.0f + spacing },
         buttonWidth, buttonHeight,
-        MainMenuChoice::OPTIONS
+        MainMenuChoice::TOGGLE_MUSIC
     };
 
     // QUIT
@@ -112,7 +127,14 @@ void MainMenu::HandleKeyboardInput() {
         inputTimer = inputCooldown;
     }
     else if (keys[SDL_SCANCODE_RETURN] || keys[SDL_SCANCODE_J]) {
-        currentChoice = buttons[selectedOption].choice;
+        if (buttons[selectedOption].choice == MainMenuChoice::TOGGLE_MUSIC) {
+            // Xử lý logic Bật/Tắt nhạc ngay trong menu
+            ToggleMusicState(); // 👈 Gọi hàm mới
+        }
+        else {
+            // Các lựa chọn khác (START_GAME, QUIT) sẽ thoát menu
+            currentChoice = buttons[selectedOption].choice;
+        }
         inputTimer = inputCooldown;
     }
 }
@@ -128,8 +150,12 @@ void MainMenu::HandleMouseClick(float mouseX, float mouseY) {
         if (mouseX >= buttonX && mouseX <= buttonX + button.width &&
             mouseY >= buttonY && mouseY <= buttonY + button.height) {
 
-            selectedOption = i; 
-            currentChoice = button.choice;
+            if (button.choice == MainMenuChoice::TOGGLE_MUSIC) {
+                ToggleMusicState();
+            }
+            else {
+                currentChoice = button.choice;
+            }
             return;
         }
     }

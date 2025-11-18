@@ -8,7 +8,7 @@
 enum class MainMenuChoice {
     NONE = 0,
     START_GAME,
-    OPTIONS,
+    TOGGLE_MUSIC,
     QUIT
 };
 
@@ -21,25 +21,23 @@ public:
     void Update(float deltaTime);
     void HandleKeyboardInput();
 
-    // Hàm xử lý sự kiện bấm chuột
     void HandleMouseClick(float mouseX, float mouseY);
 
-    // Hàm xử lý di chuột để tô sáng (Hover)
     void HandleMouseMotion(float mouseX, float mouseY);
-
+    void ToggleMusicState();
     void Render();
 
     MainMenuChoice GetChoice() const { return currentChoice; }
+    void ResetChoice() { currentChoice = MainMenuChoice::NONE; } 
+    bool IsMusicOn() const { return isMusicOn; }
 
 private:
     SDL_Renderer* renderer;
     TTF_Font* font;
     float inputTimer;
     const float inputCooldown = 0.2f;
-    int selectedOption; // 0: Start, 1: Options, 2: Quit
+    int selectedOption; 
     MainMenuChoice currentChoice;
-
-    // Định nghĩa vị trí và kích thước của các nút (Hitbox)
     struct ButtonArea {
         std::string text;
         glm::vec2 pos;
@@ -51,7 +49,8 @@ private:
     ButtonArea buttons[3];
     void SetupButtons();
 
-    // Helper function (sẽ được định nghĩa trong .cpp)
+    bool isMusicOn;
+
     void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
         glm::vec2 pos, SDL_Color color, bool center = false);
 };

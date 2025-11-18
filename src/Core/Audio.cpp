@@ -71,11 +71,12 @@ void Audio::playBGM(const std::string& filePath, bool loop, float volume) {
     if (result == MA_SUCCESS) {
         std::cout << "Successfully loaded BGM file" << std::endl;
         bgmLoaded = true;
-        bgmVolume = volume;
+        bgmInitialVolume = volume;      
+        bgmCurrentVolume = volume;
         ma_sound_set_volume(&bgm, volume);
         ma_sound_set_looping(&bgm, loop);
         ma_sound_start(&bgm);
-        std::cout << "BGM started with volume: " << volume << std::endl;
+        std::cout << "BGM started with volume: " << bgmCurrentVolume << std::endl;
     } else {
         std::cout << "Failed to load BGM file. Error code: " << result << std::endl;
     }
@@ -101,8 +102,8 @@ void Audio::update(float deltaTime) {
     float t = bgmFadeTimer / bgmFadeDuration;
     if (t < 0.0f) t = 0.0f;
 
-    bgmVolume = t;
-    ma_sound_set_volume(&bgm, bgmVolume);
+    bgmCurrentVolume = t * bgmInitialVolume; 
+    ma_sound_set_volume(&bgm, bgmCurrentVolume);
 
     if (t <= 0.0f) {
         ma_sound_stop(&bgm);
@@ -115,6 +116,26 @@ void Audio::update(float deltaTime) {
 void Audio::stopAll() {
     for (auto sound : activeSounds) {
         ma_sound_stop(sound);
+    }
+}
+
+void Audio::muteBGM() {
+    if (bgmLoaded) {
+        bgmFading = false;
+        // Cập nhật: Lưu trữ trạng thái tắt tiếng vào biến hiện tại
+        bgmCurrentVolume = 0.0f;
+        ma_sound_set_volume(&bgm, 0.0f);
+        std::cout << "BGM muted (Volume set to 0)." << std::endl;
+    }
+}
+
+void Audio::unmuteBGM() {
+    if (bgmLoaded) {
+
+        // Cập nhật: Khôi phục âm lượng hiện tại về giá trị gốc
+        bgmCurrentVolume = bgmInitialVolume;
+        ma_sound_set_volume(&bgm, bgmInitialVolume);
+        std::cout << "BGM unmuted (Volume set to original value: " << bgmInitialVolume << ")." << std::endl;
     }
 }
 

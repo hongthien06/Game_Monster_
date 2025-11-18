@@ -9,7 +9,8 @@ private:
     
     ma_sound bgm;
     bool bgmLoaded = false;
-    float bgmVolume = 1.0f;
+    float bgmCurrentVolume = 1.0f;
+    float bgmInitialVolume = 1.0f;
 
     std::vector<ma_sound*> activeSounds;
     void cleanupFinishedSounds();  
@@ -28,4 +29,6 @@ public:
     void stopBGM();
     void fadeOutBGM(float duration); // Them ham tao Fade de chuyen nhac
     void setBGMVolume(float volume); // Chinh am luong
+    void muteBGM();
+    void unmuteBGM();
 };

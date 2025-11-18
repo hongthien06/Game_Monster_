@@ -183,7 +183,7 @@ void Game::update(float deltaTime) {
     // Cap nhat chuyen dong, hoat anh nhan vat
     switch (currentGameState) {
 
-    case GameState::MAIN_MENU: // <-- THÊM KHỐI MAIN MENU
+    case GameState::MAIN_MENU: // <-- KHỐI MAIN MENU
     {
         mainMenu->Update(deltaTime);
         MainMenuChoice choice = mainMenu->GetChoice();
@@ -195,7 +195,24 @@ void Game::update(float deltaTime) {
         else if (choice == MainMenuChoice::QUIT) {
             isGameRunning = false;
         }
-        // Thêm logic cho OPTIONS tại đây nếu cần (chuyển sang trạng thái OPTIONS)
+        else if (choice == MainMenuChoice::TOGGLE_MUSIC) { // Xử lý Bật/Tắt Nhạc
+
+            // 1. Reset Choice ngay lập tức để không lặp lại hành động
+            mainMenu->ResetChoice(); // (Giả định hàm này đã được thêm vào MainMenu.h/cpp)
+
+            // 2. Gọi logic Mute/Unmute
+            if (audio) {
+                // Sử dụng hàm IsMusicOn() (đã được thêm vào MainMenu.h) để kiểm tra trạng thái mới
+                if (mainMenu->IsMusicOn()) {
+                    audio->unmuteBGM(); // BẬT tiếng (Set về âm lượng gốc)
+                    std::cout << "Music unmuted (Volume restored).\n";
+                }
+                else {
+                    audio->muteBGM(); // TẮT tiếng (Set Volume về 0.0f)
+                    std::cout << "Music muted (Volume set to 0).\n";
+                }
+            }
+        }
         break;
     }
     case GameState::PLAYING:
