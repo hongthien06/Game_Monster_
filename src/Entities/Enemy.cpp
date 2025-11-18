@@ -189,8 +189,53 @@ void Enemy::HandleIdle(float deltaTime) {
 //    flipHorizontal = velocity.x < 0;
 //}
 void Enemy::HandleWalk(float deltaTime) {
-    // Không sử dụng nữa - enemy chỉ idle hoặc chase
-    velocity.x = 0.0f;
+    //// Chọn điểm đích dựa vào hướng di chuyển
+    //glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
+
+    //// Tính khoảng cách đến điểm đích
+    //glm::vec2 direction = targetPoint - position;
+    //float distance = glm::length(direction);
+
+    //// Nếu đến gần điểm đích (trong vòng 10 pixel)
+    //if (distance < 10.0f) {
+    //    // Đổi hướng di chuyển
+    //    movingToB = !movingToB;
+    //    velocity.x = 0.0f;
+
+    //    // Dừng lại 0.5 giây tại điểm đích (optional)
+    //    // Bạn có thể thêm timer nếu muốn enemy dừng lại
+    //    return;
+    //}
+
+    //// Di chuyển về phía điểm đích
+    //if (distance > 0.1f) {
+    //    direction = glm::normalize(direction);
+    //    velocity.x = direction.x * walkSpeed;
+    //    flipHorizontal = velocity.x < 0;
+    //}
+
+    glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
+    glm::vec2 direction = targetPoint - position;
+    float distance = glm::length(direction);
+
+    // DEBUG: In ra lần đầu enemy đổi hướng
+    static bool hasReachedPoint = false;
+    if (distance < 10.0f && !hasReachedPoint) {
+        std::cout << "[Enemy] Reached patrol point! Switching direction.\n";
+        hasReachedPoint = true;
+        movingToB = !movingToB;
+        velocity.x = 0.0f;
+        return;
+    }
+    else if (distance >= 10.0f) {
+        hasReachedPoint = false;
+    }
+
+    if (distance > 0.1f) {
+        direction = glm::normalize(direction);
+        velocity.x = direction.x * walkSpeed;
+        flipHorizontal = velocity.x < 0;
+    }
 }
 
 void Enemy::HandleRun(float deltaTime) {
@@ -200,7 +245,10 @@ void Enemy::HandleRun(float deltaTime) {
     if (distance > 0.1f) {
         direction = glm::normalize(direction);
         velocity.x = direction.x * runSpeed;
-        flipHorizontal = velocity.x < 0;
+        flipHorizontal = velocity.x < 0;  // Quay mặt theo hướng chạy
+    }
+    else {
+        velocity.x = 0.0f;
     }
 }
 
@@ -242,30 +290,33 @@ void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
         return;
     }
 
-    // I-frames
+    // Xử lý I-frames
     if (iFramesTimer > 0) {
         iFramesTimer -= deltaTime;
     }
 
-    // Hurt
+    // Xử lý trạng thái HURT
     if (enemyState == EnemyState::STATE_HURT) {
         HandleHurt(deltaTime);
         return;
     }
 
-    // AI: chuyển state theo khoảng cách
+    // ===== LOGIC AI CHÍNH =====
+    
+    // 1. Kiểm tra player có trong tầm tấn công không?
     if (IsTargetInAttackRange()) {
         enemyState = EnemyState::STATE_ATTACK;
         HandleAttack(deltaTime);
     }
+    // 2. Kiểm tra player có trong tầm phát hiện (aggro) không?
     else if (IsTargetInAggroRange()) {
         enemyState = EnemyState::STATE_RUN;
         HandleRun(deltaTime);
     }
+    // 3. Không thấy player -> Tuần tra
     else {
-        // FIX: Khi không có target trong aggro range -> đứng yên
-        enemyState = EnemyState::STATE_IDLE;
-        HandleIdle(deltaTime);
+        enemyState = EnemyState::STATE_WALK;
+        HandleWalk(deltaTime);
     }
 }
 
