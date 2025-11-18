@@ -44,7 +44,8 @@ Enemy::Enemy()
     hitboxOffsetY(GameConstants::MINION_HITBOX_OFFSET_Y),
     initialPosition(0.0f, 0.0f),
     initialPatrolPointA(0.0f, 0.0f),
-    initialPatrolPointB(0.0f, 0.0f)
+    initialPatrolPointB(0.0f, 0.0f),
+    audioSystem(nullptr)
 {
 }
 
@@ -92,7 +93,8 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
     renderHeight(48.0f),
     initialPosition(startPos), // Ghi nhớ vị trí spawn chính xác
     initialPatrolPointA(startPos - glm::vec2(100.0f, 0.0f)), // Lưu điểm A ban đầu
-    initialPatrolPointB(startPos + glm::vec2(100.0f, 0.0f))
+    initialPatrolPointB(startPos + glm::vec2(100.0f, 0.0f)),
+    audioSystem(nullptr)
 {
     switch (type) {
     case EnemyType::MINION:
@@ -423,6 +425,21 @@ void Enemy::Die() {
     isAlive = false;
     enemyState = EnemyState::STATE_DEAD;
     velocity = glm::vec2(0.0f, 0.0f);
+
+    // Phát âm thanh chết
+    if (audioSystem) {
+        switch (enemyType) {
+        case EnemyType::MINION:
+            audioSystem->playSound("assets/audio/goblin_death.mp3", false, 1.0f);
+            break;
+        case EnemyType::ELITE:
+            audioSystem->playSound("assets/audio/goblin_death.mp3", false, 1.0f);
+            break;
+        case EnemyType::BOSS:
+            audioSystem->playSound("assets/audio/goblin_death.mp3", false, 1.0f);
+            break;
+        }
+    }
 }
 
 // === HITBOX (nhỏ hơn sprite, có offset) ===
