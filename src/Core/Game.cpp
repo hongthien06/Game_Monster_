@@ -321,7 +321,11 @@ void Game::render() {
     else if (currentGameState == GameState::MAIN_MENU) { // <-- THÊM KHỐI MAIN MENU
         mainMenu->Render();
     }
-
+    else if (currentGameState == GameState::TUTORIAL) {
+        if (tutorialMenu) {
+            tutorialMenu->Render();
+        }
+    }
     SDL_RenderPresent(renderer);
 }
 

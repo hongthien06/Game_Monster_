@@ -68,28 +68,45 @@ void TutorialMenu::RenderText(const std::string& text, glm::vec2 pos, SDL_Color 
 }
 
 void TutorialMenu::Render() {
-    // Nền overlay
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
-    SDL_FRect overlay = { 0.0f, 0.0f, (float)GameConstants::SCREEN_WIDTH, (float)GameConstants::SCREEN_HEIGHT };
+    SDL_FRect overlay = { 0.0f, 0.0f, (float)GameConstants::LOGICAL_WIDTH, (float)GameConstants::LOGICAL_HEIGHT };
     SDL_RenderFillRect(renderer, &overlay);
 
     float centerX = GameConstants::LOGICAL_WIDTH / 2.0f;
+    float startY = 90.0f; 
+    float lineHeight = 50.0f; 
+
+    float columnCenterOffset = 90.0f; 
+
+    float leftColumnX = centerX - columnCenterOffset;
+    float rightColumnX = centerX + columnCenterOffset;
+
+    float labelOffset = 60.0f; 
 
     SDL_Color colorTitle = { 0, 255, 0, 255 };
-    SDL_Color colorText = { 255, 255, 255, 255 };
-    SDL_Color colorButton = { 255, 255, 0, 255 };
+    SDL_Color colorLabel = { 255, 255, 255, 255 }; 
+    SDL_Color colorKey = { 255, 255, 0, 255 };    
+    SDL_Color colorButton = { 255, 255, 0, 255 }; 
 
-    // Hiển thị hướng dẫn
     RenderText("TUTORIAL", { centerX, 50.0f }, colorTitle, true);
-    RenderText("Use W/S or UP/DOWN to move the character.", { 50, 150.0f }, colorText);
-    RenderText("Press J or ENTER to attack.", { 50, 200.0f }, colorText);
-    RenderText("Press ESC, ENTER, or click BACK to return.", { 50, 250.0f }, colorText);
 
-    // Vẽ BACK button
+    float currentY = startY;
+    RenderText("Move: A D", { leftColumnX, currentY }, colorLabel, true); currentY += lineHeight;
+    RenderText("Run: Shift", { leftColumnX, currentY }, colorLabel, true); currentY += lineHeight;
+    RenderText("Jump: Space", { leftColumnX, currentY }, colorLabel, true); currentY += lineHeight;
+
+    currentY = startY; 
+    RenderText("Attack: J", { rightColumnX, currentY }, colorLabel, true); currentY += lineHeight;
+    RenderText("Shot: K", { rightColumnX, currentY }, colorLabel, true); currentY += lineHeight;
+    RenderText("Dash: Ctrl", { rightColumnX, currentY }, colorLabel, true); currentY += lineHeight;
+
+    // --- Hướng dẫn thoát (ở dưới cùng, căn giữa) ---
+    currentY = startY + (3 * lineHeight) + 60.0f; // Điều chỉnh vị trí Y để nó nằm dưới cả hai cột
+    RenderText("Press ESC or click BACK to return.", { centerX, currentY }, colorLabel, true);
+
     SDL_FRect backRect = { centerX - 100.0f, GameConstants::LOGICAL_HEIGHT - 100.0f, 200.0f, 50.0f };
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderRect(renderer, &backRect);
-
     RenderText("BACK", { centerX, GameConstants::LOGICAL_HEIGHT - 75.0f }, colorButton, true);
 }
