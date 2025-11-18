@@ -85,6 +85,7 @@ public:
     void update(float deltaTime);
     void render();
     void cleanup();
+    bool pendingNextMap;
 
     bool loadItemTextures();
     void initItems();

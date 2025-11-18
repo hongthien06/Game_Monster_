@@ -20,6 +20,7 @@ Game::Game()
     renderer(nullptr),
     isGameRunning(true),
     map(nullptr),
+    pendingNextMap(false),
     player(nullptr),
     camera(
         GameConstants::LOGICAL_WIDTH,
@@ -224,9 +225,8 @@ void Game::handleEvents() {
     SDL_PumpEvents();
 }
 
-// Cap nhat logic gameplay
+// ===== SỬA HÀM update() - KIỂM TRA HẾT QUÁI =====
 void Game::update(float deltaTime) {
-    // Cap nhat chuyen dong, hoat anh nhan vat
     switch (currentGameState) {
 
     case GameState::MAIN_MENU: 
@@ -242,19 +242,18 @@ void Game::update(float deltaTime) {
         }
         else if (choice == MainMenuChoice::TUTORIAL) { 
             mainMenu->ResetChoice(); 
-            startTransition(GameState::TUTORIAL);  // SỬA: Dùng transition
+            startTransition(GameState::TUTORIAL);
         }
         break;
     }
+    
     case GameState::TRANSITIONING:
     {
         screenTransition->Update(deltaTime);
 
-        // Khi transition hoàn tất
         if (!screenTransition->IsActive()) {
             currentGameState = targetState;
 
-            // Reset game nếu chuyển sang PLAYING
             if (targetState == GameState::PLAYING) {
                 resetGame();
             }
@@ -264,28 +263,60 @@ void Game::update(float deltaTime) {
         }
         break;
     }
+    
     case GameState::PLAYING:
     {
         if (player && map)
             player->Update(deltaTime, *map);
 
         for (const auto& item : items)
-            if (!item->IsCollected()) item->Update(deltaTime);
+            if (!item->IsCollected()) 
+                item->Update(deltaTime);
 
         checkItemCollisions();
+        
+        // ✅ UPDATE ENEMIES TRƯỚC
         updateEnemies(deltaTime);
+        
+        // ✅ DEBUG: Kiểm tra số lượng enemies
+        static int frameCount = 0;
+        if (++frameCount % 60 == 0) { // Log mỗi 60 frames (~1 giây)
+            int aliveCount = 0;
+            int deadCount = 0;
+            for (const auto& enemy : enemies) {
+                if (enemy->IsAlive()) aliveCount++;
+                else deadCount++;
+            }
+            std::cout << "[Game] Enemies alive: " << aliveCount 
+                      << " | dead: " << deadCount 
+                      << " | total: " << enemies.size() << "\n";
+        }
+        
+        // ✅ SAU ĐÓ mới check collisions
         checkEnemyCollisions();
+        
         effectManager.Update(deltaTime);
         camera.update(player->GetPosition(), deltaTime);
 
-        if (playerHUD) playerHUD->Update(deltaTime);
-        if (audio) audio->update(deltaTime);
+        if (playerHUD) 
+            playerHUD->Update(deltaTime);
+        if (audio) 
+            audio->update(deltaTime);
 
-        // ** KIỂM TRA CHẾT **
+        // ✅ KIỂM TRA CHẾT
         if (!player->IsAlive()) {
             currentGameState = GameState::GAME_OVER;
             gameOverMenu->Reset(); 
         }
+
+        // ✅ KIỂM TRA HẾT QUÁI (sau khi đã update & xóa enemy chết)
+        if (enemies.empty() && !pendingNextMap) {
+            std::cout << "[Game] ===== ALL ENEMIES DEFEATED =====\n";
+            std::cout << "[Game] Current map: " << currentMapName << "\n";
+            std::cout << "[Game] Setting pendingNextMap = true\n";
+            pendingNextMap = true;
+        }
+
         break;
     }
 
@@ -304,6 +335,7 @@ void Game::update(float deltaTime) {
         }
         break;
     }
+    
     case GameState::TUTORIAL:
     {
         if (tutorialMenu) {
@@ -317,6 +349,14 @@ void Game::update(float deltaTime) {
         }
         break;
     }
+    }
+    
+    // ✅ XỬ LÝ CHUYỂN MAP (cuối hàm update)
+    if (pendingNextMap) {
+        std::cout << "[Game] ===== EXECUTING MAP TRANSITION =====\n";
+        LoadNextMap();
+        pendingNextMap = false;
+        std::cout << "[Game] pendingNextMap reset to false\n";
     }
 }
 
@@ -722,21 +762,22 @@ void Game::initEnemies() {
     std::cout << "===== DA SPAWN " << enemies.size() << " ENEMIES =====\n";
 }
 
-// ===== CẬP NHẬT ENEMIES =====
+// ===== SỬA HÀM updateEnemies() =====
 void Game::updateEnemies(float deltaTime) {
     if (!player) return;
 
     glm::vec2 playerPos = player->GetPosition();
 
+    // ✅ Duyệt và update tất cả enemies trước
     for (auto& enemy : enemies) {
         enemy->SetTargetPosition(playerPos);
 
-        // ✅ THÊM: Trigger boss intro khi player đến gần
+        // Trigger boss intro khi player đến gần
         if (enemy->GetEnemyType() == EnemyType::BOSS) {
             Boss* boss = dynamic_cast<Boss*>(enemy.get());
             if (boss && boss->IsInIntro()) {
                 float distToBoss = glm::length(playerPos - boss->GetPosition());
-                if (distToBoss < 300.0f) {  // Player trong bán kính 300px
+                if (distToBoss < 300.0f) {
                     boss->TriggerIntro();
                     std::cout << "[Game] Boss fight begins!\n";
                 }
@@ -744,20 +785,29 @@ void Game::updateEnemies(float deltaTime) {
         }
 
         enemy->Update(deltaTime, *map);
-        // Xóa enemy đã chết
-enemies.erase(
-    std::remove_if(enemies.begin(), enemies.end(),
-        [](auto& e) { return !e->IsAlive(); }),
-    enemies.end()
-);
+    }
 
-// Nếu hết quái => chuyển map
-if (enemies.empty()) {
-    LoadNextMap();
-}
-
+    // ✅ SAU ĐÓ mới xóa enemy chết (NGOÀI vòng lặp trên)
+    size_t beforeSize = enemies.size();
+    enemies.erase(
+        std::remove_if(enemies.begin(), enemies.end(),
+            [](const std::unique_ptr<Enemy>& e) {
+                bool isDead = !e->IsAlive();
+                if (isDead) {
+                    std::cout << "[Game] Removing dead enemy\n";
+                }
+                return isDead;
+            }),
+        enemies.end()
+    );
+    size_t afterSize = enemies.size();
+    
+    if (beforeSize != afterSize) {
+        std::cout << "[Game] Removed " << (beforeSize - afterSize) 
+                  << " dead enemies. Remaining: " << afterSize << "\n";
     }
 }
+
 
 // ===== KIỂM TRA VA CHẠM =====
 void Game::checkEnemyCollisions() {
@@ -866,35 +916,87 @@ void Game::resetGame() {
     gameOverMenu->Reset();
 }
 
+// ===== THÊM SAFE GUARD CHO LoadNextMap() =====
 void Game::LoadNextMap() {
+    std::cout << "[Game] ===== LOADING NEXT MAP =====\n";
+    std::cout << "[Game] Current map: " << currentMapName << "\n";
+
     // Xác định map kế tiếp
-    if (currentMapName == "assets/tileset/Map_1.tmj")
-        currentMapName = "assets/tileset/Map_2.tmj";
-    else if (currentMapName == "assets/tileset/Map_2.tmj")
-        currentMapName = "assets/tileset/Map_3.tmj";
+    std::string nextMap;
+    if (currentMapName == "assets/tileset/Map_1.tmj") {
+        nextMap = "assets/tileset/Map_2.tmj";
+    }
+    else if (currentMapName == "assets/tileset/Map_2.tmj") {
+        nextMap = "assets/tileset/Map_3.tmj";
+    }
     else {
-        std::cout << "No more maps!\n";
+        std::cout << "[Game] No more maps! Victory!\n";
+        currentGameState = GameState::GAME_OVER;
+        return;
+    }
+    
+    std::cout << "[Game] Next map: " << nextMap << "\n";
+    currentMapName = nextMap;
+
+    // ✅ Clear dữ liệu cũ TRƯỚC KHI load map mới
+    enemies.clear();
+    items.clear();
+    std::cout << "[Game] Cleared old data.\n";
+
+    // ✅ Xóa map cũ an toàn
+    if (map) {
+        delete map;
+        map = nullptr;
+    }
+    
+    map = new Map(renderer);
+    if (!map) {
+        std::cerr << "[Game] ERROR: Failed to create new map!\n";
+        isGameRunning = false;
         return;
     }
 
-    // Load map mới
-    delete map;
-    map = new Map(renderer);
-    map->loadMap(currentMapName);
+    // ✅ Load map mới
+    if (!map->loadMap(currentMapName)) {
+        std::cerr << "[Game] ERROR: Failed to load map: " << currentMapName << std::endl;
+        isGameRunning = false;
+        return;
+    }
 
-    // Clear dữ liệu cũ
-    enemies.clear();
-    items.clear();
+    std::cout << "[Game] Map loaded successfully: " << currentMapName << std::endl;
 
-    // Spawn mới
-    initEnemies();
-    initItems();
+    // ✅ Spawn mới
+    try {
+        initEnemies();
+        initItems();
+        std::cout << "[Game] Spawned " << enemies.size() << " enemies and " 
+                  << items.size() << " items.\n";
+    } catch (const std::exception& e) {
+        std::cerr << "[Game] ERROR during spawn: " << e.what() << std::endl;
+        isGameRunning = false;
+        return;
+    }
 
-    // Cập nhật lại vị trí player
+    // ✅ Cập nhật lại vị trí player
     auto spawn = map->GetSpawn(0);
     if (!spawn.empty()) {
         player->SetPosition(glm::vec2(spawn[0].x, spawn[0].y));
         player->SnapToGround(*map);
+        std::cout << "[Game] Player spawned at (" << spawn[0].x << ", " << spawn[0].y << ")\n";
+    } else {
+        std::cerr << "[Game] WARNING: No player spawn point found!\n";
     }
-}
 
+    // ✅ Reset HUD
+    if (playerHUD) {
+        playerHUD->SetPlayerReference(player);
+    }
+
+    // ✅ Đổi nhạc theo map (tuỳ chọn)
+    if (audio) {
+        audio->stopBGM();
+        audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
+    }
+
+    std::cout << "[Game] ===== MAP TRANSITION COMPLETE =====\n";
+}
