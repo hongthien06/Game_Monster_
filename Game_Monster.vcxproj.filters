@@ -609,7 +609,7 @@
     <ClInclude Include="src\Core\GameOverMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Core\TutorialUI.h">
+    <ClInclude Include="src\Core\TutorialMenu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Core\MainMenu.h">
@@ -695,7 +695,7 @@
     <ClCompile Include="src\Core\GameOverMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Core\TutorialUI.cpp">
+    <ClCompile Include="src\Core\TutorialMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\MainMenu.cpp">

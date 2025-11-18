@@ -124,6 +124,7 @@ bool Game::init() {
 
     mainMenu = std::make_unique<MainMenu>(renderer, mainFont);
     gameOverMenu = std::make_unique<GameOverMenu>(renderer, mainFont);
+    tutorialMenu = std::make_unique<TutorialMenu>(renderer, mainFont);
     currentGameState = GameState::MAIN_MENU;
 
     return true;
@@ -174,6 +175,17 @@ void Game::handleEvents() {
             gameOverMenu->HandleInput(); // Hàm này đã có xử lý phím
             // Nếu bạn muốn thêm chuột cho GameOver, làm tương tự như Main Menu ở đây
         }
+        else if (currentGameState == GameState::TUTORIAL) {
+            if (tutorialMenu) {
+                // Xử lý Phím
+                tutorialMenu->HandleInput();
+
+                // Xử lý Click chuột
+                if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
+                    tutorialMenu->HandleMouseClick((float)event.button.x, (float)event.button.y);
+                }
+            }
+        }
     }
     SDL_PumpEvents();
 }
@@ -183,41 +195,26 @@ void Game::update(float deltaTime) {
     // Cap nhat chuyen dong, hoat anh nhan vat
     switch (currentGameState) {
 
-    case GameState::MAIN_MENU: // <-- KHỐI MAIN MENU
+    case GameState::MAIN_MENU: 
     {
         mainMenu->Update(deltaTime);
         MainMenuChoice choice = mainMenu->GetChoice();
 
         if (choice == MainMenuChoice::START_GAME) {
-            resetGame(); // Chuẩn bị game
-            currentGameState = GameState::PLAYING; // Bắt đầu chơi
+            resetGame(); 
+            currentGameState = GameState::PLAYING; 
         }
         else if (choice == MainMenuChoice::QUIT) {
             isGameRunning = false;
         }
-        else if (choice == MainMenuChoice::TOGGLE_MUSIC) { // Xử lý Bật/Tắt Nhạc
-
-            // 1. Reset Choice ngay lập tức để không lặp lại hành động
-            mainMenu->ResetChoice(); // (Giả định hàm này đã được thêm vào MainMenu.h/cpp)
-
-            // 2. Gọi logic Mute/Unmute
-            if (audio) {
-                // Sử dụng hàm IsMusicOn() (đã được thêm vào MainMenu.h) để kiểm tra trạng thái mới
-                if (mainMenu->IsMusicOn()) {
-                    audio->unmuteBGM(); // BẬT tiếng (Set về âm lượng gốc)
-                    std::cout << "Music unmuted (Volume restored).\n";
-                }
-                else {
-                    audio->muteBGM(); // TẮT tiếng (Set Volume về 0.0f)
-                    std::cout << "Music muted (Volume set to 0).\n";
-                }
-            }
+        else if (choice == MainMenuChoice::TUTORIAL) { 
+            mainMenu->ResetChoice(); 
+            currentGameState = GameState::TUTORIAL; 
         }
         break;
     }
     case GameState::PLAYING:
     {
-        // Cap nhat chuyen dong, hoat anh nhan vat
         if (player && map)
             player->Update(deltaTime, *map);
 
@@ -253,6 +250,19 @@ void Game::update(float deltaTime) {
         }
         else if (choice == MenuChoice::QUIT) {
             isGameRunning = false; 
+        }
+        break;
+    }
+    case GameState::TUTORIAL:
+    {
+        if (tutorialMenu) {
+            tutorialMenu->Update(deltaTime);
+            TutorialChoice choice = tutorialMenu->GetChoice();
+
+            if (choice == TutorialChoice::BACK) {
+                tutorialMenu->ResetChoice(); 
+                currentGameState = GameState::MAIN_MENU; 
+            }
         }
         break;
     }

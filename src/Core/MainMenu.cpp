@@ -44,7 +44,7 @@ void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::str
 
 
 MainMenu::MainMenu(SDL_Renderer* ren, TTF_Font* fnt)
-    : renderer(ren), font(fnt), isMusicOn(true) {
+    : renderer(ren), font(fnt) {
     SetupButtons();
     Reset();
 }
@@ -56,21 +56,6 @@ void MainMenu::Reset() {
     selectedOption = 0;
     inputTimer = inputCooldown;
     currentChoice = MainMenuChoice::NONE;
-}
-
-void MainMenu::ToggleMusicState() {
-    // 1. Đảo ngược trạng thái
-    isMusicOn = !isMusicOn;
-
-    // 2. Cập nhật text hiển thị của nút
-    if (isMusicOn) {
-        buttons[1].text = "MUSIC: ON";
-        // THÊM: Gọi hàm bật nhạc tại đây (ví dụ: GameState::PlayMusic())
-    }
-    else {
-        buttons[1].text = "MUSIC: OFF";
-        // THÊM: Gọi hàm tắt nhạc tại đây (ví dụ: GameState::StopMusic())
-    }
 }
 
 void MainMenu::SetupButtons() {
@@ -90,10 +75,10 @@ void MainMenu::SetupButtons() {
 
     // OPTIONS
     buttons[1] = {
-        isMusicOn ? "MUSIC: ON" : "MUSIC: OFF",
+        "TUTORIAL",
         { centerX, startY + 10.0f + spacing },
         buttonWidth, buttonHeight,
-        MainMenuChoice::TOGGLE_MUSIC
+        MainMenuChoice::TUTORIAL
     };
 
     // QUIT
@@ -115,7 +100,6 @@ void MainMenu::HandleKeyboardInput() {
     if (inputTimer > 0) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
-
     int maxOption = 2;
 
     if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
@@ -127,14 +111,7 @@ void MainMenu::HandleKeyboardInput() {
         inputTimer = inputCooldown;
     }
     else if (keys[SDL_SCANCODE_RETURN] || keys[SDL_SCANCODE_J]) {
-        if (buttons[selectedOption].choice == MainMenuChoice::TOGGLE_MUSIC) {
-            // Xử lý logic Bật/Tắt nhạc ngay trong menu
-            ToggleMusicState(); // 👈 Gọi hàm mới
-        }
-        else {
-            // Các lựa chọn khác (START_GAME, QUIT) sẽ thoát menu
-            currentChoice = buttons[selectedOption].choice;
-        }
+        currentChoice = buttons[selectedOption].choice;
         inputTimer = inputCooldown;
     }
 }
@@ -143,19 +120,12 @@ void MainMenu::HandleKeyboardInput() {
 void MainMenu::HandleMouseClick(float mouseX, float mouseY) {
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
-
         float buttonX = button.pos.x - button.width / 2.0f;
         float buttonY = button.pos.y - button.height / 2.0f;
 
         if (mouseX >= buttonX && mouseX <= buttonX + button.width &&
             mouseY >= buttonY && mouseY <= buttonY + button.height) {
-
-            if (button.choice == MainMenuChoice::TOGGLE_MUSIC) {
-                ToggleMusicState();
-            }
-            else {
-                currentChoice = button.choice;
-            }
+            currentChoice = button.choice;
             return;
         }
     }

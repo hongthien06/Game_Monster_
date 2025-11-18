@@ -15,6 +15,7 @@
 #include "../Core/Audio.h"
 #include "../Core/HUD.h" 
 #include "../Core/MainMenu.h"
+#include "../Core/TutorialMenu.h"
 #include "../Core/GameOverMenu.h"
 #include <SDL3_ttf/SDL_ttf.h>
 
@@ -28,7 +29,8 @@
 enum class GameState {
     MAIN_MENU,
     PLAYING,
-    GAME_OVER
+    GAME_OVER,
+    TUTORIAL
 };
 
 class Game {
@@ -62,6 +64,7 @@ private:
     TTF_Font* mainFont;
     std::unique_ptr<MainMenu> mainMenu;
     std::unique_ptr<GameOverMenu> gameOverMenu;
+    std::unique_ptr<TutorialMenu> tutorialMenu;
 
 public:
     Game();

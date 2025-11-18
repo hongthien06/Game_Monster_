@@ -8,7 +8,7 @@
 enum class MainMenuChoice {
     NONE = 0,
     START_GAME,
-    TOGGLE_MUSIC,
+    TUTORIAL,
     QUIT
 };
 
@@ -24,12 +24,10 @@ public:
     void HandleMouseClick(float mouseX, float mouseY);
 
     void HandleMouseMotion(float mouseX, float mouseY);
-    void ToggleMusicState();
     void Render();
 
     MainMenuChoice GetChoice() const { return currentChoice; }
     void ResetChoice() { currentChoice = MainMenuChoice::NONE; } 
-    bool IsMusicOn() const { return isMusicOn; }
 
 private:
     SDL_Renderer* renderer;
@@ -48,8 +46,6 @@ private:
 
     ButtonArea buttons[3];
     void SetupButtons();
-
-    bool isMusicOn;
 
     void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
         glm::vec2 pos, SDL_Color color, bool center = false);

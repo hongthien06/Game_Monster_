@@ -1,35 +1,49 @@
 #pragma once
 #include "miniaudio.h"
-#include <vector>
 #include <string>
+#include <vector>
 
 class Audio {
-private:
-    ma_engine engine;
-    
-    ma_sound bgm;
-    bool bgmLoaded = false;
-    float bgmCurrentVolume = 1.0f;
-    float bgmInitialVolume = 1.0f;
-
-    std::vector<ma_sound*> activeSounds;
-    void cleanupFinishedSounds();  
-
-     // Cac bien can thiet de tao hiue ung fade cho am thanh
-    float bgmFadeTimer = 0.0f;
-    float bgmFadeDuration = 0.0f;
-    bool bgmFading = false;
 public:
     Audio();
     ~Audio();
-    void update(float deltaTime); 
+
+    // Play sound effect
     void playSound(const std::string& filePath, bool loop = false);
     void playSound(const std::string& filePath, bool loop, float volume);
-    void stopAll();
-    void playBGM(const std::string& filePath, bool loop, float volume);
+
+    // BGM
+    void playBGM(const std::string& filePath, bool loop = true, float volume = 1.0f);
     void stopBGM();
-    void fadeOutBGM(float duration); // Them ham tao Fade de chuyen nhac
-    void setBGMVolume(float volume); // Chinh am luong
+    void fadeOutBGM(float duration);
+    void update(float deltaTime);
+
+    // Mute/Unmute
     void muteBGM();
     void unmuteBGM();
+    bool isMusicOn() const;
+
+    // Stop all sounds
+    void stopAll();
+
+private:
+    ma_engine engine;
+    ma_sound bgm;
+    bool bgmLoaded = false;
+
+    std::vector<ma_sound*> activeSounds;
+
+    // BGM volume control
+    float bgmInitialVolume = 1.0f;
+    float bgmCurrentVolume = 1.0f;
+
+    // Fade out
+    bool bgmFading = false;
+    float bgmFadeDuration = 0.0f;
+    float bgmFadeTimer = 0.0f;
+
+    // Music state
+    bool musicOn = true;
+
+    void cleanupFinishedSounds();
 };
