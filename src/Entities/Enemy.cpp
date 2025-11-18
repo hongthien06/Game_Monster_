@@ -189,53 +189,28 @@ void Enemy::HandleIdle(float deltaTime) {
 //    flipHorizontal = velocity.x < 0;
 //}
 void Enemy::HandleWalk(float deltaTime) {
-    // Chọn điểm đích dựa vào hướng di chuyển
+    // 1. Chọn điểm đích dựa vào hướng di chuyển
     glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
 
-    // Tính khoảng cách đến điểm đích
-    glm::vec2 direction = targetPoint - position;
-    float distance = glm::length(direction);
+    // 2. Chỉ tính khoảng cách theo trục X (bỏ qua trục Y)
+    float distanceX = std::abs(targetPoint.x - position.x);
 
-    //// Nếu đến gần điểm đích (trong vòng 10 pixel)
-    if (distance < 10.0f) {
+    // 3. Nếu đến gần điểm đích theo trục X (trong vòng 10 pixel)
+    if (distanceX < 10.0f) {
         // Đổi hướng di chuyển
         movingToB = !movingToB;
         velocity.x = 0.0f;
-
-    //   // Dừng lại 0.5 giây tại điểm đích (optional)
-    //    // Bạn có thể thêm timer nếu muốn enemy dừng lại
         return;
     }
 
-    //// Di chuyển về phía điểm đích
-    //if (distance > 0.1f) {
-    //    direction = glm::normalize(direction);
-    //    velocity.x = direction.x * walkSpeed;
-    //    flipHorizontal = velocity.x < 0;
-    //}
+    // 4. Di chuyển về phía điểm đích
+    // Xác định hướng: nếu đích ở bên phải (> 0) thì đi phải, ngược lại đi trái
+    float directionX = (targetPoint.x > position.x) ? 1.0f : -1.0f;
 
-  /*  glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
-    glm::vec2 direction = targetPoint - position;
-    float distance = glm::length(direction);*/
+    velocity.x = directionX * walkSpeed;
 
-    //// DEBUG: In ra lần đầu enemy đổi hướng
-    //static bool hasReachedPoint = false;
-    //if (distance < 10.0f && !hasReachedPoint) {
-    //    std::cout << "[Enemy] Reached patrol point! Switching direction.\n";
-    //    hasReachedPoint = true;
-    //    movingToB = !movingToB;
-    //    velocity.x = 0.0f;
-    //    return;
-    //}
-    //else if (distance >= 10.0f) {
-    //    hasReachedPoint = false;
-    //}
-
-    //if (distance > 0.1f) {
-    //    direction = glm::normalize(direction);
-    //    velocity.x = direction.x * walkSpeed;
-    //    flipHorizontal = velocity.x < 0;
-    //}
+    // Quay mặt theo hướng di chuyển
+    flipHorizontal = velocity.x < 0;
 }
 
 void Enemy::HandleRun(float deltaTime) {

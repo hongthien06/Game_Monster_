@@ -536,145 +536,160 @@ void Game::spawnHealthPotionAtPosition(glm::vec2 pos) {
 }
 
 // ===== KHỞI TẠO ENEMIES =====
+// ===== SỬA TRONG HÀM initEnemies() CỦA Game.cpp =====
+
 void Game::initEnemies() {
     std::cout << "===== BAT DAU SPAWN ENEMIES =====\n";
 
-    // ===== VÙNG 1: SPAWN 3 ORC MINIONS (X: 200-400) =====
+    // ===== VÙNG 1: SPAWN 3 ORC MINIONS =====
 
     // ORC BERSERK
-for (auto& pos : map->GetSpawn(1)) {
-    enemies.push_back(std::make_unique<Minions>(
-        renderer,
-        glm::vec2(pos.x, pos.y),
-        MinionType::ORC_BERSERK
-    ));
-    enemies.back()->SetPatrolPoints(
-        glm::vec2(pos.x - 48.0f, pos.y - 48.0f),  // Điểm A (trái)
-        glm::vec2(pos.x + 48.0f, pos.y - 48.0f)   // Điểm B (phải)
-    );
-    enemies.back()->SetAggroRange(100.0f);  //  Tầm phát hiện player
-    enemies.back()->SetAttackRange(50.0f); // Tầm tấn công
+    for (auto& pos : map->GetSpawn(1)) {
+        enemies.push_back(std::make_unique<Minions>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            MinionType::ORC_BERSERK
+        ));
 
-    enemies.back()->SetCoinDropAmount(1);
-    enemies.back()->SetAudioSystem(audio);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-    });
-}
+        // ===== SỬA ĐÂY: 2 ĐIỂM PHẢI KHÁC NHAU =====
+        enemies.back()->SetPatrolPoints(
+            glm::vec2(pos.x - 100.0f, pos.y - 48.0f),  // Điểm A: TRÁI 100 pixel
+            glm::vec2(pos.x + 100.0f, pos.y - 48.0f)   // Điểm B: PHẢI 100 pixel
+        );
+
+        enemies.back()->SetAggroRange(100.0f);
+        enemies.back()->SetAttackRange(50.0f);
+        enemies.back()->SetCoinDropAmount(1);
+        enemies.back()->SetAudioSystem(audio);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
 
     // ORC SHAMAN
-for (auto& pos : map->GetSpawn(2)) {
-    enemies.push_back(std::make_unique<Minions>(
-        renderer,
-        glm::vec2(pos.x, pos.y),
-        MinionType::ORC_BERSERK
-    ));
-    enemies.back()->SetPatrolPoints(
-        glm::vec2(pos.x - 48.0f, pos.y - 48.0f),  // Điểm A (trái)
-        glm::vec2(pos.x + 48.0f, pos.y - 48.0f)   // Điểm B (phải)
-    );
-    enemies.back()->SetAggroRange(100.0f);  //  Tầm phát hiện player
-    enemies.back()->SetAttackRange(50.0f); // Tầm tấn công
-    enemies.back()->SetCoinDropAmount(1);
-    enemies.back()->SetAudioSystem(audio);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-    });
-}
+    for (auto& pos : map->GetSpawn(2)) {
+        enemies.push_back(std::make_unique<Minions>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            MinionType::ORC_BERSERK
+        ));
+
+        // ===== SỬA ĐÂY =====
+        enemies.back()->SetPatrolPoints(
+            glm::vec2(pos.x - 150.0f, pos.y - 48.0f),  // Khoảng cách xa hơn
+            glm::vec2(pos.x + 150.0f, pos.y - 48.0f)
+        );
+
+        enemies.back()->SetAggroRange(100.0f);
+        enemies.back()->SetAttackRange(50.0f);
+        enemies.back()->SetCoinDropAmount(1);
+        enemies.back()->SetAudioSystem(audio);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
 
     // ORC WARRIOR
-for (auto& pos : map->GetSpawn(3)) {
-    enemies.push_back(std::make_unique<Minions>(
-        renderer,
-        glm::vec2(pos.x, pos.y),
-        MinionType::ORC_BERSERK
-    ));
-    enemies.back()->SetPatrolPoints(
-        glm::vec2(pos.x - 48.0f, pos.y - 48.0f),  // Điểm A (trái)
-        glm::vec2(pos.x + 48.0f, pos.y - 48.0f)   // Điểm B (phải)
-    );
-    enemies.back()->SetAggroRange(100.0f);  //  Tầm phát hiện player
-    enemies.back()->SetAttackRange(50.0f); // Tầm tấn công
-    enemies.back()->SetCoinDropAmount(1);
-    enemies.back()->SetAudioSystem(audio);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-    });
-}
+    for (auto& pos : map->GetSpawn(3)) {
+        enemies.push_back(std::make_unique<Minions>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            MinionType::ORC_BERSERK
+        ));
 
+        // ===== SỬA ĐÂY =====
+        enemies.back()->SetPatrolPoints(
+            glm::vec2(pos.x - 80.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 80.0f, pos.y - 48.0f)
+        );
 
-    // ===== VÙNG 2: SPAWN 3 TROLL ELITES (X: 600-900) =====
+        enemies.back()->SetAggroRange(100.0f);
+        enemies.back()->SetAttackRange(50.0f);
+        enemies.back()->SetCoinDropAmount(1);
+        enemies.back()->SetAudioSystem(audio);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
+
+    // ===== VÙNG 2: SPAWN 3 TROLL ELITES =====
 
     // TROLL 1
-for (auto& pos : map->GetSpawn(4)) {
-    enemies.push_back(std::make_unique<Elites>(
-        renderer,
-        glm::vec2(pos.x, pos.y),
-        TrollType::TROLL_1
-    ));
-    enemies.back()->SetPatrolPoints(
-        glm::vec2(pos.x - 48.0f, pos.y - 48.0f),  // Điểm A (trái)
-        glm::vec2(pos.x + 48.0f, pos.y - 48.0f)   // Điểm B (phải)
-    );
-    enemies.back()->SetAggroRange(100.0f);  //  Tầm phát hiện player
-    enemies.back()->SetAttackRange(50.0f); // Tầm tấn công
+    for (auto& pos : map->GetSpawn(4)) {
+        enemies.push_back(std::make_unique<Elites>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            TrollType::TROLL_1
+        ));
 
-    enemies.back()->SetCoinDropAmount(1);
-    enemies.back()->SetAudioSystem(audio);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-    });
-}
+        // ===== SỬA ĐÂY =====
+        enemies.back()->SetPatrolPoints(
+            glm::vec2(pos.x - 120.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 120.0f, pos.y - 48.0f)
+        );
+
+        enemies.back()->SetAggroRange(100.0f);
+        enemies.back()->SetAttackRange(50.0f);
+        enemies.back()->SetCoinDropAmount(1);
+        enemies.back()->SetAudioSystem(audio);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
 
     // TROLL 2
-for (auto& pos : map->GetSpawn(5)) {
-    enemies.push_back(std::make_unique<Elites>(
-        renderer,
-        glm::vec2(pos.x, pos.y),
-        TrollType::TROLL_2
-    ));
-    enemies.back()->SetPatrolPoints(
-        glm::vec2(pos.x - 48.0f, pos.y - 48.0f),  // Điểm A (trái)
-        glm::vec2(pos.x + 48.0f, pos.y - 48.0f)   // Điểm B (phải)
-    );
-    enemies.back()->SetAggroRange(150.0f);  //  Tầm phát hiện player
-    enemies.back()->SetAttackRange(50.0f); // Tầm tấn công
+    for (auto& pos : map->GetSpawn(5)) {
+        enemies.push_back(std::make_unique<Elites>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            TrollType::TROLL_2
+        ));
 
-    enemies.back()->SetCoinDropAmount(1);
-    enemies.back()->SetAudioSystem(audio);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-    });
-}
+        // ===== SỬA ĐÂY =====
+        enemies.back()->SetPatrolPoints(
+            glm::vec2(pos.x - 100.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 100.0f, pos.y - 48.0f)
+        );
+
+        enemies.back()->SetAggroRange(150.0f);
+        enemies.back()->SetAttackRange(50.0f);
+        enemies.back()->SetCoinDropAmount(1);
+        enemies.back()->SetAudioSystem(audio);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
 
     // TROLL 3
     for (auto& pos : map->GetSpawn(6)) {
-    enemies.push_back(std::make_unique<Elites>(
-        renderer,
-        glm::vec2(pos.x, pos.y),
-        TrollType::TROLL_3
-    ));
-    enemies.back()->SetPatrolPoints(
-        glm::vec2(pos.x - 48.0f, pos.y - 48.0f),  // Điểm A (trái)
-        glm::vec2(pos.x + 48.0f, pos.y - 48.0f)   // Điểm B (phải)
-    );
-    enemies.back()->SetAggroRange(100.0f);  //  Tầm phát hiện player
-    enemies.back()->SetAttackRange(50.0f); // Tầm tấn công
+        enemies.push_back(std::make_unique<Elites>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            TrollType::TROLL_3
+        ));
 
-    enemies.back()->SetCoinDropAmount(1);
-    enemies.back()->SetAudioSystem(audio);
-    enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-        spawnCoinAtPosition(pos, amount);
-        spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-    });
-}
+        // ===== SỬA ĐÂY =====
+        enemies.back()->SetPatrolPoints(
+            glm::vec2(pos.x - 90.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 90.0f, pos.y - 48.0f)
+        );
 
-    // ===== VÙNG 3: SPAWN BOSS (CHỈ TRONG MAP_3) =====
+        enemies.back()->SetAggroRange(100.0f);
+        enemies.back()->SetAttackRange(50.0f);
+        enemies.back()->SetCoinDropAmount(1);
+        enemies.back()->SetAudioSystem(audio);
+        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+    }
+
+    // ===== VÙNG 3: SPAWN BOSS =====
     if (currentMapName == "Map_3.tmj") {
         auto bossSpawn = map->GetSpawn(7);
         if (!bossSpawn.empty()) {
@@ -684,18 +699,16 @@ for (auto& pos : map->GetSpawn(5)) {
             ));
         }
         else {
-            // Fallback nếu không có spawn point
             enemies.push_back(std::make_unique<Boss>(
                 renderer,
                 glm::vec2(1300.0f, GameConstants::FLOOR_Y - 96.0f)
             ));
         }
 
-        //  Liên kết EffectManager với Boss
         Boss* boss = dynamic_cast<Boss*>(enemies.back().get());
         if (boss) {
             boss->SetEffectManager(&effectManager);
-            boss->TriggerIntro();  // Hoặc trigger trong updateEnemies()
+            boss->TriggerIntro();
         }
 
         enemies.back()->SetCoinDropAmount(10);
