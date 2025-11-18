@@ -101,12 +101,8 @@ void TutorialMenu::Render() {
     RenderText("Shot: K", { rightColumnX, currentY }, colorLabel, true); currentY += lineHeight;
     RenderText("Dash: Ctrl", { rightColumnX, currentY }, colorLabel, true); currentY += lineHeight;
 
-    // --- Hướng dẫn thoát (ở dưới cùng, căn giữa) ---
-    currentY = startY + (3 * lineHeight) + 60.0f; // Điều chỉnh vị trí Y để nó nằm dưới cả hai cột
-    RenderText("Press ESC or click BACK to return.", { centerX, currentY }, colorLabel, true);
-
-    SDL_FRect backRect = { centerX - 100.0f, GameConstants::LOGICAL_HEIGHT - 100.0f, 200.0f, 50.0f };
+    SDL_FRect backRect = { centerX - 100.0f, GameConstants::LOGICAL_HEIGHT - 80.0f, 200.0f, 50.0f };
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderRect(renderer, &backRect);
-    RenderText("BACK", { centerX, GameConstants::LOGICAL_HEIGHT - 75.0f }, colorButton, true);
+    RenderText("BACK", { centerX, GameConstants::LOGICAL_HEIGHT - 55.0f }, colorButton, true);
 }
