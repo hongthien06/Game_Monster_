@@ -157,8 +157,8 @@ bool Game::init() {
         // hoặc 0.5f để chậm hơn một chút
     );
     // THÊM: Load background textures (optional)
-    menuBackgroundTex = IMG_LoadTexture(renderer, "assets/backgrounds/menu_bg.png");
-    gameBackgroundTex = IMG_LoadTexture(renderer, "assets/backgrounds/game_bg.png");
+    menuBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
+    gameBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
 
     currentGameState = GameState::MAIN_MENU;
 
