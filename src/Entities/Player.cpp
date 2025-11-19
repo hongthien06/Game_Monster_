@@ -354,7 +354,8 @@ void Player::Respawn() {
     velocity = glm::vec2(0.0f, 0.0f);
 
     // Reset máu đầy
-    health = maxHealth;
+    health = maxHealth;  // Reset HP về max
+    
 
     // Reset trạng thái
     isDying = false;
@@ -702,6 +703,12 @@ void Player::Reset(glm::vec2 startPos) {
     playerCurrentFrame = 0;
 
     health = maxHealth;
+    lives = maxLives;      // Hồi phục lại 3 tim đỏ
+    isDying = false;       // Đảm bảo tắt trạng thái đang chết
+    isGameOver = false;
+
+    healthPotionCount = 0;  // Reset số lượng potion
+    isAlive = true;
 
     velocity = glm::vec2(0.0f, 0.0f);
 

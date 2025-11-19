@@ -1066,6 +1066,8 @@ void Game::startTransition(GameState nextState) {
 void Game::resetGame() {
     player->Reset(playerStartPos);
     
+    player->SetHealth(player->GetMaxHealth());
+
     // Reset tất cả enemies về trạng thái ban đầu (chứ không xóa)
     for (auto& enemy : enemies) {
         // Chỉ reset những enemy còn sống — giữ nguyên trạng thái của các enemy đã chết
@@ -1073,8 +1075,18 @@ void Game::resetGame() {
             enemy->ResetToStartPosition();
         }
     }
-    
+
     items.clear();
+
+    // ✅ THÊM: Cập nhật lại HUD reference để đọc HP mới
+    if (playerHUD) {
+        playerHUD->SetPlayerReference(player);
+        // Hoặc nếu có hàm Update:
+        playerHUD->Update(0.0f);
+    }
+
+    
+    
     currentGameState = GameState::PLAYING;
     mainMenu->Reset(); // <-- RESET MAIN MENU
     gameOverMenu->Reset();
