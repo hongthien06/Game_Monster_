@@ -1,6 +1,6 @@
 #define MINIAUDIO_IMPLEMENTATION
-#include "Audio.h"
 #include <iostream>
+#include "Audio.h"
 
 using namespace std;
 
@@ -15,12 +15,14 @@ Audio::Audio() {
 }
 
 Audio::~Audio() {
+    // Giải phóng hiệu ứng
     for (auto sound : activeSounds) {
         ma_sound_uninit(sound);
         delete sound;
     }
     activeSounds.clear();
 
+    // Giải phóng BGM nếu có
     if (bgmLoaded) {
         ma_sound_uninit(&bgm);
     }
@@ -29,8 +31,6 @@ Audio::~Audio() {
 }
 
 void Audio::playSound(const std::string& filePath, bool loop) {
-    if (!musicOn) return; // tôn trọng trạng thái musicOn
-
     cleanupFinishedSounds();
 
     ma_sound* sound = new ma_sound;
@@ -47,8 +47,6 @@ void Audio::playSound(const std::string& filePath, bool loop) {
 }
 
 void Audio::playSound(const std::string& filePath, bool loop, float volume) {
-    if (!musicOn) return; // tôn trọng trạng thái musicOn
-
     cleanupFinishedSounds();
 
     ma_sound* sound = new ma_sound;
@@ -79,30 +77,26 @@ void Audio::cleanupFinishedSounds() {
 }
 
 void Audio::playBGM(const std::string& filePath, bool loop, float volume) {
-    cout << "Trying to play BGM: " << filePath << endl;
+    std::cout << "Trying to play BGM: " << filePath << std::endl;
 
     if (bgmLoaded) {
-        ma_sound_stop(&bgm);
-        ma_sound_uninit(&bgm);
+        std::cout << "Stopping previous BGM" << std::endl;
+        ma_sound_stop(&bgm); // chỉ stop, không uninit ngay
+        ma_sound_uninit(&bgm); // uninit 1 lần duy nhất, an toàn
     }
 
     ma_result result = ma_sound_init_from_file(&engine, filePath.c_str(), 0, NULL, NULL, &bgm);
     if (result == MA_SUCCESS) {
+        std::cout << "Successfully loaded BGM file" << std::endl;
         bgmLoaded = true;
-        bgmInitialVolume = volume;
-        bgmCurrentVolume = volume;
+        bgmVolume = volume;
+        ma_sound_set_volume(&bgm, volume);
         ma_sound_set_looping(&bgm, loop);
-
-        if (musicOn)
-            ma_sound_set_volume(&bgm, volume);
-        else
-            ma_sound_set_volume(&bgm, 0.0f);
-
         ma_sound_start(&bgm);
-        cout << "BGM started. Volume: " << bgmCurrentVolume << endl;
+        std::cout << "BGM started with volume: " << volume << std::endl;
     }
     else {
-        cout << "Failed to load BGM file. Error code: " << result << endl;
+        std::cout << "Failed to load BGM file. Error code: " << result << std::endl;
     }
 }
 
@@ -120,16 +114,14 @@ void Audio::fadeOutBGM(float duration) {
 }
 
 void Audio::update(float deltaTime) {
-    cleanupFinishedSounds();
-
     if (!bgmLoaded || !bgmFading) return;
 
     bgmFadeTimer -= deltaTime;
     float t = bgmFadeTimer / bgmFadeDuration;
     if (t < 0.0f) t = 0.0f;
 
-    bgmCurrentVolume = t * bgmInitialVolume;
-    ma_sound_set_volume(&bgm, bgmCurrentVolume);
+    bgmVolume = t;
+    ma_sound_set_volume(&bgm, bgmVolume);
 
     if (t <= 0.0f) {
         ma_sound_stop(&bgm);
@@ -145,25 +137,13 @@ void Audio::stopAll() {
     }
 }
 
-void Audio::muteBGM() {
-    if (bgmLoaded) {
-        ma_sound_stop(&bgm);       // Dừng BGM hoàn toàn
-        bgmFading = false;
-        bgmCurrentVolume = 0.0f;
-        std::cout << "BGM muted (stopped).\n";
-    }
-}
+// void Audio::setBGMVolume(float volume) {
+//     if (!bgmLoaded) return;
 
-void Audio::unmuteBGM() {
-    if (bgmLoaded) {
-        ma_sound_start(&bgm);      // Bắt đầu lại
-        ma_sound_set_volume(&bgm, bgmInitialVolume);
-        bgmCurrentVolume = bgmInitialVolume;
-        std::cout << "BGM unmuted (Volume restored: " << bgmInitialVolume << ").\n";
-    }
-}
+//     // Giu volume trong khoang an toan
+//     if (volume < 0.0f) volume = 0.0f;
+//     if (volume > 1.0f) volume = 1.0f;
 
-
-bool Audio::isMusicOn() const {
-    return musicOn;
-}
+//     bgmVolume = volume;
+//     ma_sound_set_volume(&bgm, bgmVolume);
+// }

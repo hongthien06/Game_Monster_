@@ -84,7 +84,7 @@ void TutorialMenu::Render() {
 
     float labelOffset = 60.0f; 
 
-    SDL_Color colorTitle = { 0, 255, 0, 255 };
+    SDL_Color colorTitle = { 255, 0, 0, 255 };
     SDL_Color colorLabel = { 255, 255, 255, 255 }; 
     SDL_Color colorKey = { 255, 255, 0, 255 };    
     SDL_Color colorButton = { 255, 255, 0, 255 }; 

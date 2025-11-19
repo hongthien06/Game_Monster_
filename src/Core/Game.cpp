@@ -375,7 +375,7 @@ void Game::update(float deltaTime) {
 
 // Ve len man hinh
 void Game::render() {
-    SDL_SetRenderDrawColor(renderer, 255, 255, 200, 255);
+    SDL_SetRenderDrawColor(renderer, 101, 67, 33, 255);
     SDL_RenderClear(renderer);
 
     // Xác định nên render screen nào

@@ -155,7 +155,7 @@ void MainMenu::Render() {
     float centerX = GameConstants::LOGICAL_WIDTH / 2.0f;
     float centerY = GameConstants::LOGICAL_HEIGHT / 2.0f;
 
-    SDL_Color colorTitle = { 0, 255, 0, 255 }; 
+    SDL_Color colorTitle = { 255, 0, 0, 255 };
     SDL_Color colorDefault = { 255, 255, 255, 255 }; 
     SDL_Color colorSelected = { 255, 255, 0, 255 };
 
@@ -166,7 +166,7 @@ void MainMenu::Render() {
     const float paddingY = 6.0f;
 
   
-    RenderText(renderer, font, "GAME MONSTER", { centerX, centerY - 100.0f }, colorTitle, true);
+    RenderText(renderer, font, "GAME MONSTER", { centerX, centerY - 90.0f }, colorTitle, true);
 
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
