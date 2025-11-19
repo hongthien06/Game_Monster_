@@ -484,6 +484,7 @@ void Game::render() {
     else if (currentGameState == GameState::MAP_TRANSITIONING) {
         mapTransition->Render();
     }
+     pendingNextMap = false;
 
     SDL_RenderPresent(renderer);
 }
