@@ -743,7 +743,7 @@ void Game::initEnemies() {
     }
 
     // ===== VÙNG 3: SPAWN BOSS =====
-    if (currentMapName == "Map_3.tmj") {
+    if (currentMapName == "assets/tileset/Map_3.tmj") {
         auto bossSpawn = map->GetSpawn(7);
         if (!bossSpawn.empty()) {
             enemies.push_back(std::make_unique<Boss>(
