@@ -133,6 +133,7 @@ bool Game::init() {
     initEnemies();
 
     // ===== SPAWN ITEMS =====
+
     initItems();
 
     playerHUD = new HUD(renderer);
@@ -594,187 +595,200 @@ void Game::spawnHealthPotionAtPosition(glm::vec2 pos) {
 void Game::initEnemies() {
     std::cout << "===== BAT DAU SPAWN ENEMIES =====\n";
 
-    // ===== VÙNG 1: SPAWN 3 ORC MINIONS =====
-
-    // ORC BERSERK
+    // ===== ORC BERSERK =====
     for (auto& pos : map->GetSpawn(1)) {
-        enemies.push_back(std::make_unique<Minions>(
+        auto enemy = std::make_unique<Minions>(
             renderer,
             glm::vec2(pos.x, pos.y),
             MinionType::ORC_BERSERK
-        ));
-
-        // ===== SỬA ĐÂY: 2 ĐIỂM PHẢI KHÁC NHAU =====
-        enemies.back()->SetPatrolPoints(
-            glm::vec2(pos.x - 100.0f, pos.y - 48.0f),  // Điểm A: TRÁI 100 pixel
-            glm::vec2(pos.x + 100.0f, pos.y - 48.0f)   // Điểm B: PHẢI 100 pixel
         );
 
-        enemies.back()->SetAggroRange(100.0f);
-        enemies.back()->SetAttackRange(50.0f);
-        enemies.back()->SetCoinDropAmount(1);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-            spawnCoinAtPosition(pos, amount);
-            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-            });
-    }
-
-    // ORC SHAMAN
-    for (auto& pos : map->GetSpawn(2)) {
-        enemies.push_back(std::make_unique<Minions>(
-            renderer,
-            glm::vec2(pos.x, pos.y),
-            MinionType::ORC_SHAMAN
-        ));
-
-        // ===== SỬA ĐÂY =====
-        enemies.back()->SetPatrolPoints(
-            glm::vec2(pos.x - 150.0f, pos.y - 48.0f),  // Khoảng cách xa hơn
-            glm::vec2(pos.x + 150.0f, pos.y - 48.0f)
-        );
-
-        enemies.back()->SetAggroRange(100.0f);
-        enemies.back()->SetAttackRange(50.0f);
-        enemies.back()->SetCoinDropAmount(1);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-            spawnCoinAtPosition(pos, amount);
-            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-            });
-    }
-
-    // ORC WARRIOR
-    for (auto& pos : map->GetSpawn(3)) {
-        enemies.push_back(std::make_unique<Minions>(
-            renderer,
-            glm::vec2(pos.x, pos.y),
-            MinionType::ORC_WARRIOR
-        ));
-
-        // ===== SỬA ĐÂY =====
-        enemies.back()->SetPatrolPoints(
-            glm::vec2(pos.x - 80.0f, pos.y - 48.0f),
-            glm::vec2(pos.x + 80.0f, pos.y - 48.0f)
-        );
-
-        enemies.back()->SetAggroRange(100.0f);
-        enemies.back()->SetAttackRange(50.0f);
-        enemies.back()->SetCoinDropAmount(1);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-            spawnCoinAtPosition(pos, amount);
-            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-            });
-    }
-
-    // ===== VÙNG 2: SPAWN 3 TROLL ELITES =====
-
-    // TROLL 1
-    for (auto& pos : map->GetSpawn(4)) {
-        enemies.push_back(std::make_unique<Elites>(
-            renderer,
-            glm::vec2(pos.x, pos.y),
-            TrollType::TROLL_1
-        ));
-
-        // ===== SỬA ĐÂY =====
-        enemies.back()->SetPatrolPoints(
-            glm::vec2(pos.x - 120.0f, pos.y - 48.0f),
-            glm::vec2(pos.x + 120.0f, pos.y - 48.0f)
-        );
-
-        enemies.back()->SetAggroRange(100.0f);
-        enemies.back()->SetAttackRange(50.0f);
-        enemies.back()->SetCoinDropAmount(1);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
-            spawnCoinAtPosition(pos, amount);
-            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
-            });
-    }
-
-    // TROLL 2
-    for (auto& pos : map->GetSpawn(5)) {
-        enemies.push_back(std::make_unique<Elites>(
-            renderer,
-            glm::vec2(pos.x, pos.y),
-            TrollType::TROLL_2
-        ));
-
-        // ===== SỬA ĐÂY =====
-        enemies.back()->SetPatrolPoints(
+        enemy->SetPatrolPoints(
             glm::vec2(pos.x - 100.0f, pos.y - 48.0f),
             glm::vec2(pos.x + 100.0f, pos.y - 48.0f)
         );
 
-        enemies.back()->SetAggroRange(150.0f);
-        enemies.back()->SetAttackRange(50.0f);
-        enemies.back()->SetCoinDropAmount(1);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+        enemy->SetAggroRange(100.0f);
+        enemy->SetAttackRange(30.0f);
+        enemy->SetCoinDropAmount(1);
+        enemy->SetAudioSystem(audio);
+
+        // ✅ SET CALLBACK TRƯỚC KHI MOVE VÀO VECTOR
+        enemy->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
             spawnCoinAtPosition(pos, amount);
             spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
             });
+
+        enemies.push_back(std::move(enemy));
     }
 
-    // TROLL 3
+    // ===== ORC SHAMAN =====
+    for (auto& pos : map->GetSpawn(2)) {
+        auto enemy = std::make_unique<Minions>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            MinionType::ORC_SHAMAN
+        );
+
+        enemy->SetPatrolPoints(
+            glm::vec2(pos.x - 150.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 150.0f, pos.y - 48.0f)
+        );
+
+        enemy->SetAggroRange(100.0f);
+        enemy->SetAttackRange(30.0f);
+        enemy->SetCoinDropAmount(1);
+        enemy->SetAudioSystem(audio);
+
+        enemy->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+
+        enemies.push_back(std::move(enemy));
+    }
+
+    // ===== ORC WARRIOR =====
+    for (auto& pos : map->GetSpawn(3)) {
+        auto enemy = std::make_unique<Minions>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            MinionType::ORC_WARRIOR
+        );
+
+        enemy->SetPatrolPoints(
+            glm::vec2(pos.x - 80.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 80.0f, pos.y - 48.0f)
+        );
+
+        enemy->SetAggroRange(100.0f);
+        enemy->SetAttackRange(30.0f);
+        enemy->SetCoinDropAmount(1);
+        enemy->SetAudioSystem(audio);
+
+        enemy->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+
+        enemies.push_back(std::move(enemy));
+    }
+
+    // ===== TROLL 1 =====
+    for (auto& pos : map->GetSpawn(4)) {
+        auto enemy = std::make_unique<Elites>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            TrollType::TROLL_1
+        );
+
+        enemy->SetPatrolPoints(
+            glm::vec2(pos.x - 120.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 120.0f, pos.y - 48.0f)
+        );
+
+        enemy->SetAggroRange(100.0f);
+        enemy->SetAttackRange(30.0f);
+        enemy->SetCoinDropAmount(3);
+        enemy->SetAudioSystem(audio);
+
+        enemy->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+
+        enemies.push_back(std::move(enemy));
+    }
+
+    // ===== TROLL 2 =====
+    for (auto& pos : map->GetSpawn(5)) {
+        auto enemy = std::make_unique<Elites>(
+            renderer,
+            glm::vec2(pos.x, pos.y),
+            TrollType::TROLL_2
+        );
+
+        enemy->SetPatrolPoints(
+            glm::vec2(pos.x - 100.0f, pos.y - 48.0f),
+            glm::vec2(pos.x + 100.0f, pos.y - 48.0f)
+        );
+
+        enemy->SetAggroRange(150.0f);
+        enemy->SetAttackRange(30.0f);
+        enemy->SetCoinDropAmount(3);
+        enemy->SetAudioSystem(audio);
+
+        enemy->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+            spawnCoinAtPosition(pos, amount);
+            spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
+            });
+
+        enemies.push_back(std::move(enemy));
+    }
+
+    // ===== TROLL 3 =====
     for (auto& pos : map->GetSpawn(6)) {
-        enemies.push_back(std::make_unique<Elites>(
+        auto enemy = std::make_unique<Elites>(
             renderer,
             glm::vec2(pos.x, pos.y),
             TrollType::TROLL_3
-        ));
+        );
 
-        // ===== SỬA ĐÂY =====
-        enemies.back()->SetPatrolPoints(
+        enemy->SetPatrolPoints(
             glm::vec2(pos.x - 90.0f, pos.y - 48.0f),
             glm::vec2(pos.x + 90.0f, pos.y - 48.0f)
         );
 
-        enemies.back()->SetAggroRange(100.0f);
-        enemies.back()->SetAttackRange(50.0f);
-        enemies.back()->SetCoinDropAmount(1);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+        enemy->SetAggroRange(100.0f);
+        enemy->SetAttackRange(30.0f);
+        enemy->SetCoinDropAmount(3);
+        enemy->SetAudioSystem(audio);
+
+        enemy->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
             spawnCoinAtPosition(pos, amount);
             spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
             });
+
+        enemies.push_back(std::move(enemy));
     }
 
-    // ===== VÙNG 3: SPAWN BOSS =====
+    // ===== BOSS =====
     if (currentMapName == "assets/tileset/Map_3.tmj") {
         auto bossSpawn = map->GetSpawn(7);
+
+        std::unique_ptr<Boss> bossPtr;
         if (!bossSpawn.empty()) {
-            enemies.push_back(std::make_unique<Boss>(
+            bossPtr = std::make_unique<Boss>(
                 renderer,
                 glm::vec2(bossSpawn[0].x, bossSpawn[0].y)
-            ));
+            );
         }
         else {
-            enemies.push_back(std::make_unique<Boss>(
+            bossPtr = std::make_unique<Boss>(
                 renderer,
                 glm::vec2(1300.0f, GameConstants::FLOOR_Y - 96.0f)
-            ));
+            );
         }
 
-        Boss* boss = dynamic_cast<Boss*>(enemies.back().get());
+        Boss* boss = bossPtr.get();
         if (boss) {
             boss->SetEffectManager(&effectManager);
             boss->TriggerIntro();
         }
 
-        enemies.back()->SetCoinDropAmount(10);
-        enemies.back()->SetAudioSystem(audio);
-        enemies.back()->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
+        bossPtr->SetCoinDropAmount(10);
+        bossPtr->SetAudioSystem(audio);
+
+        bossPtr->SetOnDeathCallback([this](glm::vec2 pos, int amount) {
             spawnCoinAtPosition(pos, amount);
             spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
             });
+
+        enemies.push_back(std::move(bossPtr));
     }
 
     std::cout << "===== DA SPAWN " << enemies.size() << " ENEMIES =====\n";
 }
-
 // ===== SỬA HÀM updateEnemies() =====
 void Game::updateEnemies(float deltaTime) {
     if (!player) return;
@@ -812,11 +826,11 @@ void Game::updateEnemies(float deltaTime) {
     enemies.erase(
         std::remove_if(enemies.begin(), enemies.end(),
             [](const std::unique_ptr<Enemy>& e) {
-                bool isDead = !e->IsAlive();
-                if (isDead) {
-                    std::cout << "[Game] Removing dead enemy\n";
+                bool shouldRemove = !e->IsAlive() && e->GetDeathTimer() >= 0.6f;
+                if (shouldRemove) {
+                    std::cout << "[Game] Removing dead enemy after drop delay\n";
                 }
-                return isDead;
+                return shouldRemove;
             }),
         enemies.end()
     );
@@ -959,7 +973,7 @@ void Game::LoadNextMap() {
 
     // ✅ Clear dữ liệu cũ TRƯỚC KHI load map mới
     enemies.clear();
-    items.clear();
+    //items.clear();
     std::cout << "[Game] Cleared old data.\n";
 
     // ✅ Xóa map cũ an toàn

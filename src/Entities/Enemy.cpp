@@ -20,7 +20,7 @@ Enemy::Enemy()
     attackTimer(0.0f),
     attackDamage(10),
     walkSpeed(40.0f),
-    runSpeed(120.0f),
+    runSpeed(100.0f),
     patrolPointA(0.0f, 0.0f),
     patrolPointB(0.0f, 0.0f),
     movingToB(true),
