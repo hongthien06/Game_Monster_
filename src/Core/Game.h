@@ -33,7 +33,8 @@ enum class GameState {
     TRANSITIONING,
     PLAYING,
     GAME_OVER,
-    TUTORIAL
+    TUTORIAL,
+    MAP_TRANSITIONING  // ✅ THÊM DÒNG NÀY
 };
 
 class Game {
@@ -50,7 +51,8 @@ private:
     Audio* audio;
     HUD* playerHUD;
 
-    std::string currentMapName;  // Lưu tên map hiện tại
+    std::string currentMapName;
+    std::string nextMapName;  // ✅ THÊM DÒNG NÀY
 
     std::vector<std::unique_ptr<Item>> items;
     SDL_Texture* coinTex;
@@ -70,7 +72,8 @@ private:
     std::unique_ptr<TutorialMenu> tutorialMenu;
 
     std::unique_ptr<ScreenTransition> screenTransition;
-    GameState targetState;  // State sẽ chuyển đến sau transition
+    std::unique_ptr<ScreenTransition> mapTransition;  // ✅ THÊM DÒNG NÀY
+    GameState targetState;
 
     SDL_Texture* menuBackgroundTex;
     SDL_Texture* gameBackgroundTex;
@@ -94,6 +97,9 @@ public:
     void spawnHealthPotionAtPosition(glm::vec2 pos);
     void LoadNextMap();
 
+    // ✅ THÊM 2 DÒNG NÀY
+    void StartMapTransition(const std::string& nextMap, TransitionType type);
+    void ExecuteMapChange();
 
     // ===== ENEMY METHODS =====
     void initEnemies();

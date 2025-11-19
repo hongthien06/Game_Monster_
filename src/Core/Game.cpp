@@ -154,8 +154,16 @@ bool Game::init() {
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
         TransitionType::FADE,
-        0.5f  // Nhanh hơn (0.3 giây)
-        // hoặc 0.5f để chậm hơn một chút
+        0.5f
+    );
+
+    // ✅ THÊM: Transition riêng cho chuyển map (mặc định FADE, sẽ đổi động)
+    mapTransition = std::make_unique<ScreenTransition>(
+        renderer,
+        GameConstants::LOGICAL_WIDTH,
+        GameConstants::LOGICAL_HEIGHT,
+        TransitionType::FADE,
+        0.6f
     );
     // THÊM: Load background textures (optional)
     menuBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
@@ -263,6 +271,23 @@ void Game::update(float deltaTime) {
             mainMenu->SetTransitioning(false);
         }
         break;
+    }// ✅ THÊM CASE MỚI
+    case GameState::MAP_TRANSITIONING:
+    {
+        mapTransition->Update(deltaTime);
+
+        // Khi transition đến giữa chặng (màn hình tối nhất)
+        if (mapTransition->ShouldSwitchScreen() && !nextMapName.empty()) {
+            ExecuteMapChange();  // Thực hiện đổi map
+            nextMapName.clear();  // Đánh dấu đã xử lý
+        }
+
+        // Khi transition hoàn tất
+        if (!mapTransition->IsActive()) {
+            currentGameState = GameState::PLAYING;
+            std::cout << "[Game] Map transition complete!\n";
+        }
+        break;
     }
     
     case GameState::PLAYING:
@@ -327,7 +352,19 @@ void Game::update(float deltaTime) {
         if (enemies.empty() && !pendingNextMap) {
             std::cout << "[Game] ===== ALL ENEMIES DEFEATED =====\n";
             std::cout << "[Game] Current map: " << currentMapName << "\n";
-            std::cout << "[Game] Setting pendingNextMap = true\n";
+
+            // ✅ XÁC ĐỊNH MAP TIẾP THEO VÀ HIỆU ỨNG
+            if (currentMapName == "assets/tileset/Map_1.tmj") {
+                StartMapTransition("assets/tileset/Map_2.tmj", TransitionType::FADE);
+            }
+            else if (currentMapName == "assets/tileset/Map_2.tmj") {
+                StartMapTransition("assets/tileset/Map_3.tmj", TransitionType::ZOOM_FLASH);
+            }
+            else {
+                std::cout << "[Game] No more maps! Victory!\n";
+                currentGameState = GameState::GAME_OVER;
+            }
+
             pendingNextMap = true;
         }
 
@@ -365,13 +402,13 @@ void Game::update(float deltaTime) {
     }
     }
     
-    // ✅ XỬ LÝ CHUYỂN MAP (cuối hàm update)
-    if (pendingNextMap) {
-        std::cout << "[Game] ===== EXECUTING MAP TRANSITION =====\n";
-        LoadNextMap();
-        pendingNextMap = false;
-        std::cout << "[Game] pendingNextMap reset to false\n";
-    }
+    //// ✅ XỬ LÝ CHUYỂN MAP (cuối hàm update)
+    //if (pendingNextMap) {
+    //    std::cout << "[Game] ===== EXECUTING MAP TRANSITION =====\n";
+    //    LoadNextMap();
+    //    pendingNextMap = false;
+    //    std::cout << "[Game] pendingNextMap reset to false\n";
+    //}
 }
 
 // Ve len man hinh
@@ -380,17 +417,18 @@ void Game::render() {
     SDL_RenderClear(renderer);
 
     // Xác định nên render screen nào
-    bool renderGameplay = (currentGameState == GameState::PLAYING);
+    bool renderGameplay = (currentGameState == GameState::PLAYING ||
+        currentGameState == GameState::MAP_TRANSITIONING);
 
     if (currentGameState == GameState::TRANSITIONING) {
-        // Nếu đang transition, kiểm tra đã qua nửa chặng chưa
         if (screenTransition->ShouldSwitchScreen()) {
             renderGameplay = (targetState == GameState::PLAYING);
         }
         else {
-            renderGameplay = false;  // Vẫn render menu
+            renderGameplay = false;
         }
     }
+
 
     // RENDER BACKGROUND
     if (renderGameplay) {
@@ -442,10 +480,103 @@ void Game::render() {
     if (currentGameState == GameState::TRANSITIONING) {
         screenTransition->Render();
     }
+    // ✅ THÊM: Render map transition
+    else if (currentGameState == GameState::MAP_TRANSITIONING) {
+        mapTransition->Render();
+    }
 
     SDL_RenderPresent(renderer);
 }
+// 4️⃣ THÊM HÀM MỚI: StartMapTransition()
+void Game::StartMapTransition(const std::string& nextMap, TransitionType type) {
+    std::cout << "[Game] Starting map transition to: " << nextMap
+        << " with effect: " << (int)type << "\n";
 
+    nextMapName = nextMap;
+    currentGameState = GameState::MAP_TRANSITIONING;
+
+    // ✅ TẠO LẠI mapTransition với loại hiệu ứng mới
+    mapTransition = std::make_unique<ScreenTransition>(
+        renderer,
+        GameConstants::LOGICAL_WIDTH,
+        GameConstants::LOGICAL_HEIGHT,
+        type,
+        0.6f  // Duration
+    );
+
+    mapTransition->Start();
+}
+
+// 5️⃣ THÊM HÀM MỚI: ExecuteMapChange()
+void Game::ExecuteMapChange() {
+    std::cout << "[Game] ===== EXECUTING MAP CHANGE =====\n";
+    std::cout << "[Game] Loading: " << nextMapName << "\n";
+
+    currentMapName = nextMapName;
+
+    // Clear dữ liệu cũ
+    enemies.clear();
+    std::cout << "[Game] Cleared old data.\n";
+
+    // Xóa map cũ
+    if (map) {
+        delete map;
+        map = nullptr;
+    }
+
+    map = new Map(renderer);
+    if (!map) {
+        std::cerr << "[Game] ERROR: Failed to create new map!\n";
+        isGameRunning = false;
+        return;
+    }
+
+    // Load map mới
+    if (!map->loadMap(currentMapName)) {
+        std::cerr << "[Game] ERROR: Failed to load map: " << currentMapName << std::endl;
+        isGameRunning = false;
+        return;
+    }
+
+    std::cout << "[Game] Map loaded successfully: " << currentMapName << std::endl;
+
+    // Spawn mới
+    try {
+        initEnemies();
+        initItems();
+        std::cout << "[Game] Spawned " << enemies.size() << " enemies and "
+            << items.size() << " items.\n";
+    }
+    catch (const std::exception& e) {
+        std::cerr << "[Game] ERROR during spawn: " << e.what() << std::endl;
+        isGameRunning = false;
+        return;
+    }
+
+    // Cập nhật lại vị trí player
+    auto spawn = map->GetSpawn(0);
+    if (!spawn.empty()) {
+        player->SetPosition(glm::vec2(spawn[0].x, spawn[0].y));
+        player->SnapToGround(*map);
+        std::cout << "[Game] Player spawned at (" << spawn[0].x << ", " << spawn[0].y << ")\n";
+    }
+    else {
+        std::cerr << "[Game] WARNING: No player spawn point found!\n";
+    }
+
+    // Reset HUD
+    if (playerHUD) {
+        playerHUD->SetPlayerReference(player);
+    }
+
+    // Đổi nhạc (tuỳ chọn)
+    if (audio) {
+        audio->stopBGM();
+        audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
+    }
+
+    std::cout << "[Game] ===== MAP CHANGE COMPLETE =====\n";
+}
 // Giai phong tai nguyen
 void Game::cleanup() {
     delete player;
