@@ -188,39 +188,81 @@ void Enemy::HandleIdle(float deltaTime) {
 //    velocity.x = direction.x * walkSpeed;
 //    flipHorizontal = velocity.x < 0;
 //}
-void Enemy::HandleWalk(float deltaTime) {
-    // 1. Chọn điểm đích dựa vào hướng di chuyển
+void Enemy::HandleWalk(float deltaTime, Map& map) {
     glm::vec2 targetPoint = movingToB ? patrolPointB : patrolPointA;
+    float direction = (targetPoint.x > position.x) ? 1.0f : -1.0f;
 
-    // 2. Chỉ tính khoảng cách theo trục X (bỏ qua trục Y)
+    // 1. Check vực thẳm (quan trọng để không rơi)
+    if (!CheckGroundAhead(map, direction)) {
+        movingToB = !movingToB; // Quay đầu ngay
+        velocity.x = 0.0f;
+        return;
+    }
+
+    // 2. Check khoảng cách đích (trục X)
     float distanceX = std::abs(targetPoint.x - position.x);
-
-    // 3. Nếu đến gần điểm đích theo trục X (trong vòng 10 pixel)
     if (distanceX < 10.0f) {
-        // Đổi hướng di chuyển
         movingToB = !movingToB;
         velocity.x = 0.0f;
         return;
     }
 
-    // 4. Di chuyển về phía điểm đích
-    // Xác định hướng: nếu đích ở bên phải (> 0) thì đi phải, ngược lại đi trái
-    float directionX = (targetPoint.x > position.x) ? 1.0f : -1.0f;
-
-    velocity.x = directionX * walkSpeed;
-
-    // Quay mặt theo hướng di chuyển
-    flipHorizontal = velocity.x < 0;
+    velocity.x = direction * walkSpeed;
+    flipHorizontal = (velocity.x < 0);
 }
 
-void Enemy::HandleRun(float deltaTime) {
-    glm::vec2 direction = targetPosition - position;
-    float distance = glm::length(direction);
+// ===== 3. THÊM HÀM HANDLE FLEE (BỎ CHẠY) =====
+void Enemy::HandleFlee(float deltaTime, Map& map) {
+    // Tính hướng ngược lại với người chơi (Vector từ Player -> Enemy)
+    glm::vec2 directionVec = position - targetPosition;
 
+    float dirSign = (directionVec.x > 0) ? 1.0f : -1.0f;
+
+    // 1. CHECK VỰC THẲM KHI BỎ CHẠY
+    // Nếu phía sau lưng là vực -> Không chạy lùi được nữa -> Đứng lại chịu trận hoặc đánh trả
+    if (!CheckGroundAhead(map, dirSign)) {
+        velocity.x = 0.0f;
+        // Tùy chọn: Nếu bị dồn vào chân tường thì quay sang đánh luôn (hoặc đứng run sợ)
+        // enemyState = EnemyState::STATE_IDLE; 
+        return;
+    }
+
+    // 2. XỬ LÝ DI CHUYỂN
+    if (glm::length(directionVec) > 0) {
+        velocity.x = dirSign * runSpeed; // Chạy với tốc độ Run
+        flipHorizontal = velocity.x < 0;
+    }
+}
+
+void Enemy::HandleRun(float deltaTime, Map& map) {
+    glm::vec2 directionVec = targetPosition - position;
+    float distance = glm::length(directionVec);
+    float dirSign = (directionVec.x > 0) ? 1.0f : -1.0f;
+
+    // 1. CHECK VỰC THẲM TRƯỚC KHI CHẠY TỚI
+    if (!CheckGroundAhead(map, dirSign)) {
+        // Gặp vực -> Dừng lại ngay
+        velocity.x = 0.0f;
+
+        // Chuyển trạng thái về ĐI TUẦN (Quay về)
+        enemyState = EnemyState::STATE_WALK;
+
+        // Reset điểm tuần tra ngay tại chỗ để nó quay đầu đi hướng khác
+        // Logic: Đặt điểm A và B xung quanh vị trí hiện tại
+        patrolPointA = position - glm::vec2(50, 0);
+        patrolPointB = position + glm::vec2(50, 0);
+
+        // Đảo chiều di chuyển tuần tra để nó quay lưng đi ngay lập tức
+        if (dirSign > 0) movingToB = false; // Đang định đi phải gặp vực -> ép đi về trái (A)
+        else movingToB = true;              // Đang định đi trái gặp vực -> ép đi về phải (B)
+
+        return;
+    }
+
+    // 2. DI CHUYỂN BÌNH THƯỜNG
     if (distance > 0.1f) {
-        direction = glm::normalize(direction);
-        velocity.x = direction.x * runSpeed;
-        flipHorizontal = velocity.x < 0;  // Quay mặt theo hướng chạy
+        velocity.x = dirSign * runSpeed;
+        flipHorizontal = velocity.x < 0;
     }
     else {
         velocity.x = 0.0f;
@@ -249,11 +291,23 @@ void Enemy::HandleAttack(float deltaTime) {
 
 void Enemy::HandleHurt(float deltaTime) {
     hurtTimer -= deltaTime;
-    velocity.x = 0.0f;
+    velocity.x = 0.0f; // Bị đau thì khựng lại chút
 
     if (hurtTimer <= 0) {
         canTakeDamage = true;
-        enemyState = EnemyState::STATE_IDLE;
+
+        // LOGIC MỚI: Hết bị choáng thì làm gì?
+
+        // 1. Nếu Player đang ở ngay trước mặt (trong tầm đánh) -> ĐÁNH LUÔN
+        if (IsTargetInAttackRange()) {
+            enemyState = EnemyState::STATE_ATTACK;
+            // Reset timer để đảm bảo đánh được ngay (nếu logic Enrage bên trên đã xử lý)
+            if (attackTimer > 0.1f) attackTimer = 0.0f;
+        }
+        // 2. Nếu Player ở xa -> ĐUỔI THEO LUÔN (Thay vì đứng im IDLE)
+        else {
+            enemyState = EnemyState::STATE_RUN;
+        }
     }
 }
 
@@ -265,33 +319,52 @@ void Enemy::UpdateEnemyState(float deltaTime, Map& map) {
         return;
     }
 
-    // Xử lý I-frames
-    if (iFramesTimer > 0) {
-        iFramesTimer -= deltaTime;
-    }
-
-    // Xử lý trạng thái HURT
+    if (iFramesTimer > 0) iFramesTimer -= deltaTime;
     if (enemyState == EnemyState::STATE_HURT) {
         HandleHurt(deltaTime);
         return;
     }
 
-    // ===== LOGIC AI CHÍNH =====
-    
-    // 1. Kiểm tra player có trong tầm tấn công không?
+    // --- LOGIC AI MỚI ---
+    float distToPlayer = GetDistanceToTarget();
+
+    // [MỚI] 1. Ưu tiên cao nhất: BỎ CHẠY KHI MÁU YẾU
+    // Nếu máu < 30% VÀ Player đang ở gần (trong tầm nhìn) -> Bỏ chạy
+    if (IsLowHealth() && distToPlayer < detectionRange) {
+        // Dùng animation RUN cho hành động bỏ chạy
+        enemyState = EnemyState::STATE_RUN;
+        HandleFlee(deltaTime, map); // Gọi hàm bỏ chạy (có truyền map để check vực)
+        return; // Kết thúc logic, không làm gì khác
+    }
+
+    // 2. Tấn công (Nếu máu còn nhiều)
     if (IsTargetInAttackRange()) {
         enemyState = EnemyState::STATE_ATTACK;
         HandleAttack(deltaTime);
     }
-    // 2. Kiểm tra player có trong tầm phát hiện (aggro) không?
-    else if (IsTargetInAggroRange()) {
-        enemyState = EnemyState::STATE_RUN;
-        HandleRun(deltaTime);
+    // 3. Xử lý trạng thái ĐUỔI THEO (RUN)
+    else if (enemyState == EnemyState::STATE_RUN) {
+        // Logic Hysteresis: Đuổi xa hơn tầm aggro một chút mới bỏ
+        if (distToPlayer <= aggroRange * 1.5f) {
+            HandleRun(deltaTime, map); // <-- Truyền map vào đây
+        }
+        else {
+            // Player chạy thoát -> Quay về đi bộ
+            enemyState = EnemyState::STATE_WALK;
+            patrolPointA = position - glm::vec2(50, 0);
+            patrolPointB = position + glm::vec2(50, 0);
+        }
     }
-    // 3. Không thấy player -> Tuần tra
+    // 4. Xử lý trạng thái ĐI TUẦN (WALK)
     else {
-        enemyState = EnemyState::STATE_WALK;
-        HandleWalk(deltaTime);
+        if (distToPlayer <= aggroRange) {
+            enemyState = EnemyState::STATE_RUN;
+            HandleRun(deltaTime, map); // <-- Truyền map vào đây
+        }
+        else {
+            enemyState = EnemyState::STATE_WALK;
+            HandleWalk(deltaTime, map);
+        }
     }
 }
 
@@ -397,7 +470,7 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
     // Vẽ healthbar (chỉ khi sống)
     if (isAlive) {
-        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, renderWidth-10.0f);
+        DrawHealthBar(renderer, health, maxHealth, position, cameraOffset, renderWidth-15.0f);
     }
 
     if (!currentTexture) return;
@@ -433,7 +506,30 @@ void Enemy::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 void Enemy::TakeDamage(int damage) {
     if (!isAlive || !canTakeDamage || iFramesTimer > 0) return;
 
+    // 1. Trừ máu
     health -= damage;
+
+    // 2. LOGIC PHẢN XẠ (MỚI) ================================
+
+    // A. Kích hoạt Aggro ngay lập tức
+    // Dù đang đứng xa hay đang đi tuần, bị đánh là phải đuổi theo ngay
+    if (enemyState == EnemyState::STATE_IDLE || enemyState == EnemyState::STATE_WALK) {
+        enemyState = EnemyState::STATE_RUN;
+    }
+
+    // B. Quay mặt về phía sát thương (Giả sử targetPosition là Player)
+    // Nếu Player đang ở bên trái mà Enemy đang nhìn bên phải -> Quay lại ngay
+    float dirToPlayer = targetPosition.x - position.x;
+    if (dirToPlayer > 0) flipHorizontal = false;
+    else flipHorizontal = true;
+
+    // C. Cơ chế "Nổi điên" (Enrage)
+    // Nếu đang đợi hồi chiêu tấn công (ví dụ còn 1s nữa mới đánh)
+    // Bị đánh cái đau quá -> Rút ngắn thời gian chờ xuống còn 0.2s để đánh trả liền
+    if (attackTimer > 0.2f) {
+        attackTimer = 0.2f;
+    }
+    // ========================================================
 
     if (health <= 0) {
         health = 0;
@@ -444,6 +540,9 @@ void Enemy::TakeDamage(int damage) {
         hurtTimer = hurtDuration;
         canTakeDamage = false;
         iFramesTimer = iFramesDuration;
+
+        // Dừng di chuyển khi bị đau
+        velocity.x = 0.0f;
     }
 }
 
@@ -497,4 +596,57 @@ void Enemy::ResetToStartPosition() {
     patrolPointA = initialPatrolPointA;
     patrolPointB = initialPatrolPointB;
     movingToB = true;
+}
+
+// ===== HÀM KIỂM TRA ĐẤT PHÍA TRƯỚC =====
+bool Enemy::CheckGroundAhead(Map& map, float directionX) {
+    // ====================================================
+     // BƯỚC 1: CẤU HÌNH CẢM BIẾN
+     // ====================================================
+    float sensorDist = 10.0f;   // Khoảng cách check phía trước
+    float maxFallHeight = 300.0f; // Độ cao tối đa cho phép rơi (tùy chỉnh theo map của bạn)
+
+    SDL_FRect sensor;
+    sensor.w = 10.0f; // Bề ngang nhỏ để chính xác
+
+    // Xác định vị trí X của sensor (trước mặt Enemy)
+    if (directionX > 0) {
+        sensor.x = position.x + hitboxOffsetX + hitboxWidth + sensorDist;
+    }
+    else {
+        sensor.x = position.x + hitboxOffsetX - sensorDist;
+    }
+
+    // ====================================================
+    // BƯỚC 2: CHECK NGAY DƯỚI CHÂN (Đi bộ bình thường)
+    // ====================================================
+    // Đặt sensor ngay sát dưới chân
+    sensor.y = position.y + hitboxHeight + hitboxOffsetY + 2.0f;
+    sensor.h = 10.0f; // Chiều cao nhỏ
+
+    // Nếu ngay dưới chân có đất -> AN TOÀN TUYỆT ĐỐI -> Đi tiếp
+    if (map.checkCollision(sensor)) {
+        return true;
+    }
+
+    // ====================================================
+    // BƯỚC 3: CHECK TẦNG DƯỚI (Nếu bước 1 hụt chân)
+    // ====================================================
+    // Nếu không có đất ngay chân, ta kéo dài sensor xuống dưới
+    // để xem có tầng nào ở dưới hứng không.
+
+    sensor.h = maxFallHeight; // Kéo dài sensor xuống (ví dụ 300px)
+
+    // Kiểm tra va chạm với sensor dài này
+    if (map.checkCollision(sensor)) {
+        // Có đất ở dưới trong phạm vi an toàn -> AN TOÀN -> Cho phép rơi xuống
+        return true;
+    }
+
+    // ====================================================
+    // KẾT LUẬN: VỰC THẲM
+    // ====================================================
+    // Nếu check cả ngay chân lẫn check sâu xuống dưới đều không thấy gì
+    // -> Đây là vực thẳm hoặc rơi ra khỏi map -> KHÔNG ĐI
+    return false;
 }

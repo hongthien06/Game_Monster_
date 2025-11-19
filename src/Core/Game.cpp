@@ -740,7 +740,7 @@ void Game::initEnemies() {
         );
 
         enemy->SetAggroRange(100.0f);
-        enemy->SetAttackRange(30.0f);
+        enemy->SetAttackRange(20.0f);
         enemy->SetCoinDropAmount(1);
         enemy->SetAudioSystem(audio);
 
@@ -767,7 +767,7 @@ void Game::initEnemies() {
         );
 
         enemy->SetAggroRange(100.0f);
-        enemy->SetAttackRange(30.0f);
+        enemy->SetAttackRange(20.0f);
         enemy->SetCoinDropAmount(1);
         enemy->SetAudioSystem(audio);
 
@@ -793,7 +793,7 @@ void Game::initEnemies() {
         );
 
         enemy->SetAggroRange(100.0f);
-        enemy->SetAttackRange(30.0f);
+        enemy->SetAttackRange(20.0f);
         enemy->SetCoinDropAmount(1);
         enemy->SetAudioSystem(audio);
 
@@ -819,7 +819,7 @@ void Game::initEnemies() {
         );
 
         enemy->SetAggroRange(100.0f);
-        enemy->SetAttackRange(30.0f);
+        enemy->SetAttackRange(20.0f);
         enemy->SetCoinDropAmount(3);
         enemy->SetAudioSystem(audio);
 
@@ -845,7 +845,7 @@ void Game::initEnemies() {
         );
 
         enemy->SetAggroRange(150.0f);
-        enemy->SetAttackRange(30.0f);
+        enemy->SetAttackRange(20.0f);
         enemy->SetCoinDropAmount(3);
         enemy->SetAudioSystem(audio);
 
@@ -871,7 +871,7 @@ void Game::initEnemies() {
         );
 
         enemy->SetAggroRange(100.0f);
-        enemy->SetAttackRange(30.0f);
+        enemy->SetAttackRange(20.0f);
         enemy->SetCoinDropAmount(3);
         enemy->SetAudioSystem(audio);
 

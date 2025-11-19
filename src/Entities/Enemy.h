@@ -97,8 +97,8 @@ protected:
 
     // Handlers cho 7 state
     virtual void HandleIdle(float deltaTime);
-    virtual void HandleWalk(float deltaTime);
-    virtual void HandleRun(float deltaTime);
+    virtual void HandleWalk(float deltaTime, Map& map);
+    virtual void HandleRun(float deltaTime, Map& map);
     virtual void HandleJump(float deltaTime);
     virtual void HandleAttack(float deltaTime);
     virtual void HandleHurt(float deltaTime);
@@ -107,6 +107,25 @@ protected:
     bool IsTargetInRange() const;
     bool IsTargetInAttackRange() const;
     bool IsTargetInAggroRange() const;
+
+   
+
+    // Ngưỡng máu để bỏ chạy (ví dụ 30%)
+    bool IsLowHealth() const {
+        float threshold = 0.3f; // Mặc định 30%
+
+        if (enemyType == EnemyType::MINION) threshold = 0.5f; // Minion chạy sớm hơn
+        else if (enemyType == EnemyType::BOSS) threshold = 0.0f; // Boss khô máu, không bao giờ chạy
+
+        return health < (maxHealth * threshold);
+    }
+
+    // Hàm xử lý bỏ chạy
+    
+    void HandleFlee(float deltaTime, Map&map);
+
+    //check vực thẩm
+    bool CheckGroundAhead(Map& map, float directionX);
 
 public:
     Enemy();
@@ -151,6 +170,7 @@ public:
     int GetAttackDamage() const { return attackDamage; }
     float GetDeathTimer() const { return deathTimer; }
     bool IsInvulnerable() const { return iFramesTimer > 0; }
+ 
 
     virtual SDL_FRect GetBoundingBox() const override;
     virtual int PerformAttack() { return attackDamage; }
