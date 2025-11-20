@@ -490,13 +490,23 @@ void Game::StartMapTransition(const std::string& nextMap, TransitionType type) {
     nextMapName = nextMap;
     currentGameState = GameState::MAP_TRANSITIONING;
 
-    // ✅ TẠO LẠI mapTransition với loại hiệu ứng mới
+    float duration;
+    if (type == TransitionType::ZOOM_FLASH) {
+        duration = 0.25f;  // ZOOM_FLASH nhanh hơn
+    }
+    else if (type == TransitionType::FADE) {
+        duration = 0.15f;  // FADE cực nhanh
+    }
+    else {
+        duration = 0.2f;   // Các loại khác
+    }
+
     mapTransition = std::make_unique<ScreenTransition>(
         renderer,
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
         type,
-        0.3f  // Duration
+        duration  // ✅ Dùng duration động
     );
 
     mapTransition->Start();
