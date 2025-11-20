@@ -239,36 +239,37 @@ void Enemy::HandleFlee(float deltaTime, Map& map) {
 }
 
 void Enemy::HandleRun(float deltaTime, Map& map) {
-    glm::vec2 directionVec = targetPosition - position;
-    float distance = glm::length(directionVec);
-    float dirSign = (directionVec.x > 0) ? 1.0f : -1.0f;
+    // 1. Tính khoảng cách CHỈ THEO TRỤC X (Quan trọng)
+    float diffX = targetPosition.x - position.x;
 
-    // 1. CHECK VỰC THẲM TRƯỚC KHI CHẠY TỚI
+    // Xác định hướng muốn đi
+    float dirSign = (diffX > 0) ? 1.0f : -1.0f;
+
+    // 2. CHECK VỰC THẲM (Giữ nguyên code cũ của bạn)
     if (!CheckGroundAhead(map, dirSign)) {
-        // Gặp vực -> Dừng lại ngay
         velocity.x = 0.0f;
-
-        // Chuyển trạng thái về ĐI TUẦN (Quay về)
         enemyState = EnemyState::STATE_WALK;
 
-        // Reset điểm tuần tra ngay tại chỗ để nó quay đầu đi hướng khác
-        // Logic: Đặt điểm A và B xung quanh vị trí hiện tại
+        // Reset patrol points để quay đầu
         patrolPointA = position - glm::vec2(50, 0);
         patrolPointB = position + glm::vec2(50, 0);
 
-        // Đảo chiều di chuyển tuần tra để nó quay lưng đi ngay lập tức
-        if (dirSign > 0) movingToB = false; // Đang định đi phải gặp vực -> ép đi về trái (A)
-        else movingToB = true;              // Đang định đi trái gặp vực -> ép đi về phải (B)
-
+        if (dirSign > 0) movingToB = false;
+        else movingToB = true;
         return;
     }
 
-    // 2. DI CHUYỂN BÌNH THƯỜNG
-    if (distance > 0.1f) {
+    // 3. DI CHUYỂN VỚI DEADZONE (Đây là phần sửa lỗi Rung lắc)
+    // Chỉ di chuyển và quay mặt nếu khoảng cách ngang lớn hơn 10 pixel
+    if (std::abs(diffX) > 10.0f) {
         velocity.x = dirSign * runSpeed;
-        flipHorizontal = velocity.x < 0;
+
+        // Chỉ cập nhật hướng mặt khi thực sự di chuyển
+        flipHorizontal = (velocity.x < 0);
     }
     else {
+        // Nếu khoảng cách ngang quá nhỏ (đang đứng trên đầu hoặc ngay dưới chân)
+        // -> Đứng yên theo trục X, KHÔNG quay mặt lung tung
         velocity.x = 0.0f;
     }
 }
@@ -523,9 +524,18 @@ void Enemy::TakeDamage(int damage) {
 
     // B. Quay mặt về phía sát thương (Giả sử targetPosition là Player)
     // Nếu Player đang ở bên trái mà Enemy đang nhìn bên phải -> Quay lại ngay
-    float dirToPlayer = targetPosition.x - position.x;
-    if (dirToPlayer > 0) flipHorizontal = false;
-    else flipHorizontal = true;
+    float diffX = targetPosition.x - position.x; // Hoặc dùng velocity.x nếu code bạn dùng velocity
+
+    // QUAN TRỌNG: Chỉ quay đầu nếu khoảng cách đủ lớn (lớn hơn 10 pixel)
+    // Nếu nhân vật đứng trên đầu (khoảng cách < 10), nó sẽ giữ nguyên hướng cũ
+    if (std::abs(diffX) > 10.0f) {
+        if (diffX > 0) {
+            flipHorizontal = false; // Hướng phải
+        }
+        else {
+            flipHorizontal = true;  // Hướng trái
+        }
+    }
 
     // C. Cơ chế "Nổi điên" (Enrage)
     // Nếu đang đợi hồi chiêu tấn công (ví dụ còn 1s nữa mới đánh)

@@ -69,7 +69,11 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     hasIntroPlayed(false),
     isInvulnerable(true),
     introTimer(3.0f),
-    effectManager(nullptr)
+    skillTimer(0.0f),
+    skillCooldown(5.0f),   // 5 giây dùng skill phụ 1 lần
+    decisionTimer(0.0f),
+    effectManager(nullptr),
+    moveSpeed(40.0f)
 {
     this->renderer = renderer;
     this->position = startPos;
@@ -427,3 +431,135 @@ void Boss::TakeDamage(int damage) {
 
     Enemy::TakeDamage(damage);
 }
+
+void Boss::SmartMove(float deltaTime, float distanceToPlayer) {
+    // Nếu đang dùng chiêu thì đứng yên, không di chuyển
+    if (isSlamming || isUsingUltimate || isCharging || enemyState == EnemyState::STATE_ATTACK) {
+        velocity.x = 0.0f;
+        return;
+    }
+
+    // Xác định hướng (1 là phải, -1 là trái)
+    // targetPosition là biến có sẵn trong Enemy.h
+    float direction = (targetPosition.x > position.x) ? 1.0f : -1.0f;
+
+    // Luôn quay mặt về phía người chơi
+    flipHorizontal = (direction < 0);
+
+    // LOGIC DI CHUYỂN:
+
+    // 1. Nếu ở quá xa (> 300): Tăng tốc đuổi theo
+    if (distanceToPlayer > 300.0f) {
+        velocity.x = direction * (moveSpeed * 1.5f);
+        enemyState = EnemyState::STATE_RUN; // Hoặc STATE_WALK nếu chưa có anim RUN
+    }
+    // 2. Nếu ở quá gần (< 40) và đang hồi chiêu đánh: Lùi lại (thả diều)
+    else if (distanceToPlayer < 40.0f) {
+        if (attackTimer > 0) {
+            velocity.x = -direction * (moveSpeed * 0.5f); // Lùi chậm
+            enemyState = EnemyState::STATE_WALK;
+        }
+        else {
+            velocity.x = 0.0f; // Đứng yên chuẩn bị đánh
+            enemyState = EnemyState::STATE_IDLE;
+        }
+    }
+    // 3. Khoảng cách vừa phải: Đi bộ tới
+    else {
+        velocity.x = direction * moveSpeed;
+        enemyState = EnemyState::STATE_WALK;
+    }
+}
+
+void Boss::PerformPhaseBehavior(float deltaTime) {
+    if (isUsingUltimate || !hasIntroPlayed) return;
+
+    // Tính khoảng cách tới Player
+    float distance = glm::distance(position, targetPosition);
+
+    // Giảm thời gian hồi chiêu
+    if (skillTimer > 0) skillTimer -= deltaTime;
+    if (attackTimer > 0) attackTimer -= deltaTime;
+
+    // --- PHASE 1: Đi bộ và Đánh thường ---
+    if (currentPhase == BossPhase::PHASE_1) {
+        SmartMove(deltaTime, distance);
+
+        // Tầm đánh là 50px
+        if (distance < 50.0f && attackTimer <= 0) {
+            velocity.x = 0.0f; // Dừng lại để đánh
+            enemyState = EnemyState::STATE_ATTACK;
+            attackTimer = attackCooldown;
+        }
+    }
+
+    // --- PHASE 2: Thêm Charge (Lao tới) ---
+    else if (currentPhase == BossPhase::PHASE_2) {
+
+        // Xử lý khi đang Lao (Charge)
+        if (isCharging) {
+            // Lao theo hướng mặt đang quay
+            float dir = flipHorizontal ? -1.0f : 1.0f;
+            velocity.x = dir * chargeSpeed; // Dùng chargeSpeed
+
+            // Nếu va chạm hoặc hết thời gian lao (ví dụ lao trong 1s)
+            // Ở đây ta tạm dùng skillTimer để đếm ngược thời gian lao
+            if (skillTimer < skillCooldown - 1.5f) { // Lao trong 1.5 giây
+                isCharging = false;
+                velocity.x = 0.0f;
+            }
+            return; // Đang lao thì không làm gì khác
+        }
+
+        SmartMove(deltaTime, distance);
+
+        // Logic kích hoạt Skill
+        if (skillTimer <= 0) {
+            // Nếu xa quá -> Kích hoạt Lao tới
+            if (distance > 250.0f) {
+                isCharging = true;
+                enemyState = EnemyState::STATE_RUN; // Dùng anim chạy
+                std::cout << "Boss Charge!\n";
+            }
+            // Nếu gần -> Có thể Slam (nếu bạn muốn) hoặc đánh thường
+
+            skillTimer = skillCooldown; // Reset hồi chiêu skill
+        }
+
+        // Đánh thường
+        if (!isCharging && distance < 50.0f && attackTimer <= 0) {
+            velocity.x = 0.0f;
+            enemyState = EnemyState::STATE_ATTACK;
+            attackTimer = attackCooldown;
+        }
+    }
+
+    // --- PHASE 3: Nổi điên (Tăng tốc + Ulti) ---
+    else if (currentPhase == BossPhase::PHASE_3) {
+        // Ưu tiên Ulti
+        if (ultimateTimer <= 0) {
+            UseUltimate();
+            return;
+        }
+
+        // Logic di chuyển PHASE 3: Luôn lao nhanh tới player
+        float direction = (targetPosition.x > position.x) ? 1.0f : -1.0f;
+        flipHorizontal = (direction < 0);
+
+        // Nếu chưa đến tầm đánh -> Chạy nhanh
+        if (distance > 40.0f) {
+            velocity.x = direction * (moveSpeed * 2.0f); // Chạy nhanh gấp đôi
+            enemyState = EnemyState::STATE_RUN;
+        }
+        else {
+            velocity.x = 0.0f;
+        }
+
+        // Đánh liên tục (giảm hồi chiêu)
+        if (distance < 50.0f && attackTimer <= 0) {
+            enemyState = EnemyState::STATE_ATTACK;
+            attackTimer = 0.8f; // Hồi chiêu nhanh hơn (0.8s)
+        }
+    }
+}
+

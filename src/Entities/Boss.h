@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include "Enemy.h"
 #include "../Components/Effect.h" 
 #include <vector>
@@ -26,6 +26,8 @@ private:
     int ultimateDamage;
     float ultimateRadius;
 
+    float moveSpeed;        // Tốc độ di chuyển thường
+
     // ===== SUMMON MINIONS =====
     bool canSummon;
     int summonCount;
@@ -50,6 +52,10 @@ private:
     bool isInvulnerable;
     float introTimer;
 
+    float skillTimer;       // Đếm ngược để dùng skill (Slam/Charge/Summon)
+    float skillCooldown;    // Thời gian hồi chiêu skill
+    float decisionTimer;
+
     // ===== EFFECT MANAGER ===== 
     EffectManager* effectManager;
 
@@ -58,12 +64,15 @@ private:
     void EnterPhase2();
     void EnterPhase3();
 
+    void SmartMove(float deltaTime, float distanceToPlayer); // Hàm di chuyển thông minh
+
     void UseUltimate();
     void SummonMinions();
     void ChargeAttack();
     void GroundSlam();
 
     void PlayIntro();
+    void PerformPhaseBehavior(float deltaTime);
 
 protected:
     // Override: GameConstants
