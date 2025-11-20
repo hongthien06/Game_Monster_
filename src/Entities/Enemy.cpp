@@ -133,8 +133,12 @@ Enemy::Enemy(SDL_Renderer* renderer, glm::vec2 startPos,
         aggroRange = 400.0f;
         attackRange = 80.0f;
         coinDropAmount = 10;
-        renderWidth = 96.0f;
-        renderHeight = 96.0f;
+        renderWidth = GameConstants::BOSS_RENDER_WIDTH;
+        renderHeight = GameConstants::BOSS_RENDER_HEIGHT;
+        hitboxWidth = GameConstants::BOSS_HITBOX_WIDTH;
+        hitboxHeight = GameConstants::BOSS_HITBOX_HEIGHT;
+        hitboxOffsetX = GameConstants::BOSS_HITBOX_OFFSET_X;
+        hitboxOffsetY = GameConstants::BOSS_HITBOX_OFFSET_Y;
         break;
     }
 }

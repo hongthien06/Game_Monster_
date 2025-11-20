@@ -57,8 +57,12 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
     // Size: 96x96 (lớn nhất)
-    renderWidth = 256.0f;
-    renderHeight = 256.0f;
+    renderWidth = GameConstants::BOSS_RENDER_WIDTH;
+    renderHeight = GameConstants::BOSS_RENDER_HEIGHT;
+    hitboxWidth = GameConstants::BOSS_HITBOX_WIDTH;
+    hitboxHeight = GameConstants::BOSS_HITBOX_HEIGHT;
+    hitboxOffsetX = GameConstants::BOSS_HITBOX_OFFSET_X;
+    hitboxOffsetY = GameConstants::BOSS_HITBOX_OFFSET_Y;
 }
 
 Boss::~Boss() {
