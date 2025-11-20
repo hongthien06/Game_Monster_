@@ -201,33 +201,19 @@ void Game::run() {
 void Game::handleEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+
         if (event.type == SDL_EVENT_QUIT)
             isGameRunning = false;
         if (currentGameState == GameState::MAIN_MENU) {
-            // Xử lý Phím (Chuyển giữa các lựa chọn)
             mainMenu->HandleKeyboardInput();
-
-            // Xử lý Di chuột (Tô sáng lựa chọn)
-            if (event.type == SDL_EVENT_MOUSE_MOTION) {
-                mainMenu->HandleMouseMotion((float)event.motion.x, (float)event.motion.y);
-            }
-
-            // Xử lý Click chuột (Chọn)
-            if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
-                mainMenu->HandleMouseClick((float)event.button.x, (float)event.button.y);
-            }
         }
         else if (currentGameState == GameState::GAME_OVER) {
-            // Xử lý input cho Game Over Menu
-            gameOverMenu->HandleInput(); // Hàm này đã có xử lý phím
-            // Nếu bạn muốn thêm chuột cho GameOver, làm tương tự như Main Menu ở đây
+            gameOverMenu->HandleInput();
         }
         else if (currentGameState == GameState::TUTORIAL) {
             if (tutorialMenu) {
-                // Xử lý Phím
                 tutorialMenu->HandleInput();
 
-                // Xử lý Click chuột
                 if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
                     tutorialMenu->HandleMouseClick((float)event.button.x, (float)event.button.y);
                 }
@@ -236,7 +222,6 @@ void Game::handleEvents() {
     }
     SDL_PumpEvents();
 }
-
 // ===== SỬA HÀM update() - KIỂM TRA HẾT QUÁI =====
 void Game::update(float deltaTime) {
     switch (currentGameState) {

@@ -1,23 +1,16 @@
 ﻿#include "MainMenu.h"
 #include <iostream>
-#include <algorithm>
 #include "../Config/GameConstants.h" 
 
-void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
-    glm::vec2 pos, SDL_Color color, bool center)
+void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text, glm::vec2 pos, SDL_Color color, bool center)
 {
     if (!font) return;
-    SDL_Color black = { 0, 0, 0, 255 };
-    SDL_Color background_color = { 0, 0, 0, 0 }; 
-    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(),0,color);
-    if (!surface) {
-        std::cerr << "TTF_RenderText_Blended Error: " << SDL_GetError() << std::endl;
-        return;
-    }
+
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text.c_str(), 0, color);
+    if (!surface) return;
 
     SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
     if (!texture) {
-        std::cerr << "SDL_CreateTextureFromSurface Error: " << SDL_GetError() << std::endl;
         SDL_DestroySurface(surface);
         return;
     }
@@ -26,7 +19,6 @@ void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::str
     dstRect.w = (float)surface->w;
     dstRect.h = (float)surface->h;
 
-    // Tính toán vị trí
     if (center) {
         dstRect.x = pos.x - dstRect.w / 2.0f;
         dstRect.y = pos.y - dstRect.h / 2.0f;
@@ -37,11 +29,9 @@ void MainMenu::RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::str
     }
 
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
-
     SDL_DestroyTexture(texture);
     SDL_DestroySurface(surface);
 }
-
 
 MainMenu::MainMenu(SDL_Renderer* ren, TTF_Font* fnt)
     : renderer(ren), font(fnt) {
@@ -63,9 +53,8 @@ void MainMenu::SetupButtons() {
     float startY = GameConstants::LOGICAL_HEIGHT / 2.5f;
     float spacing = 55.0f;
     float buttonWidth = 200.0f;
-    float buttonHeight = 35.0f; 
+    float buttonHeight = 35.0f;
 
-    // START GAME
     buttons[0] = {
         "PLAY",
         { centerX, startY + 10.0f },
@@ -73,7 +62,6 @@ void MainMenu::SetupButtons() {
         MainMenuChoice::START_GAME
     };
 
-    // OPTIONS
     buttons[1] = {
         "TUTORIAL",
         { centerX, startY + 10.0f + spacing },
@@ -81,7 +69,6 @@ void MainMenu::SetupButtons() {
         MainMenuChoice::TUTORIAL
     };
 
-    // QUIT
     buttons[2] = {
         "EXIT",
         { centerX, startY + 10.0f + spacing * 2 },
@@ -117,61 +104,26 @@ void MainMenu::HandleKeyboardInput() {
     }
 }
 
-
-void MainMenu::HandleMouseClick(float mouseX, float mouseY) {
-    if (isTransitioning) return;
-    for (int i = 0; i < 3; ++i) {
-        const auto& button = buttons[i];
-        float buttonX = button.pos.x - button.width / 2.0f;
-        float buttonY = button.pos.y - button.height / 2.0f;
-
-        if (mouseX >= buttonX && mouseX <= buttonX + button.width &&
-            mouseY >= buttonY && mouseY <= buttonY + button.height) {
-            currentChoice = button.choice;
-            return;
-        }
-    }
-}
-
-void MainMenu::HandleMouseMotion(float mouseX, float mouseY) {
-    for (int i = 0; i < 3; ++i) {
-        const auto& button = buttons[i];
-
-        float buttonX = button.pos.x - button.width / 2.0f;
-        float buttonY = button.pos.y - button.height / 2.0f;
-
-        if (mouseX >= buttonX && mouseX <= buttonX + button.width &&
-            mouseY >= buttonY && mouseY <= buttonY + button.height) {
-
-            selectedOption = i; 
-            return;
-        }
-    }
-}
-
-
 void MainMenu::Render() {
 
     float centerX = GameConstants::LOGICAL_WIDTH / 2.0f;
     float centerY = GameConstants::LOGICAL_HEIGHT / 2.0f;
 
     SDL_Color colorTitle = { 255, 0, 0, 255 };
-    SDL_Color colorDefault = { 255, 255, 255, 255 }; 
+    SDL_Color colorDefault = { 255, 255, 255, 255 };
     SDL_Color colorSelected = { 255, 255, 0, 255 };
 
-
-    const SDL_Color selectionFillColor = { 0, 0, 0, 150 }; 
-    const SDL_Color borderColor = { 255, 255, 255, 255 }; 
-    const float paddingX = 6.0f; 
+    const SDL_Color selectionFillColor = { 0, 0, 0, 150 };
+    const SDL_Color borderColor = { 255, 255, 255, 255 };
+    const float paddingX = 6.0f;
     const float paddingY = 6.0f;
 
-  
     RenderText(renderer, font, "GAME MONSTER", { centerX, centerY - 90.0f }, colorTitle, true);
 
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
 
-        SDL_Color textColor = (i == selectedOption) ? colorSelected : colorDefault; 
+        SDL_Color textColor = (i == selectedOption) ? colorSelected : colorDefault;
 
         SDL_FRect frameRect = {
             button.pos.x - button.width / 2.0f - paddingX,

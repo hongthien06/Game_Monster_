@@ -20,10 +20,6 @@ public:
     void Reset();
     void Update(float deltaTime);
     void HandleKeyboardInput();
-
-    void HandleMouseClick(float mouseX, float mouseY);
-
-    void HandleMouseMotion(float mouseX, float mouseY);
     void Render();
 
     MainMenuChoice GetChoice() const { return currentChoice; }
