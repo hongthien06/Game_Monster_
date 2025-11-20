@@ -76,7 +76,7 @@ protected:
     bool enemyIsOnGround;
     float enemyGravity;
 
-    // Render size (khác với frame size)
+    
     float renderWidth;
     float renderHeight;
 
@@ -88,7 +88,6 @@ protected:
     // Audio system
     Audio* audioSystem;
 
-    // VIRTUAL: lớp con override để trả frames riêng
     virtual FrameConfig GetFrameConfig(EnemyState state) const = 0;
 
     // AI Logic
@@ -110,18 +109,17 @@ protected:
 
    
 
-    // Ngưỡng máu để bỏ chạy (ví dụ 30%)
+    // Ngưỡng máu để bỏ chạy 
     bool IsLowHealth() const {
-        float threshold = 0.3f; // Mặc định 30%
+        float threshold = 0.3f; 
 
-        if (enemyType == EnemyType::MINION) threshold = 0.5f; // Minion chạy sớm hơn
-        else if (enemyType == EnemyType::BOSS) threshold = 0.0f; // Boss khô máu, không bao giờ chạy
+        if (enemyType == EnemyType::MINION) threshold = 0.5f; 
+        else if (enemyType == EnemyType::BOSS) threshold = 0.0f; 
 
         return health < (maxHealth * threshold);
     }
 
     // Hàm xử lý bỏ chạy
-    
     void HandleFlee(float deltaTime, Map&map);
 
     //check vực thẩm

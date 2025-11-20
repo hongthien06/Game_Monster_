@@ -32,17 +32,17 @@ Game::Game()
     audio(nullptr),
     playerHUD(nullptr),
     currentGameState(GameState::MAIN_MENU), 
-    targetState(GameState::MAIN_MENU),  // THÊM
-    menuBackgroundTex(nullptr),         // THÊM
-    gameBackgroundTex(nullptr),         // THÊM
+    targetState(GameState::MAIN_MENU), 
+    menuBackgroundTex(nullptr),         
+    gameBackgroundTex(nullptr),         
     mainFont(nullptr),
     mainMenu(nullptr)
-    //gameOverMenu(nullptr),    // THÊM DÒNG NÀY
+    //gameOverMenu(nullptr),    
     //showGameOverMenu(false)
 {
 }
 
-// Giai phong tai nguyen
+
 Game::~Game() {
     cleanup();
 }

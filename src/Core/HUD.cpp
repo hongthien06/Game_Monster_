@@ -31,7 +31,7 @@ bool HUD::LoadResources() {
         return false;
     }
 
-    // DEBUG: Kiểm tra load potion icon
+    
     potionIconTex = IMG_LoadTexture(renderer, "assets/items/potion4.png");
     if (!potionIconTex) {
         std::cerr << "ERROR: Failed to load potion icon: " << SDL_GetError() << std::endl;
@@ -42,10 +42,12 @@ bool HUD::LoadResources() {
     return true;
 }
 
+//hàm cộng điểm coin
 void HUD::AddScore(int amount) {
     score += amount;
 }
 
+//hàm hiện popup số coin khi nhặt
 void HUD::AddScorePopup(glm::vec2 position, int value) {
     ScorePopup popup{ position, value, 1.5f, 255.0f };
     scorePopups.push_back(popup);
@@ -64,6 +66,7 @@ void HUD::Update(float deltaTime) {
         scorePopups.end());
 }
 
+//hàm vẽ tất cả trên màn hình 
 void HUD::Render(glm::vec2 cameraOffset) {
     if (!font) return;
 
@@ -127,16 +130,9 @@ void HUD::Render(glm::vec2 cameraOffset) {
         return;
     }
 
-    // Nếu đến đây là OK, vẽ potion UI
+    
     int potionCount = playerRef->GetHealthPotionCount();
     int maxPotions = playerRef->GetMaxHealthPotions();
-
-    //// DEBUG: In ra console
-    //static float debugTimer = 0.0f;
-    //debugTimer += 0.016f; // Giả sử 60 FPS
-    //if ((int)debugTimer % 60 == 0) {
-    //    std::cout << "[HUD] Rendering potion: " << potionCount << "/" << maxPotions << std::endl;
-    //}
 
     // Vẽ icon potion
     SDL_FRect potionIconRect = { 70.0f, 13.0f, 24.0f, 24.0f };

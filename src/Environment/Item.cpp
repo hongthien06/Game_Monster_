@@ -38,11 +38,10 @@ void Item::Update(float deltaTime) {
         currentFrame = (currentFrame + 1) % totalFrames;
     }
 
-    // Float effect: position.y dao động theo sin
+    //cho vật phẩm rơi ra có hiệu ứng lên xuống
     floatOffset += floatSpeed * deltaTime;
     position.y = startPosition.y + sin(floatOffset) * floatAmplitude;
 
-    // Cập nhật collider
     collider.x = position.x;
     collider.y = position.y;
 }
@@ -50,19 +49,18 @@ void Item::Update(float deltaTime) {
 void Item::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (isCollected || !texture) return;
 
-    float srcFrameSize;   // Kích thước trong texture gốc
-    float displaySize;    // Kích thước hiển thị trên màn hình
+    float srcFrameSize;  // kích thước gốc
+    float displaySize;  // Kích thước hiển thị trên màn hình
 
     if (type == ItemType::COIN) {
         srcFrameSize = 20.0f;
-        displaySize = 20.0f;   // Coin giữ nguyên size
+        displaySize = 20.0f;   
     }
     else if (type == ItemType::HEALTH_POTION) {
-        srcFrameSize = 64.0f;  // Texture gốc 64x64
-        displaySize = 24.0f;   // Hiển thị nhỏ lại (thử 24, 28, 32...)
+        srcFrameSize = 64.0f;  
+        displaySize = 24.0f;  
     }
 
-    // Vùng cắt từ texture gốc
     SDL_FRect srcRect = {
         (float)currentFrame * srcFrameSize,
         0.0f,
@@ -70,25 +68,14 @@ void Item::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         srcFrameSize
     };
 
-    // Vị trí vẽ trên màn hình với kích thước đã scale
     SDL_FRect dstRect = {
         position.x - cameraOffset.x,
         position.y - cameraOffset.y,
-        displaySize,   // Dùng displaySize thay vì srcFrameSize
+        displaySize,  
         displaySize
     };
 
     SDL_RenderTexture(renderer, texture, &srcRect, &dstRect);
 
-    // DEBUG: Vẽ Collider
-    /*
-    SDL_SetRenderDrawColor(renderer, 0, 255, 255, 255); // Màu xanh Cyan
-    SDL_FRect cRect{
-        collider.x - cameraOffset.x,
-        collider.y - cameraOffset.y,
-        collider.w,
-        collider.h
-    };
-    SDL_RenderRect(renderer, &cRect);
-    */
+    
 }

@@ -21,6 +21,8 @@ private:
     SDL_FRect collider;
 
     ItemType type;
+
+    //check nhặt item 
     bool isCollected;
 
     // Thông số Animation 
@@ -43,11 +45,11 @@ public:
     void Update(float deltaTime);
     void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset);
 
-    // Getters cho logic va chạm trong ItemManager
+   
     const SDL_FRect& GetCollider() const { return collider; }
     ItemType GetType() const { return type; }
     bool IsCollected() const { return isCollected; }
-    void Collect() { isCollected = true; } // Đánh dấu đã nhặt
+    void Collect() { isCollected = true; } 
     float getFloatSpeed() {
         return this->floatSpeed;
     }
