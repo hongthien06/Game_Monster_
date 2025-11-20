@@ -1,33 +1,32 @@
-﻿#pragma once
-
+#pragma once
 #include <SDL3/SDL.h>
 #include <SDL3_ttf/SDL_ttf.h>
 #include "../Config/GameConstants.h"
 #include <memory>
 
-enum class GameOverChoice {
-    NONE,       
+enum class GameWinChoice {
+    NONE,
     REPLAY,
     QUIT
 };
 
-class GameOverMenu {
+class GameWinMenu {
 private:
     SDL_Renderer* renderer;
     TTF_Font* font;
-    int selectedOption; 
+    int selectedOption;
     float inputTimer;
     const float inputCooldown = 0.2f;
 
-    GameOverChoice currentChoice;
+    GameWinChoice currentChoice;
 public:
-    GameOverMenu(SDL_Renderer* ren, TTF_Font* fnt);
-    ~GameOverMenu();
+    GameWinMenu(SDL_Renderer* ren, TTF_Font* fnt);
+    ~GameWinMenu();
 
- 
+
     void HandleInput();
     void Update(float deltaTime);
     void Render();
-    GameOverChoice GetChoice() const { return currentChoice; }
+    GameWinChoice GetChoice() const { return currentChoice; }
     void Reset();
 };

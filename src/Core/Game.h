@@ -17,6 +17,7 @@
 #include "../Core/MainMenu.h"
 #include "../Core/TutorialMenu.h"
 #include "../Core/GameOverMenu.h"
+#include "../Core/GameWinMenu.h"
 #include <SDL3_ttf/SDL_ttf.h>
 #include "../Components/ScreenTransition.h"
 
@@ -33,6 +34,7 @@ enum class GameState {
     TRANSITIONING,
     PLAYING,
     GAME_OVER,
+    GAME_WIN,
     TUTORIAL,
     MAP_TRANSITIONING  // ✅ THÊM DÒNG NÀY
 };
@@ -68,6 +70,7 @@ private:
 
     TTF_Font* mainFont;
     std::unique_ptr<MainMenu> mainMenu;
+    std::unique_ptr<GameWinMenu> gameWinMenu;
     std::unique_ptr<GameOverMenu> gameOverMenu;
     std::unique_ptr<TutorialMenu> tutorialMenu;
 

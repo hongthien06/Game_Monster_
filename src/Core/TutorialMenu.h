@@ -17,7 +17,6 @@ public:
     void Reset();
     void Update(float deltaTime);
     void HandleInput();
-    void HandleMouseClick(float mouseX, float mouseY);
     void Render();
 
     TutorialChoice GetChoice() const { return currentChoice; }

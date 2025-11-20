@@ -146,6 +146,7 @@ bool Game::init() {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
     mainMenu = std::make_unique<MainMenu>(renderer, mainFont);
+    gameWinMenu = std::make_unique<GameWinMenu>(renderer, mainFont);
     gameOverMenu = std::make_unique<GameOverMenu>(renderer, mainFont);
     tutorialMenu = std::make_unique<TutorialMenu>(renderer, mainFont);
 
@@ -218,13 +219,10 @@ void Game::handleEvents() {
             gameOverMenu->HandleInput();
         }
         else if (currentGameState == GameState::TUTORIAL) {
-            if (tutorialMenu) {
-                tutorialMenu->HandleInput();
-
-                if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && event.button.button == SDL_BUTTON_LEFT) {
-                    tutorialMenu->HandleMouseClick((float)event.button.x, (float)event.button.y);
-                }
-            }
+            tutorialMenu->HandleInput();
+        }
+        else if (currentGameState == GameState::GAME_WIN) {
+            gameWinMenu->HandleInput();
         }
     }
     SDL_PumpEvents();
@@ -233,7 +231,7 @@ void Game::handleEvents() {
 void Game::update(float deltaTime) {
     switch (currentGameState) {
 
-    case GameState::MAIN_MENU: 
+    case GameState::MAIN_MENU:
     {
         mainMenu->Update(deltaTime);
         MainMenuChoice choice = mainMenu->GetChoice();
@@ -244,13 +242,13 @@ void Game::update(float deltaTime) {
         else if (choice == MainMenuChoice::QUIT) {
             isGameRunning = false;
         }
-        else if (choice == MainMenuChoice::TUTORIAL) { 
-            mainMenu->ResetChoice(); 
+        else if (choice == MainMenuChoice::TUTORIAL) {
+            mainMenu->ResetChoice();
             startTransition(GameState::TUTORIAL);
         }
         break;
     }
-    
+
     case GameState::TRANSITIONING:
     {
         screenTransition->Update(deltaTime);
@@ -267,6 +265,7 @@ void Game::update(float deltaTime) {
         }
         break;
     }// ✅ THÊM CASE MỚI
+
     case GameState::MAP_TRANSITIONING:
     {
         mapTransition->Update(deltaTime);
@@ -284,21 +283,21 @@ void Game::update(float deltaTime) {
         }
         break;
     }
-    
+
     case GameState::PLAYING:
     {
         if (player && map)
             player->Update(deltaTime, *map);
 
         for (const auto& item : items)
-            if (!item->IsCollected()) 
+            if (!item->IsCollected())
                 item->Update(deltaTime);
 
         checkItemCollisions();
-        
+
         // ✅ UPDATE ENEMIES TRƯỚC
         updateEnemies(deltaTime);
-        
+
         // ✅ DEBUG: Kiểm tra số lượng enemies
         static int frameCount = 0;
         if (++frameCount % 60 == 0) { // Log mỗi 60 frames (~1 giây)
@@ -315,32 +314,32 @@ void Game::update(float deltaTime) {
                     deadCount++;
                 }
             }
-            std::cout << "[Game] Enemies alive: " << aliveCount 
-                      << " | dead: " << deadCount 
-                      << " | total: " << enemies.size() << "\n";
-            
+            std::cout << "[Game] Enemies alive: " << aliveCount
+                << " | dead: " << deadCount
+                << " | total: " << enemies.size() << "\n";
+
             // ✅ THÊM: In vị trí player để so sánh
             if (player) {
                 glm::vec2 playerPos = player->GetPosition();
                 std::cout << "[Game] Player at: (" << playerPos.x << ", " << playerPos.y << ")\n";
             }
         }
-        
+
         // ✅ SAU ĐÓ mới check collisions
         checkEnemyCollisions();
-        
+
         effectManager.Update(deltaTime);
         camera.update(player->GetPosition(), deltaTime);
 
-        if (playerHUD) 
+        if (playerHUD)
             playerHUD->Update(deltaTime);
-        if (audio) 
+        if (audio)
             audio->update(deltaTime);
 
         // ✅ KIỂM TRA CHẾT
         if (!player->IsAlive()) {
             currentGameState = GameState::GAME_OVER;
-            gameOverMenu->Reset(); 
+            gameOverMenu->Reset();
         }
 
         // ✅ KIỂM TRA HẾT QUÁI (sau khi đã update & xóa enemy chết)
@@ -357,7 +356,8 @@ void Game::update(float deltaTime) {
             }
             else {
                 std::cout << "[Game] No more maps! Victory!\n";
-                currentGameState = GameState::GAME_OVER;
+                currentGameState = GameState::GAME_WIN;
+                if (gameWinMenu) gameWinMenu->Reset();
             }
 
             pendingNextMap = true;
@@ -366,22 +366,39 @@ void Game::update(float deltaTime) {
         break;
     }
 
-    case GameState::GAME_OVER:
+    case GameState::GAME_WIN:
     {
-        gameOverMenu->Update(deltaTime); 
-        gameOverMenu->HandleInput();     
+        if (gameWinMenu) {
+            gameWinMenu->Update(deltaTime);
+            gameWinMenu->HandleInput();
+            GameWinChoice choice = gameWinMenu->GetChoice();
 
-        MenuChoice choice = gameOverMenu->GetChoice();
-
-        if (choice == MenuChoice::REPLAY) {
-            startTransition(GameState::PLAYING);
-        }
-        else if (choice == MenuChoice::QUIT) {
-            isGameRunning = false; 
+            if (choice == GameWinChoice::REPLAY) {
+                startTransition(GameState::PLAYING);
+            }
+            else if (choice == GameWinChoice::QUIT) {
+                isGameRunning = false;
+            }
         }
         break;
     }
-    
+
+    case GameState::GAME_OVER:
+    {
+        gameOverMenu->Update(deltaTime);
+        gameOverMenu->HandleInput();
+
+        GameOverChoice choice = gameOverMenu->GetChoice();
+
+        if (choice == GameOverChoice::REPLAY) {
+            startTransition(GameState::PLAYING);
+        }
+        else if (choice == GameOverChoice::QUIT) {
+            isGameRunning = false;
+        }
+        break;
+    }
+
     case GameState::TUTORIAL:
     {
         if (tutorialMenu) {
@@ -389,7 +406,7 @@ void Game::update(float deltaTime) {
             TutorialChoice choice = tutorialMenu->GetChoice();
 
             if (choice == TutorialChoice::BACK) {
-                tutorialMenu->ResetChoice(); 
+                tutorialMenu->ResetChoice();
                 startTransition(GameState::MAIN_MENU);
             }
         }
@@ -460,6 +477,9 @@ void Game::render() {
     // RENDER UI OVERLAYS
     if (currentGameState == GameState::GAME_OVER) {
         gameOverMenu->Render();
+    }
+    else if (currentGameState == GameState::GAME_WIN) {
+        gameWinMenu->Render();
     }
     else if (currentGameState == GameState::MAIN_MENU) {
         mainMenu->Render();
@@ -1148,9 +1168,10 @@ void Game::resetGame() {
     currentGameState = GameState::PLAYING;
     pendingNextMap = false;
     nextMapName.clear();
-    mainMenu->Reset();
-    gameOverMenu->Reset();
-    tutorialMenu->Reset();
+    if (mainMenu) mainMenu->Reset();
+    if (gameOverMenu) gameOverMenu->Reset();
+    if (gameWinMenu) gameWinMenu->Reset();
+    if (tutorialMenu) tutorialMenu->Reset();
 }
 
 // ===== THÊM SAFE GUARD CHO LoadNextMap() =====

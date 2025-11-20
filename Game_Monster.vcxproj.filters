@@ -618,6 +618,9 @@
     <ClInclude Include="src\Components\ScreenTransition.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\Core\GameWinMenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include=".gitignore" />
@@ -702,6 +705,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\Core\MainMenu.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\Core\GameWinMenu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

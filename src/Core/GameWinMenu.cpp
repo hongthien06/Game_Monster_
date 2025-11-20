@@ -1,4 +1,4 @@
-﻿#include "GameOverMenu.h"
+#include "GameWinMenu.h"
 #include <iostream>
 #include <glm/glm.hpp> 
 #include "../Config/GameConstants.h"
@@ -35,28 +35,27 @@ static void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string
 }
 
 
-GameOverMenu::GameOverMenu(SDL_Renderer* ren, TTF_Font* fnt)
+GameWinMenu::GameWinMenu(SDL_Renderer* ren, TTF_Font* fnt)
     : renderer(ren), font(fnt) {
-
     Reset();
 }
 
-GameOverMenu::~GameOverMenu() {
+GameWinMenu::~GameWinMenu() {
 }
 
-void GameOverMenu::Reset() {
+void GameWinMenu::Reset() {
     selectedOption = 0;
     inputTimer = inputCooldown;
-    currentChoice = GameOverChoice::NONE;
+    currentChoice = GameWinChoice::NONE;
 }
 
-void GameOverMenu::Update(float deltaTime) {
+void GameWinMenu::Update(float deltaTime) {
     if (inputTimer > 0) {
         inputTimer -= deltaTime;
     }
 }
 
-void GameOverMenu::HandleInput() {
+void GameWinMenu::HandleInput() {
     if (inputTimer > 0) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
@@ -75,16 +74,16 @@ void GameOverMenu::HandleInput() {
     }
     else if (keys[SDL_SCANCODE_RETURN] || keys[SDL_SCANCODE_J]) {
         if (selectedOption == 0) {
-            currentChoice = GameOverChoice::REPLAY;
+            currentChoice = GameWinChoice::REPLAY;
         }
         else if (selectedOption == 1) {
-            currentChoice = GameOverChoice::QUIT;
+            currentChoice = GameWinChoice::QUIT;
         }
         inputTimer = inputCooldown;
     }
 }
 
-void GameOverMenu::Render() {
+void GameWinMenu::Render() {
     SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
     SDL_FRect overlayRect = { 0.0f, 0.0f, (float)GameConstants::LOGICAL_WIDTH, (float)GameConstants::LOGICAL_HEIGHT };
@@ -96,10 +95,10 @@ void GameOverMenu::Render() {
     float buttonWidth = 200.0f;
     float buttonHeight = 35.0f;
     float spacing = 55.0f;
-    
+
 
     const SDL_Color borderColor = { 255, 255, 255, 255 };
-    const SDL_Color selectionFillColor = { 0, 0, 0, 150 }; 
+    const SDL_Color selectionFillColor = { 0, 0, 0, 150 };
     const float paddingX = 6.0f;
     const float paddingY = 6.0f;
 
@@ -108,7 +107,7 @@ void GameOverMenu::Render() {
     SDL_Color colorSelected = { 255, 255, 0, 255 };
 
 
-    RenderText(renderer, font, "GAME OVER", { centerX, startY - 75.0f }, colorTitle, true);
+    RenderText(renderer, font, "GAME WIN", { centerX, startY - 75.0f }, colorTitle, true);
 
     glm::vec2 posReplay = { centerX, startY };
     SDL_Color colorReplayText = (selectedOption == 0) ? colorSelected : colorDefault;

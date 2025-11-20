@@ -30,17 +30,6 @@ void TutorialMenu::HandleInput() {
     }
 }
 
-void TutorialMenu::HandleMouseClick(float mouseX, float mouseY) {
-    float buttonX = GameConstants::LOGICAL_WIDTH / 2.0f - 100.0f;
-    float buttonY = GameConstants::LOGICAL_HEIGHT - 100.0f;
-    float buttonW = 200.0f;
-    float buttonH = 50.0f;
-
-    if (mouseX >= buttonX && mouseX <= buttonX + buttonW &&
-        mouseY >= buttonY && mouseY <= buttonY + buttonH) {
-        currentChoice = TutorialChoice::BACK;
-    }
-}
 
 void TutorialMenu::RenderText(const std::string& text, glm::vec2 pos, SDL_Color color, bool center) {
     if (!font) return;
