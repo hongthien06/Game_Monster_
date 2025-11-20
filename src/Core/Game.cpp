@@ -458,7 +458,6 @@ void Game::render() {
         for (auto& enemy : enemies) {
             enemy->Render(renderer, offset);
         }
-
         for (const auto& item : items)
             item->Render(renderer, offset);
 
@@ -983,7 +982,9 @@ void Game::checkEnemyCollisions() {
 
     SDL_FRect playerBox = player->GetBoundingBox();
 
-    // ===== VA CHẠM 1: PROJECTILE CỦA PLAYER -> ENEMY =====
+    // --------------------------------------------------------------
+    // PHẦN 1: PROJECTILE CỦA PLAYER BẮN TRÚNG ENEMY
+    // --------------------------------------------------------------
     for (auto& proj : player->GetProjectiles()) {
         if (!proj->IsActive()) continue;
 
@@ -994,65 +995,107 @@ void Game::checkEnemyCollisions() {
             SDL_FRect enemyBox = enemy->GetBoundingBox();
 
             if (SDL_HasRectIntersectionFloat(&projBox, &enemyBox)) {
-                // Enemy nhận damage
+                // 1. Enemy nhận damage
                 enemy->TakeDamage(proj->GetDamage());
 
-                // Projectile biến mất
+                // 2. Projectile biến mất
                 proj->Deactivate();
 
-                // Tạo hiệu ứng nổ
+                // 3. Tạo hiệu ứng nổ
                 effectManager.CreateExplosion(
                     proj->GetPosition(),
                     15.0f,
                     SDL_Color{ 255, 150, 0, 255 }
                 );
 
-                // Phát âm thanh khi mũi tên trúng
+                // 4. Phát âm thanh
                 if (audio) {
                     audio->playSound("assets/audio/bantrung.mp3", false, 0.5f);
                 }
 
-                std::cout << "Projectile trung Enemy!\n";
-                break;
+                // std::cout << "Projectile trung Enemy!\n";
+                break; // Mũi tên trúng 1 quái rồi mất, không xuyên táo
             }
         }
     }
 
-    // ===== VA CHẠM 2: ENEMY TẤN CÔNG -> PLAYER =====
+    // --------------------------------------------------------------
+    // PHẦN 2: ENEMY TẤN CÔNG PLAYER (GỒM CẢ BOSS VŨ KHÍ & BODY)
+    // --------------------------------------------------------------
     for (auto& enemy : enemies) {
         if (!enemy->IsAlive()) continue;
 
+        // >>>>> [NEW] LOGIC HITBOX VŨ KHÍ RIÊNG CHO BOSS <<<<<
+        if (enemy->GetEnemyType() == EnemyType::BOSS) {
+            // Ép kiểu từ Enemy* sang Boss* để gọi hàm GetWeaponHitbox
+            Boss* boss = dynamic_cast<Boss*>(enemy.get());
+
+            if (boss) {
+                SDL_FRect weaponBox = boss->GetWeaponHitbox();
+
+                // Kiểm tra: (Hitbox đang bật) VÀ (Có va chạm với Player)
+                if (weaponBox.w > 0.0f && SDL_HasRectIntersectionFloat(&weaponBox, &playerBox)) {
+
+                    // Kiểm tra Player có đang bất tử không
+                    if (!player->IsInvulnerable()) {
+                        int damage = 0;
+
+                        // Tính damage dựa trên chiêu thức Boss đang dùng
+                        if (boss->IsUsingUltimate()) {
+                            damage = 80; // Ultimate: Dam cực to
+                            effectManager.TriggerScreenShake(15.0f, 0.6f); // Rung mạnh
+                        }
+                        else if (boss->IsSlamming()) {
+                            damage = 50; // Slam: Dam vừa
+                            effectManager.TriggerScreenShake(10.0f, 0.4f);
+                        }
+                        else {
+                            damage = boss->GetAttackDamage(); // Đánh thường: Dam mặc định
+                            effectManager.TriggerScreenShake(5.0f, 0.2f);
+                        }
+
+                        // Trừ máu Player
+                        player->TakeDamage(damage);
+
+                        // Hiệu ứng màn hình đỏ lòm khi dính đòn Boss
+                        effectManager.CreateFlash(
+                            player->GetPosition(),
+                            SDL_Color{ 255, 50, 50, 200 }, // Đỏ đậm
+                            0.5f,
+                            0.2f
+                        );
+
+                        std::cout << "Player bi BOSS danh trung! Mat " << damage << " HP.\n";
+                    }
+                }
+            }
+        }
+
+        // >>>>> LOGIC VA CHẠM THÂN THỂ (BODY COLLISION) <<<<<
+        // (Áp dụng cho quái thường cắn, hoặc Boss lao người vào Player)
         if (enemy->GetEnemyState() == EnemyState::STATE_ATTACK) {
             SDL_FRect enemyBox = enemy->GetBoundingBox();
 
             if (SDL_HasRectIntersectionFloat(&playerBox, &enemyBox)) {
-                int damage = enemy->PerformAttack();
-                if (damage > 0 && !player->IsInvulnerable()) {
-                    player->TakeDamage(damage);
 
-                    // ✅ SỬA: Kiểm tra nếu là boss thì flash mạnh hơn
-                    if (enemy->GetEnemyType() == EnemyType::BOSS) {
-                        // Flash trắng mạnh cho boss hit
-                        effectManager.CreateFlash(
-                            player->GetPosition(),
-                            SDL_Color{ 255, 255, 255, 150 },  // Trắng
-                            0.4f,   // Intensity cao hơn
-                            0.15f   // Duration dài hơn một chút
-                        );
+                // Nếu vừa dính đòn vũ khí Boss bên trên -> Player sẽ có i-frame -> dòng này sẽ bỏ qua
+                if (!player->IsInvulnerable()) {
+                    int damage = enemy->PerformAttack();
 
-                        // Rung màn hình mạnh hơn
-                        effectManager.TriggerScreenShake(8.0f, 0.3f);
-                    }
-                    else {
-                        // Flash đỏ nhẹ cho enemy thường
-                        effectManager.CreateFlash(
-                            player->GetPosition(),
-                            SDL_Color{ 255, 0, 0, 60 },
-                            0.15f,
-                            0.08f
-                        );
+                    if (damage > 0) {
+                        player->TakeDamage(damage);
 
-                        effectManager.TriggerScreenShake(3.0f, 0.2f);
+                        // Hiệu ứng khác nhau giữa Boss và Quái thường
+                        if (enemy->GetEnemyType() == EnemyType::BOSS) {
+                            // Boss húc trúng
+                            effectManager.CreateFlash(player->GetPosition(), { 255, 255, 255, 150 }, 0.4f, 0.15f);
+                            effectManager.TriggerScreenShake(8.0f, 0.3f);
+                        }
+                        else {
+                            // Quái thường cắn
+                            effectManager.CreateFlash(player->GetPosition(), { 255, 0, 0, 60 }, 0.15f, 0.08f);
+                            effectManager.TriggerScreenShake(3.0f, 0.2f);
+                        }
                     }
                 }
             }

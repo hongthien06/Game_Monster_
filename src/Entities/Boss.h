@@ -89,6 +89,11 @@ public:
     bool IsInIntro() const { return !hasIntroPlayed; }
     virtual float GetSpriteWidth() const override { return 256.0f; }
 
+    bool IsSlamming() const { return isSlamming; }
+    bool IsUsingUltimate() const { return isUsingUltimate; }
+
     // ===== BOSS SPECIFIC =====
     void TriggerIntro();
+
+    SDL_FRect GetWeaponHitbox();
 };

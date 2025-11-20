@@ -1,6 +1,47 @@
 ﻿#include "Boss.h"
+#include "../Config/GameConstants.h"
 #include <iostream>
 #include <cmath>
+
+SDL_FRect Boss::GetWeaponHitbox() {
+    SDL_FRect weaponBox = { 0.0f, 0.0f, 0.0f, 0.0f };
+    int currentFrame = this->enemyCurrentFrame;
+    bool facingLeft = this->flipHorizontal;
+    if (enemyState == EnemyState::STATE_ATTACK) {
+        if (currentFrame == 6 || currentFrame == 7) {
+            float xOffset = 0.0f;
+            if (currentFrame == 6) {
+                weaponBox.w = 16.0f;
+                weaponBox.h = 16.0f;
+
+                xOffset = 80.0f;
+                weaponBox.y = position.y + 68.5f;
+            }
+            else if (currentFrame == 7) {
+                weaponBox.w = 16.0f; 
+                weaponBox.h = 16.0f;   
+
+                xOffset = 95.0f;
+                weaponBox.y = position.y + 107.0f; 
+            }
+
+    
+            if (!facingLeft) { 
+                weaponBox.x = position.x + xOffset;
+            }
+            else {
+                weaponBox.x = position.x + (renderWidth - xOffset - weaponBox.w);
+            }
+        }
+    }
+
+
+    return weaponBox;
+}
+
+// ==============================================================
+// CONSTRUCTOR & SETUP
+// ==============================================================
 
 Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     : Enemy(),
@@ -56,7 +97,7 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
-    // Size: 96x96 (lớn nhất)
+    // Size: 96x96 (lớn nhất) - Lưu ý: Nên dùng size mới 194 nếu đã update GameConstants
     renderWidth = GameConstants::BOSS_RENDER_WIDTH;
     renderHeight = GameConstants::BOSS_RENDER_HEIGHT;
     hitboxWidth = GameConstants::BOSS_HITBOX_WIDTH;
@@ -123,6 +164,10 @@ void Boss::TriggerIntro() {
     }
 }
 
+// ==============================================================
+// PHASE LOGIC
+// ==============================================================
+
 void Boss::CheckPhaseTransition() {
     float healthPercent = (float)health / (float)maxHealth;
 
@@ -180,6 +225,10 @@ void Boss::EnterPhase3() {
     }
 }
 
+// ==============================================================
+// ATTACK SKILLS
+// ==============================================================
+
 void Boss::SummonMinions() {
     if (summonCount >= maxSummons || summonTimer > 0) return;
 
@@ -206,27 +255,44 @@ void Boss::ChargeAttack() {
 }
 
 void Boss::GroundSlam() {
+    // 1. Nếu đang dậm rồi thì thoát, tránh spam chiêu liên tục
     if (isSlamming) return;
 
+    // 2. Bật cờ hiệu dậm đất (để hàm GetWeaponHitbox biết mà vẽ hitbox to)
     isSlamming = true;
 
+    // ================================================================
+    // QUAN TRỌNG: Chuyển State sang ATTACK và Reset Animation
+    // Nếu thiếu đoạn này, hàm Update sẽ thấy Boss đang đứng yên (IDLE)
+    // và tắt ngay biến isSlamming => Mất chiêu.
+    // ================================================================
+    enemyState = EnemyState::STATE_ATTACK;
+    enemyCurrentFrame = 0;       // Đưa về frame đầu tiên của animation đánh
+    enemyAnimationTimer = 0.0f;  // Reset bộ đếm thời gian frame
+
+    // 3. Debug log (Kiểm tra khoảng cách để xem có trúng không - chỉ để test)
     float distToTarget = GetDistanceToTarget();
     if (distToTarget <= slamRadius) {
-        std::cout << "Boss dap dat! Damage: " << slamDamage << "\n";
+        std::cout << "Boss bat dau Ground Slam! (Hitbox se kich hoat o frame 5-7)\n";
     }
 
-    // ✅ SỬA: Chỉ dùng flash vàng + rung màn hình (bỏ BossAttack effect)
+    // 4. Kích hoạt Hiệu ứng (Visual & Sound)
     if (effectManager) {
+        // Tạo chớp sáng màu vàng đậm (Gold/Orange) báo hiệu nguy hiểm
         effectManager->CreateFlash(
             position,
-            { 255, 200, 0, 180 },  // Vàng đậm
-            0.5f,    // Intensity cao
-            0.2f     // Duration dài hơn
+            { 255, 200, 0, 180 },  // R:255, G:200, B:0 (Vàng cam), Alpha: 180
+            0.5f,    // Intensity (Độ sáng)
+            0.2f     // Duration (Thời gian tồn tại)
         );
+
+        // Rung màn hình để tạo cảm giác va đập mạnh
         effectManager->TriggerScreenShake(8.0f, 0.5f);
     }
 
-    isSlamming = false;
+    // LƯU Ý TUYỆT ĐỐI:
+    // KHÔNG được viết dòng "isSlamming = false;" ở đây.
+    // Biến này sẽ tự động tắt trong hàm Update() khi animation chạy xong.
 }
 
 void Boss::UseUltimate() {
@@ -254,7 +320,7 @@ void Boss::UseUltimate() {
         effectManager->TriggerScreenShake(12.0f, 0.6f);
     }
 
-    isUsingUltimate = false;
+    // ĐÃ SỬA: Xóa dòng isUsingUltimate = false; để hitbox có thời gian hoạt động
 }
 
 int Boss::PerformAttack() {
@@ -292,6 +358,10 @@ int Boss::PerformAttack() {
     return 0;
 }
 
+// ==============================================================
+// UPDATE & RENDER
+// ==============================================================
+
 void Boss::Update(float deltaTime, Map& map) {
     if (!hasIntroPlayed) {
         introTimer -= deltaTime;
@@ -305,13 +375,20 @@ void Boss::Update(float deltaTime, Map& map) {
 
     CheckPhaseTransition();
 
+    // ĐÃ SỬA: Reset trạng thái skill khi không còn đánh
+    if (enemyState != EnemyState::STATE_ATTACK) {
+        // Kiểm tra thêm nếu cần, ví dụ như animation đã kết thúc
+        isSlamming = false;
+        isUsingUltimate = false;
+    }
+
     if (isCharging) {
         chargeTimer -= deltaTime;
         velocity = chargeDirection * chargeSpeed;
 
         // ✅ XÓA: Không tạo trail nữa
         // if (effectManager) {
-        //     effectManager->CreateTrail(position, { 255, 200, 0, 255 }, 4.0f);
+        //      effectManager->CreateTrail(position, { 255, 200, 0, 255 }, 4.0f);
         // }
 
         if (chargeTimer <= 0) {
