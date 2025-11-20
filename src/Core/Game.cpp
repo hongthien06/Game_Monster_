@@ -295,6 +295,8 @@ void Game::update(float deltaTime) {
 
         checkItemCollisions();
 
+        checkProjectileBounds();
+
         // ✅ UPDATE ENEMIES TRƯỚC
         updateEnemies(deltaTime);
 
@@ -1257,4 +1259,39 @@ void Game::LoadNextMap() {
     }
 
     std::cout << "[Game] ===== MAP TRANSITION COMPLETE =====\n";
+}
+
+// ===== THÊM HÀM MỚI: XÓA PROJECTILE KHI RA KHỎI MÀN HÌNH CAMERA =====
+void Game::checkProjectileBounds() {
+    if (!player) return;
+
+    // 1. Lấy offset camera và kích thước màn hình logic
+    glm::vec2 cameraOffset = camera.getOffset();
+    float screenWidth = GameConstants::LOGICAL_WIDTH;  // Lấy từ GameConstants
+    float screenHeight = GameConstants::LOGICAL_HEIGHT; // Lấy từ GameConstants
+
+    // 2. Định nghĩa vùng an toàn (buffer) ngoài màn hình 
+    // Mũi tên cần bay ra khỏi vùng này mới bị xóa.
+    const float BOUNDS_BUFFER = 50.0f; // 50 pixel buffer
+
+    // 3. Sử dụng erase-remove idiom để xóa các projectile ra khỏi vector
+    auto& projectiles = player->GetProjectiles();
+
+    projectiles.erase(
+        std::remove_if(projectiles.begin(), projectiles.end(),
+            [&](const std::unique_ptr<Projectile>& proj) {
+                if (!proj) return true; // Xóa nếu con trỏ rỗng
+
+                glm::vec2 pos = proj->GetPosition();
+
+                // Kiểm tra nếu projectile hoàn toàn ngoài vùng camera + buffer
+                bool isOutOfBounds =
+                    pos.x < cameraOffset.x - BOUNDS_BUFFER ||                    // Bên trái camera
+                    pos.x > cameraOffset.x + screenWidth + BOUNDS_BUFFER ||      // Bên phải camera
+                    pos.y < cameraOffset.y - BOUNDS_BUFFER ||                    // Bên trên camera
+                    pos.y > cameraOffset.y + screenHeight + BOUNDS_BUFFER;       // Bên dưới camera
+
+                return isOutOfBounds;
+            }),
+        projectiles.end());
 }

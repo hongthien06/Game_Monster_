@@ -100,6 +100,8 @@ public:
     void spawnHealthPotionAtPosition(glm::vec2 pos);
     void LoadNextMap();
 
+    void checkProjectileBounds();
+
     // ✅ THÊM 2 DÒNG NÀY
     void StartMapTransition(const std::string& nextMap, TransitionType type);
     void ExecuteMapChange();
