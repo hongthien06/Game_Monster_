@@ -37,6 +37,6 @@ public:
     void Render(glm::vec2 cameraOffset);
 
     void SetPlayerReference(Player* player) { playerRef = player; }
-
+    void Reset();
     void Cleanup();
 };

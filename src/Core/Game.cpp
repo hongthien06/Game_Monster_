@@ -1094,32 +1094,44 @@ void Game::startTransition(GameState nextState) {
     std::cout << "Bat dau transition den state: " << (int)nextState << "\n";
 }
 void Game::resetGame() {
-    player->Reset(playerStartPos);
-    
-    player->SetHealth(player->GetMaxHealth());
-
-    // Reset tất cả enemies về trạng thái ban đầu (chứ không xóa)
-    for (auto& enemy : enemies) {
-        // Chỉ reset những enemy còn sống — giữ nguyên trạng thái của các enemy đã chết
-        if (enemy->IsAlive()) {
-            enemy->ResetToStartPosition();
-        }
-    }
-
+    currentMapName = "assets/tileset/Map_1.tmj";
+    enemies.clear();
     items.clear();
-
-    // ✅ THÊM: Cập nhật lại HUD reference để đọc HP mới
+    if (map) {
+        delete map;
+        map = nullptr;
+    }
+    if (player) {
+        delete player;
+        player = nullptr;
+    }
+    map = new Map(renderer);
+    if (!map->loadMap(currentMapName)) {
+        return;
+    }
+    auto playerSpawns = map->GetSpawn(0);
+    if (!playerSpawns.empty()) {
+        player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
+        player->SnapToGround(*map);
+        playerStartPos = player->GetPosition();
+    }
     if (playerHUD) {
+        playerHUD->Reset();
         playerHUD->SetPlayerReference(player);
-        // Hoặc nếu có hàm Update:
         playerHUD->Update(0.0f);
     }
-
-    
-    
+    initEnemies();
+    initItems();
+    if (audio) {
+        audio->stopBGM();
+        audio->playBGM("assets/audio/breath.mp3", true, 0.4f);
+    }
     currentGameState = GameState::PLAYING;
-    mainMenu->Reset(); // <-- RESET MAIN MENU
+    pendingNextMap = false;
+    nextMapName.clear();
+    mainMenu->Reset();
     gameOverMenu->Reset();
+    tutorialMenu->Reset();
 }
 
 // ===== THÊM SAFE GUARD CHO LoadNextMap() =====

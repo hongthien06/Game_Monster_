@@ -175,3 +175,7 @@ void HUD::Cleanup() {
         potionIconTex = nullptr;
     }
 }
+void HUD::Reset() {
+    score = 0;
+    scorePopups.clear();
+}
