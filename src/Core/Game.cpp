@@ -95,10 +95,13 @@ bool Game::init() {
     if (!loadItemTextures()) return false;
 
     map = new Map(renderer);
-    if (!map->loadMap("assets/tileset/Map_1.tmj")) {
-        std::cerr << "Failed to load map." << std::endl;
+    if (!map->loadMap("assets/tileset/Map_hitboxBoss.tmj")) {   // Xong thi doi map ve Map_1.tmj
     }
     currentMapName = "assets/tileset/Map_1.tmj";  // Lưu tên map hiện tại
+
+    //Them de spawn boss o man 1 de de debug, xong thi xoa bien nay va trong Game.h luon nha !!                   
+    degbugMap = "assets/tileset/Map_hitboxBoss.tmj";
+
  // Tai vi tri spawn
     auto playerSpawns = map->GetSpawn(0);
     player = new Player(renderer, glm::vec2(playerSpawns[0].x, playerSpawns[0].y));
@@ -885,7 +888,7 @@ void Game::initEnemies() {
     }
 
     // ===== BOSS =====
-    if (currentMapName == "assets/tileset/Map_3.tmj") {
+    if (degbugMap == "assets/tileset/Map_hitboxBoss.tmj") {          // XOng thi doi debugMap thanh currentMapName de ko bi lap lai va doi thanh map Map_1.tmj khi xong
         auto bossSpawn = map->GetSpawn(7);
 
         std::unique_ptr<Boss> bossPtr;

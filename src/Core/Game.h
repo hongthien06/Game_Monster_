@@ -52,6 +52,7 @@ private:
     HUD* playerHUD;
 
     std::string currentMapName;
+    std::string degbugMap;
     std::string nextMapName;  // ✅ THÊM DÒNG NÀY
 
     std::vector<std::unique_ptr<Item>> items;
