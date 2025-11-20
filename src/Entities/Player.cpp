@@ -1,6 +1,7 @@
 ﻿#include "Player.h"
 #include <algorithm>
 #include "../Core/Audio.h"
+#include "../Components/ScreenTransition.h"  // ===== THÊM MỚI =====
 #include <iostream>
 #include <cmath>
 #include "EntityUtils.h"
@@ -36,6 +37,13 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     isDying(false),
     deathTimer(0.0f),
     deathDelay(2.0f),
+    isGameOver(false),
+    // ===== THÊM MỚI: DEATH TRANSITION =====
+    deathTransitionState(DeathTransitionState::NONE),
+    deathTransition(nullptr),
+    respawnFlashDuration(2.0f),  // Nhấp nháy 2 giây sau respawn
+    respawnFlashTimer(0.0f),
+    isRespawnFlashing(false),
     // FIX: KHỞI TẠO I-FRAMES
     iFramesDuration(1.2f),      // 1.2 giây bất tử
     iFramesTimer(0.0f),
@@ -50,7 +58,8 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     arrowSpawnFrame(13),
     // ===== INVENTORY - KHỞI TẠO TÚI ĐỒ =====
     healthPotionCount(0),      // Bắt đầu không có potion
-    maxHealthPotions(5)        // Tối đa 5 potion
+    maxHealthPotions(5),        // Tối đa 5 potion
+    renderer(renderer)  // ===== THÊM MỚI: LƯU RENDERER =====
 {
     // Không cần LoadAllTextures() nữa - đã load trong Character constructor
 }
@@ -133,13 +142,29 @@ void Player::AddHealthPotion() {
 
 // ===== UPDATE PLAYER STATE =====
 void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
-    // ===== XỬ LÝ TRẠNG THÁI CHẾT =====
-    if (isDying) {
-        deathTimer -= deltaTime;
-        if (deathTimer <= 0) {
-            Respawn();
-        }
+    // ===== XỬ LÝ DEATH TRANSITION =====
+    if (deathTransitionState != DeathTransitionState::NONE) {
+        UpdateDeathTransition(deltaTime);
         return;
+    }
+
+    // ===== XỬ LÝ RESPAWN FLASH =====
+    if (isRespawnFlashing) {
+        respawnFlashTimer -= deltaTime;
+
+        // Nhấp nháy nhanh hơn khi gần hết thời gian
+        float flashSpeed = (respawnFlashTimer < 0.5f) ? 0.05f : 0.1f;
+        flashTimer += deltaTime;
+
+        if (flashTimer >= flashSpeed) {
+            isFlashing = !isFlashing;
+            flashTimer = 0.0f;
+        }
+
+        if (respawnFlashTimer <= 0.0f) {
+            isRespawnFlashing = false;
+            isFlashing = false;
+        }
     }
 
     if (!isAlive) {
@@ -225,6 +250,63 @@ void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
             playerState = PlayerState::STATE_DASH;
             break;
         }
+    }
+}
+
+// ===== THÊM MỚI: UPDATE DEATH TRANSITION =====
+void Player::UpdateDeathTransition(float deltaTime) {
+    if (!deathTransition) return;
+
+    deathTransition->Update(deltaTime);
+
+    switch (deathTransitionState) {
+    case DeathTransitionState::FADING_OUT:
+        // Đang fade to black
+        if (!deathTransition->IsActive()) {
+            // Fade out xong, chuyển sang trạng thái respawning
+            deathTransitionState = DeathTransitionState::RESPAWNING;
+            deathTimer = 1.0f;  // Đợi 0.5s ở màn hình đen
+
+            std::cout << "[Player] Fade out complete, entering respawn state\n";
+        }
+        break;
+
+    case DeathTransitionState::RESPAWNING:
+        // Đang ở trạng thái màn hình đen
+        deathTimer -= deltaTime;
+        if (deathTimer <= 0.0f) {
+            // Thực hiện respawn
+            Respawn();
+
+            // Bắt đầu fade in
+            deathTransition = std::make_unique<ScreenTransition>(
+                renderer,
+                GameConstants::LOGICAL_WIDTH,
+                GameConstants::LOGICAL_HEIGHT,
+                TransitionType::FADE,
+                0.5f
+            );
+            deathTransition->Start();
+            deathTransitionState = DeathTransitionState::FADING_IN;
+
+            std::cout << "[Player] Starting fade in after respawn\n";
+        }
+        break;
+
+    case DeathTransitionState::FADING_IN:
+        // Đang fade from black
+        if (!deathTransition->IsActive()) {
+            // Fade in xong, kết thúc transition
+            deathTransitionState = DeathTransitionState::NONE;
+            deathTransition.reset();
+
+            // Bắt đầu nhấp nháy
+            isRespawnFlashing = true;
+            respawnFlashTimer = respawnFlashDuration;
+
+            std::cout << "[Player] Fade in complete, transition ended\n";
+        }
+        break;
     }
 }
 
@@ -333,15 +415,29 @@ void Player::LoseLife() {
         isAlive = false;
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
+        isGameOver = true;
         std::cout << "[Player] GAME OVER! Het mang!\n";
         // TODO: Có thể thêm màn hình Game Over ở đây
     }
     else {
-        // CÒN MẠNG - CHUẨN BỊ RESPAWN
+        // CÒN MẠNG - BẮT ĐẦU DEATH TRANSITION
         isDying = true;
-        deathTimer = deathDelay;
+        isAlive = false;  // Tạm thời "chết" trong lúc transition
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
+
+        // Tạo fade to black transition
+        deathTransition = std::make_unique<ScreenTransition>(
+            renderer,
+            GameConstants::LOGICAL_WIDTH,
+            GameConstants::LOGICAL_HEIGHT,
+            TransitionType::FADE,
+            0.6f  // 0.8 giây fade to black
+        );
+        deathTransition->Start();
+        deathTransitionState = DeathTransitionState::FADING_OUT;
+
+        std::cout << "[Player] Starting death transition (fade to black)\n";
         //audio.playSound("assets/audio/player_death.wav");
     }
 }
@@ -365,7 +461,7 @@ void Player::Respawn() {
 
     // Kích hoạt I-frames sau khi hồi sinh
     iFramesTimer = iFramesDuration * 2.0f;  // Bất tử lâu hơn sau respawn
-    isFlashing = true;
+    //isFlashing = true;
 
     //audio.playSound("assets/audio/respawn.wav");
 }
@@ -395,14 +491,14 @@ void Player::Update(float deltaTime, Map& map) {
             flashTimer = 0.0f;
         }
     }
-    else {
+    else if (!isRespawnFlashing) {
         isFlashing = false;
     }
 
     CheckFallDeath();
 
     // Gọi Character::Update() để xử lý di chuyển
-    if (canMove) {
+    if (canMove && deathTransitionState == DeathTransitionState::NONE) {
         Character::Update(deltaTime, map);
     }
 
@@ -427,9 +523,10 @@ void Player::Update(float deltaTime, Map& map) {
 
 // ===== RENDER =====
 void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
-    if (isFlashing && (int)(iFramesTimer * 10) % 2 == 0) {
+    if (isFlashing && (int)(SDL_GetTicks() / 100) % 2 == 0) {
         return;
     }
+
 
     // Render projectiles
     for (auto& proj : projectiles) {
@@ -567,6 +664,13 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         nullptr,
         flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE
     );
+}
+
+// ===== THÊM MỚI: RENDER DEATH TRANSITION =====
+void Player::RenderDeathTransition(SDL_Renderer* renderer) {
+    if (deathTransition && deathTransitionState != DeathTransitionState::NONE) {
+        deathTransition->Render();
+    }
 }
 
 // ===== COMBAT: TAKE DAMAGE - FIX CHÍNH Ở ĐÂY =====

@@ -56,8 +56,8 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         folderPath = "assets/images/Elites/3_TROLL/";
         maxHealth = 250;
         health = 250;
-        attackDamage = 35;
-        specialDamage = 60;
+        attackDamage = 30;
+        specialDamage = 50;
         attackCooldown = 1.0f;
         runSpeed = 120.0f;
         aggroRange = 300.0f;

@@ -331,7 +331,15 @@ void Game::update(float deltaTime) {
         checkEnemyCollisions();
 
         effectManager.Update(deltaTime);
-        camera.update(player->GetPosition(), deltaTime);
+        // ===== ✅ SNAP CAMERA NGAY KHI RESPAWN =====
+        if (player && player->NeedsCameraSnap()) {
+            // Gọi update nhiều lần để camera "lerp" nhanh về vị trí
+            for (int i = 0; i < 50; i++) {
+                camera.update(player->GetPosition(), 0.1f);
+            }
+            player->ClearCameraSnapFlag();
+            std::cout << "[Game] Camera snapped to player respawn position!\n";
+        }
 
         if (playerHUD)
             playerHUD->Update(deltaTime);
@@ -339,7 +347,7 @@ void Game::update(float deltaTime) {
             audio->update(deltaTime);
 
         // ✅ KIỂM TRA CHẾT
-        if (!player->IsAlive()) {
+        if (player->IsGameOver()) {  // Thay vì !player->IsAlive()
             currentGameState = GameState::GAME_OVER;
             gameOverMenu->Reset();
         }
@@ -500,6 +508,11 @@ void Game::render() {
     else if (currentGameState == GameState::MAP_TRANSITIONING) {
         mapTransition->Render();
     }
+    // ===== THÊM MỚI: RENDER DEATH TRANSITION (VẼ CUỐI CÙNG) =====
+    if (player && player->IsInDeathTransition()) {
+        player->RenderDeathTransition(renderer);
+    }
+
      pendingNextMap = false;
 
     SDL_RenderPresent(renderer);

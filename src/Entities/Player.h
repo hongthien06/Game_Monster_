@@ -6,6 +6,9 @@
 #include "Character.h"
 #include "Projectile.h"
 
+// Forward declaration
+class ScreenTransition;
+
 // Enum định nghĩa các trạng thái của Player
 enum class PlayerState {
     STATE_IDLE,
@@ -18,6 +21,15 @@ enum class PlayerState {
     STATE_HURT,
     STATE_DEAD
 };
+
+// ===== THÊM MỚI: ENUM CHO DEATH STATE =====
+enum class DeathTransitionState {
+    NONE,           // Không có transition
+    FADING_OUT,     // Đang fade to black
+    RESPAWNING,     // Đang respawn (màn hình đen)
+    FADING_IN       // Đang fade từ đen sang sáng
+};
+
 
 class Player : public Character {
 private:
@@ -51,6 +63,13 @@ private:
     float deathDelay;
     bool isGameOver;        // Đã hết mạng - Game Over
 
+    // ===== THÊM MỚI: DEATH TRANSITION =====
+    DeathTransitionState deathTransitionState;
+    std::unique_ptr<ScreenTransition> deathTransition;
+    float respawnFlashDuration;     // Thời gian nhấp nháy sau respawn
+    float respawnFlashTimer;
+    bool isRespawnFlashing;
+
     // ===== INVENTORY SYSTEM - HỆ THỐNG TÚI ĐỒ =====
     int healthPotionCount;  // Số lượng health potion trong túi
     int maxHealthPotions;   // Số lượng tối đa có thể mang
@@ -79,6 +98,7 @@ private:
     void SpawnArrow();
     void Respawn();         // Hồi sinh
     void LoseLife();
+    void UpdateDeathTransition(float deltaTime);  // ===== THÊM MỚI =====
 
     // THÊM MỚI: Knockback & I-frames
     bool isInvulnerable;
@@ -89,6 +109,9 @@ private:
     float knockbackDecay;
     bool isKnockedBack;
 
+    SDL_Renderer* renderer;  // ===== THÊM MỚI: Lưu renderer =====
+    bool needsCameraSnap;
+
 public:
     // ===== CONSTRUCTOR / DESTRUCTOR =====
     Player(SDL_Renderer* renderer, glm::vec2 startPos = glm::vec2(50.0f, 0.0f));
@@ -97,6 +120,8 @@ public:
     // ===== CORE METHODS =====
     virtual void Update(float deltaTime, Map& map) override;
     virtual void Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) override;
+
+    void RenderDeathTransition(SDL_Renderer* renderer);
 
     // ===== COMBAT METHODS =====
     // FIX: OVERRIDE TakeDamage VỚI I-FRAMES
@@ -131,9 +156,13 @@ public:
     // ===== GETTERS =====
     bool IsAlive() const { return isAlive; }
     PlayerState GetPlayerState() const { return playerState; }
+    bool IsInDeathTransition() const { return deathTransitionState != DeathTransitionState::NONE; }  // ===== THÊM MỚI =====
     SDL_FRect GetBoundingBox() const;
     std::vector<std::unique_ptr<Projectile>>& GetProjectiles() { return projectiles; }
     virtual float GetSpriteWidth() const override { return 32.0f; }
+    // Trong phần getters
+    bool NeedsCameraSnap() const { return needsCameraSnap; }
+    void ClearCameraSnapFlag() { needsCameraSnap = false; }
 
     // ===== SETTERS =====
     void SetShootCooldown(float cooldown) { shootCooldown = cooldown; }
