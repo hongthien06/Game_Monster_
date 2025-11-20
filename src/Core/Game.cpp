@@ -164,11 +164,20 @@ bool Game::init() {
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
         TransitionType::FADE,
-        0.6f
+        0.3f
     );
     // THÊM: Load background textures (optional)
-    menuBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
-    gameBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
+   // THÊM: Load background textures
+    menuBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers/bg_mainmenu.png");
+    if (!menuBackgroundTex) {
+        std::cerr << "WARNING: Cannot load menu background: " << SDL_GetError() << std::endl;
+        std::cerr << "Check file exists at: assets/images/Layers/bg_mainmenu.png" << std::endl;
+    }
+
+    gameBackgroundTex = IMG_LoadTexture(renderer, "assets/images/Layers//bg_mainmenu.png");
+    if (!gameBackgroundTex) {
+        std::cerr << "WARNING: Cannot load game background: " << SDL_GetError() << std::endl;
+    }
 
     currentGameState = GameState::MAIN_MENU;
 
@@ -487,7 +496,7 @@ void Game::StartMapTransition(const std::string& nextMap, TransitionType type) {
         GameConstants::LOGICAL_WIDTH,
         GameConstants::LOGICAL_HEIGHT,
         type,
-        0.6f  // Duration
+        0.3f  // Duration
     );
 
     mapTransition->Start();

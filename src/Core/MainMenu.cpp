@@ -118,7 +118,7 @@ void MainMenu::Render() {
     const float paddingX = 6.0f;
     const float paddingY = 6.0f;
 
-    RenderText(renderer, font, "GAME MONSTER", { centerX, centerY - 90.0f }, colorTitle, true);
+    RenderText(renderer, font, "MONSTER SIGIE", { centerX, centerY - 90.0f }, colorTitle, true);
 
     for (int i = 0; i < 3; ++i) {
         const auto& button = buttons[i];
