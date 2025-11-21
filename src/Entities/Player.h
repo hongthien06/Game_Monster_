@@ -163,5 +163,5 @@ public:
     void Reset(glm::vec2 startPos);
     void SnapToGround(Map& map);
 
-    void SetPosition(glm::vec2 pos) { position = pos; }
+
 };

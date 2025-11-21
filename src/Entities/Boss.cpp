@@ -48,7 +48,7 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     isUsingUltimate(false),
     ultimateCooldown(15.0f),
     ultimateTimer(0.0f),
-    ultimateDamage(80),
+    ultimateDamage(45),
     ultimateRadius(150.0f),
     canSummon(true),
     summonCount(0),

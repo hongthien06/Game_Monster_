@@ -46,14 +46,14 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     flashTimer(0.0f),
     shootCooldown(0.3f),
     shootTimer(0.0f),
-    projectileDamage(30),
+    projectileDamage(50),
     projectileSpeed(600.0f),
     mouseWorldPos(0.0f, 0.0f),
     shouldSpawnArrow(false),
     arrowSpawnFrame(13),
     // ===== INVENTORY - KHỞI TẠO TÚI ĐỒ =====
     healthPotionCount(0),      // Bắt đầu không có potion
-    maxHealthPotions(5)      // Tối đa 5 potion
+    maxHealthPotions(7)      // Tối đa 5 potion
 {
     // Không cần LoadAllTextures() nữa - đã load trong Character constructor
 }

@@ -588,6 +588,9 @@ void Game::ExecuteMapChange() {
         player->SetPosition(glm::vec2(spawn[0].x, spawn[0].y));
         player->SnapToGround(*map);
         std::cout << "[Game] Player spawned at (" << spawn[0].x << ", " << spawn[0].y << ")\n";
+   
+    // THÊM DÒNG NÀY: Cập nhật respawnPoint = vị trí đã snap
+    player->SetRespawnPoint(player->GetPosition());
     }
     else {
         std::cerr << "[Game] WARNING: No player spawn point found!\n";
@@ -909,11 +912,11 @@ void Game::initEnemies() {
             spawnHealthPotionAtPosition(pos + glm::vec2(0, 0));
             });
 
-        enemies.push_back(std::move(enemy));
+        enemies.push_back(std::move(enemy));    
     }
 
     // ===== BOSS =====
-    if (debugMap == "assets/tileset/Map_hitboxBoss.tmj") {          // XOng thi doi debugMap thanh currentMapName de ko bi lap lai va doi thanh map Map_1.tmj khi xong
+    if (currentMapName == "assets/tileset/Map_3.tmj") {          // XOng thi doi debugMap thanh currentMapName de ko bi lap lai va doi thanh map Map_3.tmj khi xong
         auto bossSpawn = map->GetSpawn(7);
 
         std::unique_ptr<Boss> bossPtr;
