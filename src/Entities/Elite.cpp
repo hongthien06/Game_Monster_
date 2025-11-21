@@ -18,7 +18,6 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
 {
     this->renderer = renderer;
     this->position = startPos;
-    // Lưu vị trí ban đầu để ResetToStartPosition có thể trả về đúng vị trí
     this->initialPosition = startPos;
     this->initialPatrolPointA = startPos - glm::vec2(100.0f, 0.0f);
     this->initialPatrolPointB = startPos + glm::vec2(100.0f, 0.0f);
@@ -43,8 +42,8 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         folderPath = "assets/images/Elites/2_TROLL/";
         maxHealth = 180;
         health = 180;
-        attackDamage = 28;
-        specialDamage = 45;
+        attackDamage = 25;
+        specialDamage = 40;
         attackCooldown = 1.3f;
         runSpeed = 110.0f;
         aggroRange = 280.0f;
@@ -57,7 +56,7 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         maxHealth = 250;
         health = 250;
         attackDamage = 30;
-        specialDamage = 50;
+        specialDamage = 45;
         attackCooldown = 1.0f;
         runSpeed = 120.0f;
         aggroRange = 300.0f;
@@ -75,7 +74,7 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Die.png").c_str());
 
-    // Size: 64x64 (l?n h?n Minion)
+    // Size: 64x64 
     renderWidth = GameConstants::ELITE_RENDER_WIDTH;
     renderHeight = GameConstants::ELITE_RENDER_HEIGHT;
     hitboxWidth = GameConstants::ELITE_HITBOX_WIDTH;
@@ -194,7 +193,7 @@ FrameConfig Elites::GetFrameConfig(EnemyState state) const {
 
     return cfg;
 }
-
+// KÍCH HOẠT BUFF GẦM TĂNG SÁT THƯƠNG
 void Elites::Roar() {
     if (hasRoared) return;
 
@@ -202,14 +201,14 @@ void Elites::Roar() {
     buffTimer = buffDuration;
     attackDamage = (int)(attackDamage * 1.3f);
 }
-
+// THỰC HIỆN TẤN CÔNG MẠNH SAU KHI NẠP LỰC
 void Elites::HeavyAttack() {
     if (!IsTargetInAttackRange()) return;
 
     isHeavyAttack = true;
     heavyChargeTimer = heavyAttackChargeTime;
 }
-
+// THỰC HIỆN TẤN CÔNG ĐẶC BIỆT GÂY SÁT THƯƠNG CAO
 void Elites::PerformSpecialAttack() {
     if (specialTimer > 0) return;
 
@@ -217,11 +216,8 @@ void Elites::PerformSpecialAttack() {
     specialTimer = specialCooldown;
 
     float distToTarget = GetDistanceToTarget();
-    if (distToTarget <= attackRange * 1.5f) {
-        std::cout << "[Elite Troll] CHIEU DAC BIET! Damage: " << specialDamage << "\n";
-    }
 }
-
+// THỰC HIỆN TẤN CÔNG VỚI TỶ LỆ SỬ DỤNG KỸ NĂNG ĐẶC BIỆT
 int Elites::PerformAttack() {
     if (specialTimer <= 0 && (rand() % 100) < 30) {
         PerformSpecialAttack();
@@ -240,28 +236,28 @@ int Elites::PerformAttack() {
 
     return 0;
 }
-
+// CẬP NHẬT TRẠNG THÁI VÀ COOLDOWN CÁC KỸ NĂNG
 void Elites::Update(float deltaTime, Map& map) {
     Enemy::Update(deltaTime, map);
-
+    // Đếm ngược cooldown tấn công đặc biệt
     if (specialTimer > 0) {
         specialTimer -= deltaTime;
         if (specialTimer <= 0) {
             isPerformingSpecial = false;
         }
     }
-
+    // Đếm ngược thời gian nạp lực tấn công mạnh
     if (isHeavyAttack) {
         heavyChargeTimer -= deltaTime;
         if (heavyChargeTimer <= 0) {
             isHeavyAttack = false;
         }
     }
-
+    // Đếm ngược thời gian buff
     if (buffTimer > 0) {
         buffTimer -= deltaTime;
     }
-
+    // Tự động gầm khi còn nhiều máu và đang đuổi
     if (!hasRoared && enemyState == EnemyState::STATE_RUN) {
         float healthPercent = (float)health / (float)maxHealth;
         if (healthPercent > 0.7f) {
@@ -269,11 +265,11 @@ void Elites::Update(float deltaTime, Map& map) {
         }
     }
 }
-
+// VẼ ELITE LÊN MÀN HÌNH
 void Elites::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     Enemy::Render(renderer, cameraOffset);
 }
-
+// NHẬN SÁT THƯƠNG VỚI GIẢM DAMAGE NẾU CÓ BUFF
 void Elites::TakeDamage(int damage) {
     if (buffTimer > 0) {
         damage = (int)(damage * 0.7f);

@@ -93,7 +93,7 @@ public:
     TransitionState GetState() const { return state; }
     float GetProgress() const { return progress; }
 
-    // Ki?m tra ?ã qua n?a ch?ng (?? switch background)
+    // switch background
     bool ShouldSwitchScreen() const {
         return state == TransitionState::TRANSITIONING_IN && progress > 0.0f;
     }
@@ -130,17 +130,15 @@ private:
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
         if (state == TransitionState::TRANSITIONING_OUT) {
-            // Vòng tròn m? r?ng t? gi?a ra
+  
             float currentRadius = maxRadius * progress;
 
-            // V? các vòng tròn ??ng tâm
             for (float r = 0; r < currentRadius; r += 3.0f) {
                 float alpha = 255.0f * (r / currentRadius);
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, (Uint8)alpha);
                 DrawCircle(centerX, centerY, (int)(currentRadius - r));
             }
 
-            // Overlay ?en ??c ? gi?a
             if (progress > 0.3f) {
                 float innerRadius = maxRadius * (progress - 0.3f) / 0.7f;
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
@@ -148,7 +146,7 @@ private:
             }
         }
         else {
-            // Thu nh? vòng tròn ?en l?i (fade in)
+            // fade in
             float currentRadius = maxRadius * (1.0f - progress);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
             DrawFilledCircle(centerX, centerY, (int)currentRadius);
@@ -192,19 +190,19 @@ private:
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
 
         if (state == TransitionState::TRANSITIONING_OUT) {
-            // Flash tr?ng
+         
             if (progress < 0.3f) {
                 Uint8 alpha = (Uint8)((progress / 0.3f) * 255);
                 SDL_SetRenderDrawColor(renderer, 255, 255, 255, alpha);
             }
             else {
-                // Chuy?n sang ?en
+          
                 Uint8 alpha = (Uint8)(((progress - 0.3f) / 0.7f) * 255);
                 SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
             }
         }
         else {
-            // Fade t? ?en ra
+
             Uint8 alpha = (Uint8)((1.0f - progress) * 255);
             SDL_SetRenderDrawColor(renderer, 0, 0, 0, alpha);
         }

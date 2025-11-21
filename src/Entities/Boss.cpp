@@ -3,25 +3,25 @@
 #include <iostream>
 #include <cmath>
 
+// LẤY HITBOX VŨ KHÍ BOSS (CHỈ HOẠT ĐỘNG KHI ĐÁNH)
 SDL_FRect Boss::GetWeaponHitbox() {
     SDL_FRect weaponBox = { 0.0f, 0.0f, 0.0f, 0.0f };
     int currentFrame = this->enemyCurrentFrame;
     bool facingLeft = this->flipHorizontal;
 
-    // ✅ CHỈ KÍCH HOẠT HITBOX KHI ĐANG ATTACK VÀ ĐÚNG FRAME GÂY SÁT THƯƠNG
+    // CHỈ KÍCH HOẠT HITBOX KHI ĐANG ATTACK VÀ ĐÚNG FRAME GÂY SÁT THƯƠNG
     if (enemyState == EnemyState::STATE_ATTACK) {
-        // Frame 5-7: Giai đoạn tay vung xuống (đây là lúc gây sát thương)
+        // Frame 5-7: Giai đoạn tay vung xuống (gây sát thương)
         if (currentFrame >= 5 && currentFrame <= 7) {
 
-            // ✅ TĂNG BỀ RỘNG VÀ CHIỀU CAO HITBOX ĐỂ DỄ TRÚNG PLAYER
-            weaponBox.w = 60.0f;  // Rộng hơn nhiều (từ 16 → 60)
-            weaponBox.h = 90.0f;  // Cao để bao phủ cả người Player (từ 16 → 90)
+            // Tăng kích thước hitbox để dễ trúng Player
+            weaponBox.w = 60.0f;
+            weaponBox.h = 90.0f;
 
-            // ✅ HẠ THẤP VỊ TRÍ Y XUỐNG SÁT ĐẤT (ngang tầm Player)
-            // Hitbox nằm ở độ cao thân boss, hướng xuống chân
-            weaponBox.y = position.y + hitboxOffsetY + 50.0f; // Hạ xuống 50px từ đầu
+            // Hạ vị trí Y xuống sát đất (ngang tầm Player)
+            weaponBox.y = position.y + hitboxOffsetY + 50.0f;
 
-            // ✅ VỊ TRÍ X: ĐẶT HITBOX TRƯỚC MẶT BOSS
+            // Đặt hitbox trước mặt Boss
             if (!facingLeft) {
                 // Boss nhìn phải → Hitbox ở bên phải
                 weaponBox.x = position.x + hitboxOffsetX + hitboxWidth + 5.0f;
@@ -70,12 +70,12 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
 {
     this->renderer = renderer;
     this->position = startPos;
-    // Lưu vị trí ban đầu để ResetToStartPosition có thể trả về đúng vị trí
     this->initialPosition = startPos;
     this->initialPatrolPointA = startPos - glm::vec2(100.0f, 0.0f);
     this->initialPatrolPointB = startPos + glm::vec2(100.0f, 0.0f);
     this->enemyType = EnemyType::BOSS;
 
+    // Thiết lập stats
     maxHealth = 800;
     health = 800;
     attackDamage = 40;
@@ -94,7 +94,7 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     LoadTexture(renderer, &hurtTex, (folderPath + "Hurt.png").c_str());
     LoadTexture(renderer, &deadTex, (folderPath + "Dead.png").c_str());
 
-    // Size: 96x96 (lớn nhất) - Lưu ý: Nên dùng size mới 194 nếu đã update GameConstants
+    // Thiết lập kích thước render và hitbox
     renderWidth = GameConstants::BOSS_RENDER_WIDTH;
     renderHeight = GameConstants::BOSS_RENDER_HEIGHT;
     hitboxWidth = GameConstants::BOSS_HITBOX_WIDTH;
@@ -102,7 +102,7 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     hitboxOffsetX = GameConstants::BOSS_HITBOX_OFFSET_X;
     hitboxOffsetY = GameConstants::BOSS_HITBOX_OFFSET_Y;
 }
-
+// HUỶ BOSS
 Boss::~Boss() {
 }
 
@@ -143,13 +143,13 @@ FrameConfig Boss::GetFrameConfig(EnemyState state) const {
 
     return cfg;
 }
-
+// PHÁT INTRO BOSS (HIỆU ỨNG XUẤT HIỆN)
 void Boss::PlayIntro() {
     std::cout << "=== BOSS XUAT HIEN ===\n";
 
-    // HIỆU ỨNG: Boss xuất hiện với hiệu ứng fade từ trong ra
+    // Boss xuất hiện với hiệu ứng fade từ trong ra
     if (effectManager) {
-        //effectManager->CreateBossIntro(position, 200.0f);
+
         effectManager->TriggerScreenShake(3.0f, 0.5f);
     }
 }
@@ -161,10 +161,10 @@ void Boss::TriggerIntro() {
     }
 }
 
-// ==============================================================
-// PHASE LOGIC
-// ==============================================================
 
+// PHASE LOGIC
+
+// KIỂM TRA VÀ CHUYỂN PHASE THEO MÁU
 void Boss::CheckPhaseTransition() {
     float healthPercent = (float)health / (float)maxHealth;
 
@@ -176,18 +176,16 @@ void Boss::CheckPhaseTransition() {
         EnterPhase3();
     }
 }
-
+// VÀO PHASE 2 (70% HP)
 void Boss::EnterPhase2() {
     hasEnteredPhase2 = true;
     currentPhase = BossPhase::PHASE_2;
-
+    // Tăng sức mạnh
     attackDamage = (int)(attackDamage * 1.3f);
     runSpeed *= 1.2f;
     attackCooldown *= 0.8f;
 
-    std::cout << "=== BOSS ENTERED PHASE 2 (70% HP) ===\n";
-
-    // ✅ SỬA: Flash cam mạnh + rung màn hình (bỏ explosion)
+    // Hiệu ứng màn hình
     if (effectManager) {
         effectManager->CreateFlash(
             position,
@@ -198,7 +196,7 @@ void Boss::EnterPhase2() {
         effectManager->TriggerScreenShake(10.0f, 0.5f);
     }
 }
-
+// VÀO PHASE 3 (40% HP - NỔI ĐIÊN)
 void Boss::EnterPhase3() {
     hasEnteredPhase3 = true;
     currentPhase = BossPhase::PHASE_3;
@@ -208,9 +206,6 @@ void Boss::EnterPhase3() {
     attackCooldown *= 0.6f;
     ultimateCooldown *= 0.7f;
 
-    std::cout << "=== BOSS ENTERED PHASE 3 (40% HP) - ENRAGED! ===\n";
-
-    // ✅ SỬA: Flash đỏ rất mạnh + rung màn hình mạnh (bỏ explosion)
     if (effectManager) {
         effectManager->CreateFlash(
             position,
@@ -225,14 +220,14 @@ void Boss::EnterPhase3() {
 // ==============================================================
 // ATTACK SKILLS
 // ==============================================================
-
+// TRIỆU HỒI MINIONS
 void Boss::SummonMinions() {
     if (summonCount >= maxSummons || summonTimer > 0) return;
 
     summonTimer = summonCooldown;
     summonCount += 2;
 }
-
+// LAO TỚI (CHARGE ATTACK)
 void Boss::ChargeAttack() {
     if (isCharging) return;
 
@@ -240,7 +235,6 @@ void Boss::ChargeAttack() {
     chargeTimer = chargeDuration;
     chargeDirection = glm::normalize(targetPosition - position);
 
-    // ✅ SỬA: Flash vàng nhẹ khi bắt đầu charge (không dùng Trail)
     if (effectManager) {
         effectManager->CreateFlash(
             position,
@@ -258,11 +252,6 @@ void Boss::GroundSlam() {
     // 2. Bật cờ hiệu dậm đất (để hàm GetWeaponHitbox biết mà vẽ hitbox to)
     isSlamming = true;
 
-    // ================================================================
-    // QUAN TRỌNG: Chuyển State sang ATTACK và Reset Animation
-    // Nếu thiếu đoạn này, hàm Update sẽ thấy Boss đang đứng yên (IDLE)
-    // và tắt ngay biến isSlamming => Mất chiêu.
-    // ================================================================
     enemyState = EnemyState::STATE_ATTACK;
     enemyCurrentFrame = 0;       // Đưa về frame đầu tiên của animation đánh
     enemyAnimationTimer = 0.0f;  // Reset bộ đếm thời gian frame
@@ -287,11 +276,9 @@ void Boss::GroundSlam() {
         effectManager->TriggerScreenShake(8.0f, 0.5f);
     }
 
-    // LƯU Ý TUYỆT ĐỐI:
-    // KHÔNG được viết dòng "isSlamming = false;" ở đây.
-    // Biến này sẽ tự động tắt trong hàm Update() khi animation chạy xong.
-}
 
+}
+// CHIÊU CUỐI (ULTIMATE ATTACK)
 void Boss::UseUltimate() {
     if (ultimateTimer > 0) return;
 
@@ -299,11 +286,7 @@ void Boss::UseUltimate() {
     ultimateTimer = ultimateCooldown;
 
     float distToTarget = GetDistanceToTarget();
-    if (distToTarget <= ultimateRadius) {
-        std::cout << "Target nhan " << ultimateDamage << " damage!\n";
-    }
 
-    // ✅ SỬA: Ultimate chỉ dùng flash đỏ mạnh + rung màn hình
     if (effectManager) {
         // Flash đỏ toàn màn hình
         effectManager->CreateFlash(
@@ -316,30 +299,28 @@ void Boss::UseUltimate() {
         // Rung màn hình mạnh
         effectManager->TriggerScreenShake(12.0f, 0.6f);
     }
-
-    // ĐÃ SỬA: Xóa dòng isUsingUltimate = false; để hitbox có thời gian hoạt động
 }
-
+// THỰC HIỆN ĐÁNH (RANDOM SKILL)
 int Boss::PerformAttack() {
+    // Phase 3: Ưu tiên Ultimate
     if (currentPhase == BossPhase::PHASE_3 && ultimateTimer <= 0) {
         if ((rand() % 100) < 40) {
             UseUltimate();
             return ultimateDamage;
         }
     }
-
+    // Phase 2: Random Charge
     if (currentPhase == BossPhase::PHASE_2 && (rand() % 100) < 30) {
         ChargeAttack();
         return attackDamage;
     }
-
+    // Trong tầm đánh: Ground Slam hoặc đánh thường
     if (IsTargetInAttackRange()) {
         if ((rand() % 100) < 50) {
             GroundSlam();
             return slamDamage;
         }
         else {
-            // ✅ SỬA: Attack thường - chỉ lóe sáng vàng nhẹ
             if (effectManager) {
                 effectManager->CreateFlash(
                     position,
@@ -358,8 +339,9 @@ int Boss::PerformAttack() {
 // ==============================================================
 // UPDATE & RENDER
 // ==============================================================
-
+// CẬP NHẬT BOSS MỖI FRAME
 void Boss::Update(float deltaTime, Map& map) {
+    // Xử lý intro
     if (!hasIntroPlayed) {
         introTimer -= deltaTime;
         if (introTimer <= 0) {
@@ -369,7 +351,7 @@ void Boss::Update(float deltaTime, Map& map) {
         }
         return;
     }
-
+    // Kiểm tra chuyển phase
     CheckPhaseTransition();
 
     // Reset trạng thái skill khi không còn đánh
@@ -378,7 +360,6 @@ void Boss::Update(float deltaTime, Map& map) {
         isUsingUltimate = false;
     }
 
-    // ✅ [FIX QUAN TRỌNG] BOSS LUÔN DI CHUYỂN VÀO TẦM ĐÁNH
     // Nếu đang STATE_ATTACK nhưng Player quá xa → Đuổi theo trước
     if (enemyState == EnemyState::STATE_ATTACK) {
         float distToPlayer = GetDistanceToTarget();
@@ -491,6 +472,7 @@ void Boss::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE
     );
 }
+// NHẬN SÁT THƯƠNG (BOSS KHÔNG BỊ CHOÁNG - SUPER ARMOR)
 void Boss::TakeDamage(int damage) {
     if (isInvulnerable) {
         return;
@@ -514,31 +496,22 @@ void Boss::TakeDamage(int damage) {
         return;
     }
 
-    // [FIX 2 - BOSS KHÔNG BỊ CHOÁNG KHI BỊ ĐÁNH (SUPER ARMOR)]
-    // TUYỆT ĐỐI KHÔNG GỌI Enemy::TakeDamage(damage);
-    // Vì hàm đó sẽ set enemyState = STATE_HURT và velocity = 0 (làm Boss đứng im)
-
-    // Thay vào đó, ta chỉ kích hoạt phản ứng "Nổi điên" để đuổi theo
-
-    // A. Nếu Boss đang đi dạo hoặc đứng yên mà bị đánh -> Chuyển sang chạy đuổi ngay
+    // Nếu Boss đang đi dạo hoặc đứng yên mà bị đánh -> Chuyển sang chạy đuổi ngay
     if (enemyState == EnemyState::STATE_IDLE || enemyState == EnemyState::STATE_WALK) {
         enemyState = EnemyState::STATE_RUN;
     }
 
-    // B. [FIX 2b] Mở rộng AggroRange cực lớn nếu bị đánh từ xa
-    // Điều này đảm bảo dù bạn bắn từ xa, Boss vẫn nhận ra và đuổi theo chứ không bỏ cuộc
     if (GetDistanceToTarget() > aggroRange) {
         aggroRange = 1500.0f; // Tăng tầm aggro lên vô hạn (hoặc rất xa)
-        std::cout << "Boss enraged! Aggro range increased to 1500!\n";
     }
 
-    // C. Quay mặt về hướng người chơi (để không bị đánh lén sau lưng mà vẫn chạy tới trước)
+    // Quay mặt về hướng người chơi (để không bị đánh lén sau lưng mà vẫn chạy tới trước)
     float diffX = targetPosition.x - position.x;
     if (std::abs(diffX) > 10.0f) {
         flipHorizontal = (diffX < 0);
     }
 
-    // D. Enrage: Giảm hồi chiêu nếu bị đánh (để đánh trả nhanh hơn)
+    // Enrage: Giảm hồi chiêu nếu bị đánh (để đánh trả nhanh hơn)
     if (attackTimer > 0.5f) {
         attackTimer = 0.5f;
     }

@@ -89,7 +89,7 @@ public:
     virtual int PerformAttack() override;
     virtual void TakeDamage(int damage) override;
 
-    // M?I: Setter cho EffectManager
+    // Setter cho EffectManager
     void SetEffectManager(EffectManager* manager) { effectManager = manager; }
 
 

@@ -88,7 +88,7 @@ void Player::HandleInput() {
     hKeyWasPressed = hKeyPressed;
 }
 
-// ===== THÊM MỚI: SỬ DỤNG HEALTH POTION =====
+// SỬ DỤNG HEALTH POTION 
 void Player::UseHealthPotion() {
     // Kiểm tra điều kiện sử dụng
     if (!isAlive) {
@@ -119,7 +119,7 @@ void Player::UseHealthPotion() {
     //audio.playSound("assets/audio/heal");
 }
 
-// ===== THÊM MỚI: THÊM POTION VÀO TÚI =====
+// THÊM POTION VÀO TÚI
 void Player::AddHealthPotion() {
     if (healthPotionCount >= maxHealthPotions) {
         std::cout << "[Player] Tui da day! Khong the mang them potion.\n";
@@ -158,7 +158,7 @@ void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
         shootTimer -= deltaTime;
     }
 
-    // FIX: Xử lý trạng thái HURT - CHỈ LOCK DI CHUYỂN, KHÔNG LOCK I-FRAMES
+    //  Xử lý trạng thái HURT - CHỈ LOCK DI CHUYỂN, KHÔNG LOCK I-FRAMES
     if (playerState == PlayerState::STATE_HURT) {
         hurtTimer -= deltaTime;
         if (hurtTimer <= 0) {
@@ -192,7 +192,7 @@ void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
 
     // Chỉ phát âm thanh khi vừa chạm đất và cooldown hết, và player đang có vận tốc Y cao (bất kỳ)
     if (!wasOnGroundOld && isOnGround && landedSoundCooldown <= 0.0f) {
-        /*std::cout << "Playing jump_landed sound! wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";*/
+ 
         audio.playSound("assets/audio/jump_landed.wav");
         landedSoundCooldown = 0.4f;  // Tăng cooldown thành 0.3s để tránh lặp
     }
@@ -201,7 +201,7 @@ void Player::UpdatePlayerState(float deltaTime, bool wasOnGroundOld) {
     static float debugTimer = 0.0f;
     debugTimer += deltaTime;
     if (debugTimer > 0.5f) {
-        /*std::cout << "wasOnGroundOld=" << wasOnGroundOld << " isOnGround=" << isOnGround << "\n";*/
+    
         debugTimer = 0.0f;
     }
 
@@ -338,7 +338,7 @@ void Player::LoseLife() {
         canMove = false;
         isGameOver = true;
         std::cout << "[Player] GAME OVER! Het mang!\n";
-        // TODO: Có thể thêm màn hình Game Over ở đây
+   
     }
     else {
         // CÒN MẠNG - CHUẨN BỊ RESPAWN
@@ -351,7 +351,7 @@ void Player::LoseLife() {
 }
 
 void Player::Respawn() {
-    std::cout << "[Player] HOI SINH tai (" << respawnPoint.x << ", " << respawnPoint.y << ")\n";
+    std::cout << "[Player] HOI SINH \n";
 
     // Reset vị trí
     position = respawnPoint;
@@ -378,7 +378,7 @@ void Player::Respawn() {
 void Player::AddLife() {
     if (lives < maxLives) {
         lives++;
-        std::cout << "[Player] NHAN THEM 1 MANG! Hien tai: " << lives << "/" << maxLives << "\n";
+        std::cout << "[Player] NHAN THEM 1 MANG!\n";
     }
 }
 
@@ -388,7 +388,7 @@ void Player::Update(float deltaTime, Map& map) {
     // Lưu trạng thái cũ TRƯỚC KHI cập nhật
     bool wasOnGroundOld = isOnGround;
     
-    // FIX: XỬ LÝ I-FRAMES - GIẢM DẦN TIMER
+    // XỬ LÝ I-FRAMES - GIẢM DẦN TIMER
     if (iFramesTimer > 0) {
         iFramesTimer -= deltaTime;
 
@@ -409,12 +409,6 @@ void Player::Update(float deltaTime, Map& map) {
     if (canMove) {
         Character::Update(deltaTime, map);
     }
-
-    //// Roi ra khoi ban do
-    //if (isAlive && position.y > GameConstants::WORLD_HEIGHT + 100.0f) {
-    //    std::cout << "[Player] Fell out of the world! DIED!\n";
-    //    TakeDamage(999);
-    //}
 
     // Xử lý input
     HandleInput();
@@ -575,9 +569,9 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 }
 
 
-// ===== COMBAT: TAKE DAMAGE - FIX CHÍNH Ở ĐÂY =====
+// ===== COMBAT: TAKE DAMAGE =====
 void Player::TakeDamage(int damage) {
-    // FIX 1: CHECK I-FRAMES TRƯỚC - KHÔNG NHẬN SÁT THƯƠNG KHI BẤT TỬ
+    //  CHECK I-FRAMES TRƯỚC - KHÔNG NHẬN SÁT THƯƠNG KHI BẤT TỬ
     if (!isAlive || iFramesTimer > 0) {
         std::cout << "[Player] Invulnerable! Remaining: " << iFramesTimer << "s\n";
         return;
@@ -589,20 +583,15 @@ void Player::TakeDamage(int damage) {
     if (health <= 0) {
         health = 0;
         LoseLife();
-        //isAlive = false;
-        /*playerState = PlayerState::STATE_DEAD;*/
-        /*canMove = false;
-        velocity = glm::vec2(0.0f);
-        std::cout << "[Player] DIED!\n";*/
         return;
     }
 
-    // FIX 2: KÍCH HOẠT I-FRAMES SAU KHI BỊ ĐÁNH
+    //  KÍCH HOẠT I-FRAMES SAU KHI BỊ ĐÁNH
     iFramesTimer = iFramesDuration;
     isFlashing = true;
     flashTimer = 0.0f;
 
-    // FIX 3: CHUYỂN SANG STATE HURT (CHỈ ẢNH HƯỞNG DI CHUYỂN)
+    //  CHUYỂN SANG STATE HURT (CHỈ ẢNH HƯỞNG DI CHUYỂN)
     playerState = PlayerState::STATE_HURT;
     hurtTimer = hurtDuration;
     canMove = false;
@@ -619,8 +608,6 @@ void Player::Attack() {
     isAttacking = true;
     canMove = false;
     attackTimer = attackCooldown;
-
-    std::cout << "Player tan cong can chien!\n";
 }
 
 // ===== COMBAT: SHOT =====
@@ -634,7 +621,6 @@ void Player::Shot() {
 
     shouldSpawnArrow = true;
 
-    std::cout << "Player bat dau len cung!\n";
 }
 
 // ===== SPAWN ARROW =====
@@ -642,8 +628,6 @@ void Player::SpawnArrow() {
     if (!shouldSpawnArrow) return;
 
     shouldSpawnArrow = false;
-
-    std::cout << "Tao mui ten tai frame " << playerCurrentFrame << "!\n";
 
     float offsetX = flipHorizontal ? -15.0f : 15.0f;
     glm::vec2 spawnPos = position + glm::vec2(24.0f + offsetX, 36.0f);
