@@ -64,7 +64,7 @@ bool Game::init() {
     }
 
 
-    window = SDL_CreateWindow("Game Monster",
+    window = SDL_CreateWindow("Monster Sigie",
         GameConstants::SCREEN_WIDTH,
         GameConstants::SCREEN_HEIGHT,
         SDL_WINDOW_RESIZABLE);
@@ -500,10 +500,6 @@ void Game::render() {
     // ✅ THÊM: Render map transition
     else if (currentGameState == GameState::MAP_TRANSITIONING) {
         mapTransition->Render();
-    }
-    // ===== THÊM MỚI: RENDER DEATH TRANSITION (VẼ CUỐI CÙNG) =====
-    if (player && player->IsInDeathTransition()) {
-        player->RenderDeathTransition(renderer);
     }
 
      pendingNextMap = false;

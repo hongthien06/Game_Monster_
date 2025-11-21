@@ -63,13 +63,6 @@ private:
     float deathDelay;
     bool isGameOver;        // Đã hết mạng - Game Over
 
-    // ===== THÊM MỚI: DEATH TRANSITION =====
-    DeathTransitionState deathTransitionState;
-    std::unique_ptr<ScreenTransition> deathTransition;
-    float respawnFlashDuration;     // Thời gian nhấp nháy sau respawn
-    float respawnFlashTimer;
-    bool isRespawnFlashing;
-
     // ===== INVENTORY SYSTEM - HỆ THỐNG TÚI ĐỒ =====
     int healthPotionCount;  // Số lượng health potion trong túi
     int maxHealthPotions;   // Số lượng tối đa có thể mang
@@ -98,7 +91,7 @@ private:
     void SpawnArrow();
     void Respawn();         // Hồi sinh
     void LoseLife();
-    void UpdateDeathTransition(float deltaTime);  // ===== THÊM MỚI =====
+
 
     // THÊM MỚI: Knockback & I-frames
     bool isInvulnerable;
@@ -109,7 +102,7 @@ private:
     float knockbackDecay;
     bool isKnockedBack;
 
-    SDL_Renderer* renderer;  // ===== THÊM MỚI: Lưu renderer =====
+
     bool needsCameraSnap;
 
 public:
@@ -156,7 +149,6 @@ public:
     // ===== GETTERS =====
     bool IsAlive() const { return isAlive; }
     PlayerState GetPlayerState() const { return playerState; }
-    bool IsInDeathTransition() const { return deathTransitionState != DeathTransitionState::NONE; }  // ===== THÊM MỚI =====
     SDL_FRect GetBoundingBox() const;
     std::vector<std::unique_ptr<Projectile>>& GetProjectiles() { return projectiles; }
     virtual float GetSpriteWidth() const override { return 32.0f; }
