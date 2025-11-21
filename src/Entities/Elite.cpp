@@ -30,8 +30,8 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         folderPath = "assets/images/Elites/1_TROLL/";
         maxHealth = 120;
         health = 120;
-        attackDamage = 20;
-        specialDamage = 35;
+        attackDamage = 10;
+        specialDamage = 16;
         attackCooldown = 1.5f;
         runSpeed = 100.0f;
         aggroRange = 250.0f;
@@ -42,8 +42,8 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         folderPath = "assets/images/Elites/2_TROLL/";
         maxHealth = 180;
         health = 180;
-        attackDamage = 25;
-        specialDamage = 40;
+        attackDamage = 17;
+        specialDamage = 20;
         attackCooldown = 1.3f;
         runSpeed = 110.0f;
         aggroRange = 280.0f;
@@ -55,8 +55,8 @@ Elites::Elites(SDL_Renderer* renderer, glm::vec2 startPos, TrollType type)
         folderPath = "assets/images/Elites/3_TROLL/";
         maxHealth = 250;
         health = 250;
-        attackDamage = 30;
-        specialDamage = 45;
+        attackDamage = 19;
+        specialDamage = 23;
         attackCooldown = 1.0f;
         runSpeed = 120.0f;
         aggroRange = 300.0f;

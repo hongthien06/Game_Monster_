@@ -31,8 +31,8 @@ Player::Player(SDL_Renderer* renderer, glm::vec2 startPos)
     hurtDuration(0.3f),
     hurtTimer(0.0f),
     // ===== LIVES SYSTEM =====
-    lives(3),               // Bắt đầu với 3 mạng
-    maxLives(3),            // Tối đa 3 mạng
+    lives(4),               // Bắt đầu với 3 mạng
+    maxLives(4),            // Tối đa 3 mạng
     respawnPoint(startPos), // Điểm hồi sinh = điểm bắt đầu
     isDying(false),
     deathTimer(0.0f),
