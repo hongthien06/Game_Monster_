@@ -95,10 +95,10 @@ bool Game::init() {
     if (!loadItemTextures()) return false;
 
     map = new Map(renderer);
-    if (!map->loadMap("assets/tileset/Map_1.tmj")) {   // Xong thi doi map ve Map_1.tmj
+    if (!map->loadMap("assets/tileset/Map_hitboxBoss.tmj")) {   // Xong thi doi map ve Map_1.tmj
     }
     currentMapName = "assets/tileset/Map_1.tmj";  // Lưu tên map hiện tại
-
+    debugMap = "assets/tileset/Map_hitboxBoss.tmj";    /// THEM DE SPAWN BOSS TEST
 
  // Tai vi tri spawn
     auto playerSpawns = map->GetSpawn(0);
@@ -913,7 +913,7 @@ void Game::initEnemies() {
     }
 
     // ===== BOSS =====
-    if (currentMapName == "assets/tileset/Map_3.tmj") {          // XOng thi doi debugMap thanh currentMapName de ko bi lap lai va doi thanh map Map_1.tmj khi xong
+    if (debugMap == "assets/tileset/Map_hitboxBoss.tmj") {          // XOng thi doi debugMap thanh currentMapName de ko bi lap lai va doi thanh map Map_1.tmj khi xong
         auto bossSpawn = map->GetSpawn(7);
 
         std::unique_ptr<Boss> bossPtr;

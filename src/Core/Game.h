@@ -77,7 +77,7 @@ private:
     std::unique_ptr<ScreenTransition> screenTransition;
     std::unique_ptr<ScreenTransition> mapTransition;  // ✅ THÊM DÒNG NÀY
     GameState targetState;
-
+    std::string debugMap; 
     SDL_Texture* menuBackgroundTex;
     SDL_Texture* gameBackgroundTex;
 
