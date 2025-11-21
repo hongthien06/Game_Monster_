@@ -317,7 +317,7 @@ void Player::UpdateProjectiles(float deltaTime) {
 // ===== CHECK FALL DEATH =====
 void Player::CheckFallDeath() {
     // Kiểm tra nếu rơi xuống dưới WORLD_HEIGHT + 100
-    if (position.y > GameConstants::WORLD_HEIGHT + 100.0f && !isDying && isAlive) {
+    if (position.y > GameConstants::WORLD_HEIGHT + 10.0f && !isDying && isAlive) {
         std::cout << "[Player] Roi khoi map! Mat 1 mang!\n";
         health = 0;  // Set máu = 0 trước
         LoseLife();  // Sau đó gọi LoseLife

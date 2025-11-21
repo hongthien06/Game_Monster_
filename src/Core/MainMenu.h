@@ -4,7 +4,6 @@
 #include <glm/glm.hpp>
 #include <string>
 
-// Các lựa chọn trong menu chính
 enum class MainMenuChoice {
     NONE = 0,
     START_GAME,
@@ -23,7 +22,7 @@ public:
     void Render();
 
     MainMenuChoice GetChoice() const { return currentChoice; }
-    void ResetChoice() { currentChoice = MainMenuChoice::NONE; } 
+    void ResetChoice() { currentChoice = MainMenuChoice::NONE; }
 
     void SetTransitioning(bool value) { isTransitioning = value; }
     bool IsTransitioning() const { return isTransitioning; }
@@ -31,23 +30,9 @@ public:
 private:
     SDL_Renderer* renderer;
     TTF_Font* font;
+    int selectedOption;
     float inputTimer;
     const float inputCooldown = 0.2f;
-    int selectedOption; 
     MainMenuChoice currentChoice;
-    struct ButtonArea {
-        std::string text;
-        glm::vec2 pos;
-        float width;
-        float height;
-        MainMenuChoice choice;
-    };
-
-    ButtonArea buttons[3];
-    void SetupButtons();
-
-    void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
-        glm::vec2 pos, SDL_Color color, bool center = false);
-
     bool isTransitioning = false;
 };

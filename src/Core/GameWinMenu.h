@@ -19,6 +19,7 @@ private:
     const float inputCooldown = 0.2f;
 
     GameWinChoice currentChoice;
+    bool isTransitioning = false;
 public:
     GameWinMenu(SDL_Renderer* ren, TTF_Font* fnt);
     ~GameWinMenu();
@@ -29,4 +30,6 @@ public:
     void Render();
     GameWinChoice GetChoice() const { return currentChoice; }
     void Reset();
+    void SetTransitioning(bool value) { isTransitioning = value; }
+    bool IsTransitioning() const { return isTransitioning; }
 };
