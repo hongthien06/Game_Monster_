@@ -76,9 +76,9 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     this->enemyType = EnemyType::BOSS;
 
     // Thiết lập stats
-    maxHealth = 800;
-    health = 800;
-    attackDamage = 40;
+    maxHealth = 700;
+    health = 700;
+    attackDamage = 30;
     attackCooldown = 2.0f;
     attackRange = 75.0f;
     runSpeed = 100.0f;
