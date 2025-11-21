@@ -331,15 +331,8 @@ void Game::update(float deltaTime) {
         checkEnemyCollisions();
 
         effectManager.Update(deltaTime);
-        // ===== ✅ SNAP CAMERA NGAY KHI RESPAWN =====
-        if (player && player->NeedsCameraSnap()) {
-            // Gọi update nhiều lần để camera "lerp" nhanh về vị trí
-            for (int i = 0; i < 50; i++) {
-                camera.update(player->GetPosition(), 0.1f);
-            }
-            player->ClearCameraSnapFlag();
-            std::cout << "[Game] Camera snapped to player respawn position!\n";
-        }
+        camera.update(player->GetPosition(), 0.1f);
+
 
         if (playerHUD)
             playerHUD->Update(deltaTime);

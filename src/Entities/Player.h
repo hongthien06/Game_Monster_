@@ -160,9 +160,6 @@ public:
     SDL_FRect GetBoundingBox() const;
     std::vector<std::unique_ptr<Projectile>>& GetProjectiles() { return projectiles; }
     virtual float GetSpriteWidth() const override { return 32.0f; }
-    // Trong phần getters
-    bool NeedsCameraSnap() const { return needsCameraSnap; }
-    void ClearCameraSnapFlag() { needsCameraSnap = false; }
 
     // ===== SETTERS =====
     void SetShootCooldown(float cooldown) { shootCooldown = cooldown; }
