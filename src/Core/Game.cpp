@@ -417,13 +417,7 @@ void Game::update(float deltaTime) {
     }
     }
     
-    //// ✅ XỬ LÝ CHUYỂN MAP (cuối hàm update)
-    //if (pendingNextMap) {
-    //    std::cout << "[Game] ===== EXECUTING MAP TRANSITION =====\n";
-    //    LoadNextMap();
-    //    pendingNextMap = false;
-    //    std::cout << "[Game] pendingNextMap reset to false\n";
-    //}
+
 }
 
 // Ve len man hinh
@@ -1242,7 +1236,7 @@ void Game::LoadNextMap() {
         return;
     }
 
-    // ✅ Cập nhật lại vị trí player
+    //  Cập nhật lại vị trí player
     auto spawn = map->GetSpawn(0);
     if (!spawn.empty()) {
         player->SetPosition(glm::vec2(spawn[0].x, spawn[0].y));
@@ -1252,12 +1246,12 @@ void Game::LoadNextMap() {
         std::cerr << "[Game] WARNING: No player spawn point found!\n";
     }
 
-    // ✅ Reset HUD
+    //  Reset HUD
     if (playerHUD) {
         playerHUD->SetPlayerReference(player);
     }
 
-    // ✅ Đổi nhạc theo map (tuỳ chọn)
+    //  Đổi nhạc theo map (tuỳ chọn)
     if (audio) {
         audio->stopBGM();
         audio->playBGM("assets/audio/breath.mp3", true, 0.4f);

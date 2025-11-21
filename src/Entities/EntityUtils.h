@@ -106,53 +106,7 @@ inline void DrawCornerHealthBar(SDL_Renderer* renderer, int currentHP, int maxHP
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
     SDL_RenderRect(renderer, &bgRect);
 
-    // ===== VẼ TRÁI TIM TỪ TEXTURE =====
-    //if (showHearts && heartTexture) {
-    //    int hearts = (currentHP + 19) / 20; // Mỗi trái tim = 20 HP
-    //    int maxHearts = (maxHP + 19) / 20;
-
-    //    float heartSize = 16.0f * 1.2f;
-    //    float heartSpacing = 20.0f;
-    //    float heartY = y - heartSize - 8.0f; // Vẽ trên thanh máu
-
-    //    // Kích thước mỗi frame trong sprite sheet
-    //    float frameWidth = 16.0f;
-    //    float frameHeight = 16.0f;
-
-    //    for (int i = 0; i < maxHearts; i++) {
-    //        float heartX = x + i * heartSpacing;
-
-    //        // Xác định frame
-    //        int frameIndex;
-    //        if (i < hearts) {
-    //            frameIndex = 0; // Trái tim đầy (đỏ)
-    //        }
-    //        else if (i == hearts && (currentHP % 20) > 0) {
-    //            frameIndex = 1; // Trái tim nửa (đen)
-    //        }
-    //        else {
-    //            frameIndex = 2; // Trái tim rỗng (xám)
-    //        }
-
-    //        // Source rect
-    //        SDL_FRect srcRect = {
-    //            frameIndex * frameWidth,
-    //            0.0f,
-    //            frameWidth,
-    //            frameHeight
-    //        };
-
-    //        // Destination rect
-    //        SDL_FRect dstRect = {
-    //            heartX,
-    //            heartY,
-    //            heartSize,
-    //            heartSize
-    //        };
-
-    //        SDL_RenderTexture(renderer, heartTexture, &srcRect, &dstRect);
-    //    }
-    //}
+   
 }
 
 // ===== KIỂM TRA VA CHẠM GIỮA 2 RECT =====
@@ -177,7 +131,7 @@ inline glm::vec2 Lerp(glm::vec2 a, glm::vec2 b, float t) {
     );
 }
 
-// ===== NORMALIZE DIRECTION =====
+
 inline glm::vec2 GetDirection(glm::vec2 from, glm::vec2 to) {
     glm::vec2 dir = to - from;
     float len = glm::length(dir);

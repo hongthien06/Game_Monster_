@@ -515,7 +515,7 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     // ===== VẼ SỐ MẠNG (LIVES) =====
     float liveHeartSize = 20.0f;
     float liveHeartSpacing = 24.0f;
-    float liveHeartX = screenWidth - 80.0f;
+    float liveHeartX = screenWidth - 100.0f;
     float liveHeartY = screenHeight - 285.0f;
 
     for (int i = 0; i < maxLives; i++) {
