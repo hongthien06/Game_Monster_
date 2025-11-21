@@ -7,34 +7,31 @@ SDL_FRect Boss::GetWeaponHitbox() {
     SDL_FRect weaponBox = { 0.0f, 0.0f, 0.0f, 0.0f };
     int currentFrame = this->enemyCurrentFrame;
     bool facingLeft = this->flipHorizontal;
+
+    // ✅ CHỈ KÍCH HOẠT HITBOX KHI ĐANG ATTACK VÀ ĐÚNG FRAME GÂY SÁT THƯƠNG
     if (enemyState == EnemyState::STATE_ATTACK) {
-        if (currentFrame == 6 || currentFrame == 7) {
-            float xOffset = 0.0f;
-            if (currentFrame == 6) {
-                weaponBox.w = 16.0f;
-                weaponBox.h = 16.0f;
+        // Frame 5-7: Giai đoạn tay vung xuống (đây là lúc gây sát thương)
+        if (currentFrame >= 5 && currentFrame <= 7) {
 
-                xOffset = 80.0f;
-                weaponBox.y = position.y + 68.5f;
-            }
-            else if (currentFrame == 7) {
-                weaponBox.w = 16.0f; 
-                weaponBox.h = 16.0f;   
+            // ✅ TĂNG BỀ RỘNG VÀ CHIỀU CAO HITBOX ĐỂ DỄ TRÚNG PLAYER
+            weaponBox.w = 60.0f;  // Rộng hơn nhiều (từ 16 → 60)
+            weaponBox.h = 90.0f;  // Cao để bao phủ cả người Player (từ 16 → 90)
 
-                xOffset = 95.0f;
-                weaponBox.y = position.y + 107.0f; 
-            }
+            // ✅ HẠ THẤP VỊ TRÍ Y XUỐNG SÁT ĐẤT (ngang tầm Player)
+            // Hitbox nằm ở độ cao thân boss, hướng xuống chân
+            weaponBox.y = position.y + hitboxOffsetY + 50.0f; // Hạ xuống 50px từ đầu
 
-    
-            if (!facingLeft) { 
-                weaponBox.x = position.x + xOffset;
+            // ✅ VỊ TRÍ X: ĐẶT HITBOX TRƯỚC MẶT BOSS
+            if (!facingLeft) {
+                // Boss nhìn phải → Hitbox ở bên phải
+                weaponBox.x = position.x + hitboxOffsetX + hitboxWidth + 5.0f;
             }
             else {
-                weaponBox.x = position.x + (renderWidth - xOffset - weaponBox.w);
+                // Boss nhìn trái → Hitbox ở bên trái
+                weaponBox.x = position.x + hitboxOffsetX - weaponBox.w - 5.0f;
             }
         }
     }
-
 
     return weaponBox;
 }
@@ -83,8 +80,8 @@ Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     health = 800;
     attackDamage = 40;
     attackCooldown = 2.0f;
-    attackRange = 100.0f;
-    runSpeed = 80.0f;
+    attackRange = 75.0f;
+    runSpeed = 100.0f;
     aggroRange = 500.0f;
 
     // Load textures
@@ -375,21 +372,32 @@ void Boss::Update(float deltaTime, Map& map) {
 
     CheckPhaseTransition();
 
-    // ĐÃ SỬA: Reset trạng thái skill khi không còn đánh
+    // Reset trạng thái skill khi không còn đánh
     if (enemyState != EnemyState::STATE_ATTACK) {
-        // Kiểm tra thêm nếu cần, ví dụ như animation đã kết thúc
         isSlamming = false;
         isUsingUltimate = false;
     }
 
+    // ✅ [FIX QUAN TRỌNG] BOSS LUÔN DI CHUYỂN VÀO TẦM ĐÁNH
+    // Nếu đang STATE_ATTACK nhưng Player quá xa → Đuổi theo trước
+    if (enemyState == EnemyState::STATE_ATTACK) {
+        float distToPlayer = GetDistanceToTarget();
+
+        // Nếu Player ngoài tầm đánh → Chuyển sang RUN
+        if (distToPlayer > attackRange) {
+            enemyState = EnemyState::STATE_RUN;
+            attackTimer = attackCooldown * 0.5f; // Reset cooldown ngắn hơn
+        }
+        else {
+            // Đã vào tầm → Đứng yên để đánh
+            velocity.x = 0.0f;
+        }
+    }
+
+    // Xử lý Charge Attack
     if (isCharging) {
         chargeTimer -= deltaTime;
         velocity = chargeDirection * chargeSpeed;
-
-        // ✅ XÓA: Không tạo trail nữa
-        // if (effectManager) {
-        //      effectManager->CreateTrail(position, { 255, 200, 0, 255 }, 4.0f);
-        // }
 
         if (chargeTimer <= 0) {
             isCharging = false;
@@ -492,15 +500,46 @@ void Boss::TakeDamage(int damage) {
         damage = (int)(damage * 0.8f);
     }
 
-    //  Lóe sáng trắng ngắn thay vì explosion cam
+    // Hiệu ứng lóe sáng
     if (effectManager) {
-        effectManager->CreateFlash(
-            position,
-            { 255, 255, 255, 120 },  // Trắng, alpha 120
-            0.2f,    // Intensity thấp
-            0.08f    // Duration ngắn
-        );
+        effectManager->CreateFlash(position, { 255, 255, 255, 120 }, 0.2f, 0.08f);
     }
 
-    Enemy::TakeDamage(damage);
+    // 1. Trừ máu
+    health -= damage;
+
+    if (health <= 0) {
+        health = 0;
+        Die();
+        return;
+    }
+
+    // [FIX 2 - BOSS KHÔNG BỊ CHOÁNG KHI BỊ ĐÁNH (SUPER ARMOR)]
+    // TUYỆT ĐỐI KHÔNG GỌI Enemy::TakeDamage(damage);
+    // Vì hàm đó sẽ set enemyState = STATE_HURT và velocity = 0 (làm Boss đứng im)
+
+    // Thay vào đó, ta chỉ kích hoạt phản ứng "Nổi điên" để đuổi theo
+
+    // A. Nếu Boss đang đi dạo hoặc đứng yên mà bị đánh -> Chuyển sang chạy đuổi ngay
+    if (enemyState == EnemyState::STATE_IDLE || enemyState == EnemyState::STATE_WALK) {
+        enemyState = EnemyState::STATE_RUN;
+    }
+
+    // B. [FIX 2b] Mở rộng AggroRange cực lớn nếu bị đánh từ xa
+    // Điều này đảm bảo dù bạn bắn từ xa, Boss vẫn nhận ra và đuổi theo chứ không bỏ cuộc
+    if (GetDistanceToTarget() > aggroRange) {
+        aggroRange = 1500.0f; // Tăng tầm aggro lên vô hạn (hoặc rất xa)
+        std::cout << "Boss enraged! Aggro range increased to 1500!\n";
+    }
+
+    // C. Quay mặt về hướng người chơi (để không bị đánh lén sau lưng mà vẫn chạy tới trước)
+    float diffX = targetPosition.x - position.x;
+    if (std::abs(diffX) > 10.0f) {
+        flipHorizontal = (diffX < 0);
+    }
+
+    // D. Enrage: Giảm hồi chiêu nếu bị đánh (để đánh trả nhanh hơn)
+    if (attackTimer > 0.5f) {
+        attackTimer = 0.5f;
+    }
 }

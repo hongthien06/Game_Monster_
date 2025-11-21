@@ -105,8 +105,8 @@ namespace GameConstants {
 
     constexpr float BOSS_RENDER_WIDTH = 128.0f;
     constexpr float BOSS_RENDER_HEIGHT = 128.0f;
-    constexpr float BOSS_HITBOX_WIDTH = 43.0f;
-    constexpr float BOSS_HITBOX_HEIGHT = 61.0f;
+    constexpr float BOSS_HITBOX_WIDTH = 50.0f;
+    constexpr float BOSS_HITBOX_HEIGHT = 100.0f;
     constexpr float BOSS_HITBOX_OFFSET_X = (BOSS_RENDER_WIDTH - BOSS_HITBOX_WIDTH) / 2.0f;
     constexpr float BOSS_HITBOX_OFFSET_Y = (BOSS_RENDER_HEIGHT - BOSS_HITBOX_HEIGHT) - 7.0f;
 
