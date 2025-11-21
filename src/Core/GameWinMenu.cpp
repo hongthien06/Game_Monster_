@@ -1,8 +1,9 @@
-#include "GameWinMenu.h"
+﻿#include "GameWinMenu.h"
 #include <iostream>
 #include <glm/glm.hpp> 
 #include "../Config/GameConstants.h"
 
+// TẠO TEXTURE TỪ FONT VÀ TEXT VÀ VẼ LÊN RENDERER
 static void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string& text,
     glm::vec2 pos, SDL_Color color, bool center = false)
 {
@@ -17,22 +18,26 @@ static void RenderText(SDL_Renderer* renderer, TTF_Font* font, const std::string
         return;
     }
 
+    // THIẾT LẬP KHUNG HÌNH CHỮ NHẬT
     SDL_FRect dstRect;
     dstRect.x = pos.x;
     dstRect.y = pos.y;
     dstRect.w = (float)surface->w;
     dstRect.h = (float)surface->h;
 
+    // XỬ LÝ CĂN GIỮA
     if (center) {
         dstRect.x = pos.x - dstRect.w / 2.0f;
         dstRect.y = pos.y - dstRect.h / 2.0f;
     }
 
+    // VẼ TEXTURE LÊN MÀN HÌNH
     SDL_RenderTexture(renderer, texture, nullptr, &dstRect);
 
     SDL_DestroyTexture(texture);
     SDL_DestroySurface(surface);
 }
+
 
 
 GameWinMenu::GameWinMenu(SDL_Renderer* ren, TTF_Font* fnt)
@@ -43,10 +48,12 @@ GameWinMenu::GameWinMenu(SDL_Renderer* ren, TTF_Font* fnt)
 GameWinMenu::~GameWinMenu() {
 }
 
+// RESET MENU VỀ MẶC ĐỊNH
 void GameWinMenu::Reset() {
     selectedOption = 0;
     inputTimer = inputCooldown;
     currentChoice = GameWinChoice::NONE;
+    isTransitioning = false;
 }
 
 void GameWinMenu::Update(float deltaTime) {
@@ -55,23 +62,28 @@ void GameWinMenu::Update(float deltaTime) {
     }
 }
 
+// XỬ LÝ PHÍM BẤM
 void GameWinMenu::HandleInput() {
+    if (isTransitioning) return;
     if (inputTimer > 0) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
 
+    // ĐIỀU HƯỚNG LÊN
     if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
         if (selectedOption > 0) {
             selectedOption = 0;
             inputTimer = inputCooldown;
         }
     }
+    // ĐIỀU HƯỚNG XUỐNG
     else if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
         if (selectedOption < 1) {
             selectedOption = 1;
             inputTimer = inputCooldown;
         }
     }
+    // PHÍM CHỌN 
     else if (keys[SDL_SCANCODE_RETURN] || keys[SDL_SCANCODE_J]) {
         if (selectedOption == 0) {
             currentChoice = GameWinChoice::REPLAY;
@@ -84,19 +96,15 @@ void GameWinMenu::HandleInput() {
 }
 
 void GameWinMenu::Render() {
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 150);
-    SDL_FRect overlayRect = { 0.0f, 0.0f, (float)GameConstants::LOGICAL_WIDTH, (float)GameConstants::LOGICAL_HEIGHT };
-    SDL_RenderFillRect(renderer, &overlayRect);
-
     float centerX = GameConstants::LOGICAL_WIDTH / 2.0f;
     float startY = GameConstants::LOGICAL_HEIGHT / 2.0f;
 
+    // THÔNG SỐ NÚT BẤM
     float buttonWidth = 200.0f;
     float buttonHeight = 35.0f;
     float spacing = 55.0f;
 
-
+    // ĐỊNH NGHĨA MÀU SẮC
     const SDL_Color borderColor = { 255, 255, 255, 255 };
     const SDL_Color selectionFillColor = { 0, 0, 0, 150 };
     const float paddingX = 6.0f;
@@ -106,9 +114,10 @@ void GameWinMenu::Render() {
     SDL_Color colorDefault = { 255, 255, 255, 255 };
     SDL_Color colorSelected = { 255, 255, 0, 255 };
 
-
+    // VẼ TIÊU ĐỀ
     RenderText(renderer, font, "GAME WIN", { centerX, startY - 75.0f }, colorTitle, true);
 
+    // VẼ NÚT REPLAY
     glm::vec2 posReplay = { centerX, startY };
     SDL_Color colorReplayText = (selectedOption == 0) ? colorSelected : colorDefault;
 
@@ -118,7 +127,7 @@ void GameWinMenu::Render() {
         buttonWidth + paddingX * 2.0f,
         buttonHeight + paddingY * 2.0f
     };
-
+    // KIỂM TRA ĐANG CHỌN NÚT
     if (selectedOption == 0) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, selectionFillColor.r, selectionFillColor.g, selectionFillColor.b, selectionFillColor.a);
@@ -130,6 +139,7 @@ void GameWinMenu::Render() {
 
     RenderText(renderer, font, "REPLAY", posReplay, colorReplayText, true);
 
+    // VẼ NÚT QUIT
     glm::vec2 posQuit = { centerX, startY + spacing };
     SDL_Color colorQuitText = (selectedOption == 1) ? colorSelected : colorDefault;
 
@@ -139,6 +149,8 @@ void GameWinMenu::Render() {
         buttonWidth + paddingX * 2.0f,
         buttonHeight + paddingY * 2.0f
     };
+
+    // KIỂM TRA ĐANG CHỌN NÚT
     if (selectedOption == 1) {
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
         SDL_SetRenderDrawColor(renderer, selectionFillColor.r, selectionFillColor.g, selectionFillColor.b, selectionFillColor.a);
@@ -146,5 +158,6 @@ void GameWinMenu::Render() {
     }
     SDL_SetRenderDrawColor(renderer, borderColor.r, borderColor.g, borderColor.b, borderColor.a);
     SDL_RenderRect(renderer, &frameQuit);
+    // VẼ CHỮ QUIT
     RenderText(renderer, font, "QUIT", posQuit, colorQuitText, true);
 }

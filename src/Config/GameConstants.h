@@ -8,11 +8,12 @@ namespace GameConstants {
     // Kich thuoc logic cua khung hinh
     constexpr int LOGICAL_WIDTH = 400;
     constexpr int LOGICAL_HEIGHT = 300;
+
     // Toa do mat dat
-    constexpr float FLOOR_Y = LOGICAL_HEIGHT ; //-28
+    constexpr float FLOOR_Y = LOGICAL_HEIGHT ; 
 
     // Dung yen
-    constexpr int IDLE_FRAMES = 4;//10
+    constexpr int IDLE_FRAMES = 4;
     constexpr float IDLE_FRAME_DURATION = 0.15f;
     constexpr int IDLE_FRAME_WIDTH = 128;
     constexpr int IDLE_FRAME_HEIGHT = 128;
@@ -382,6 +383,11 @@ namespace GameConstants {
     constexpr float MINION_WARRIOR_HURT_FRAME_DURATION = 0.10f;
     constexpr int MINION_WARRIOR_HURT_FRAME_WIDTH = 96;
     constexpr int MINION_WARRIOR_HURT_FRAME_HEIGHT = 96;
+
+
+    constexpr float TILE_HEIGHT = 32.0f;
+    constexpr float TILE_WIDTH = 32.0f;
+
 
 
 }

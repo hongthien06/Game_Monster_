@@ -21,6 +21,8 @@ public:
 
     TutorialChoice GetChoice() const { return currentChoice; }
     void ResetChoice() { currentChoice = TutorialChoice::NONE; }
+    void SetTransitioning(bool value) { isTransitioning = value; }
+    bool IsTransitioning() const { return isTransitioning; }
 
 private:
     SDL_Renderer* renderer;
@@ -31,6 +33,5 @@ private:
     const float inputCooldown = 0.2f;
 
     TutorialChoice currentChoice;
-
-    void RenderText(const std::string& text, glm::vec2 pos, SDL_Color color, bool center = false);
+    bool isTransitioning = false; 
 };

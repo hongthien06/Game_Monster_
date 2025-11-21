@@ -5,7 +5,6 @@
 #include "EntityUtils.h"
 #include <iostream>
 
-// ===== KHỞI TẠO MẶC ĐỊNH =====
 Character::Character()
     : position(0.0f, 0.0f), velocity(0.0f, 0.0f), isOnGround(true), wasOnGround(false),
     flipHorizontal(false), currentState(CharacterState::STATE_IDLE),
@@ -21,7 +20,6 @@ Character::Character()
 {
 }
 
-// ===== KHỞI TẠO CÓ THAM SỐ - HỖ TRỢ 8 TEXTURES =====
 Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     const char* idlePath,
     const char* walkPath,
@@ -45,14 +43,14 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     isDashing(false), isRunning(false), dashTimer(0.0f), dashCooldownTimer(0.0f), dashDirection(0),
     landedSoundPlayed(false), landedSoundCooldown(0.0f)
 {
-    // Load  texture bắt buộc
+    // LOAD CÁC TEXTURE CƠ BẢN
     LoadTexture(renderer, &idleTex, idlePath);
     LoadTexture(renderer, &walkTex, walkPath);
     LoadTexture(renderer, &runTex, runPath);
     LoadTexture(renderer, &jumpTex, jumpPath);
     LoadTexture(renderer, &dashTex, dashPath);
 
-    // Load 4 texture tùy chọn (cho Player/Enemy)
+    // LOAD 4 TEXTURE TÙY CHỌN
     if (shotPath) LoadTexture(renderer, &shotTex, shotPath);
     if (attackPath) LoadTexture(renderer, &attackTex, attackPath);
     if (hurtPath) LoadTexture(renderer, &hurtTex, hurtPath);
@@ -61,21 +59,19 @@ Character::Character(SDL_Renderer* renderer, glm::vec2 startPos,
     LoadTexture(renderer, &heartTexture, heartPath);
 }
 
-// ===== PHƯƠNG THỨC HELPER LOAD TEXTURE =====
+// HÀM XỬ LÝ ĐỂ LOAD ẢNH VÀ XỬ LÍ LỖI
 void Character::LoadTexture(SDL_Renderer* renderer, SDL_Texture** texture, const char* path) {
     if (!path) return;
 
     *texture = IMG_LoadTexture(renderer, path);
 
     if (!*texture) {
-        std::cerr << "Loi load texture: " << path << "\n";
         return;
     }
 
     SDL_SetTextureScaleMode(*texture, SDL_SCALEMODE_NEAREST);
 }
 
-// ===== GIẢI PHÓNG BỘ NHỚ =====
 Character::~Character() {
     SDL_DestroyTexture(idleTex);
     SDL_DestroyTexture(walkTex);
@@ -90,12 +86,14 @@ Character::~Character() {
 
 }
 
-// ===== UPDATE =====
+// HÀM CẬP NHẬT LOGIC MỖI KHUNG HÌNH
 void Character::Update(float deltaTime, Map& map) {
+
+    // HÀM XỬ LÝ DI CHUYỂN NHÂN VẬT
     MovementSystem::HandleMovement(*this, deltaTime, map);
 
+    // XÁC ĐỊNH TRẠNG THÁI
     CharacterState newState = currentState;
-
     if (isDashing) {
         newState = CharacterState::STATE_DASHING;
     }
@@ -110,7 +108,7 @@ void Character::Update(float deltaTime, Map& map) {
         newState = CharacterState::STATE_IDLE;
     }
 
-   
+    // CHUYỂN ĐỖI TRẠNG THÁI
     if (newState != currentState) {
         currentState = newState;
         currentFrame = 0;
@@ -118,7 +116,7 @@ void Character::Update(float deltaTime, Map& map) {
     }
 
 
-    // Cập nhật animation
+    // CẬP NHẬT ANIMATION
     int totalFrames = 0;
     float frameDuration = 0.0f;
 
@@ -150,22 +148,16 @@ void Character::Update(float deltaTime, Map& map) {
         animationTimer -= frameDuration;
         currentFrame = (currentFrame + 1) % totalFrames;
     }
-
-    //// Kiểm tra rơi ra ngoài bản đồ
-    //if (position.y > GameConstants::WORLD_HEIGHT) {
-    //    position = { 100.0f, 100.0f };
-    //    velocity = { 0.0f, 0.0f };
-    //    isOnGround = false;
-    //}
+    // LƯU TRẠNG THÁI CŨ ĐỂ SO SÁNH
     wasOnGround = isOnGround;
 }
 
-// ===== RENDER =====
+// HÀM VẼ NHÂN VẬT LÊN MÀN HÌNH
 void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     SDL_Texture* tex = nullptr;
     int frameWidth = 0, frameHeight = 0, totalFrames = 0;
 
-    // Chọn texture và thông tin frame dựa vào trạng thái
+    // CHỌN TEXTURE VÀ THÔNG TIN THEO TỪNG TRẠNG THÁI
     switch (currentState) {
     case CharacterState::STATE_IDLE:
         tex = idleTex;
@@ -202,13 +194,15 @@ void Character::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 
     if (!tex) return;
 
-    // Xac dinh vung cat trong sprite sheet
+    // XÁC ĐỊNH VÙNG CẮT TRONG SPRITE SHEET
     SDL_FRect src = { (float)currentFrame * frameWidth, 0.0f, (float)frameWidth, (float)frameHeight };
-    // Vi tri ve tren man hinh
+    
+    // VỊ TRÍ VẼ TRÊN MÀN HÌNH 
     SDL_FRect dst = { position.x - cameraOffset.x, position.y - cameraOffset.y, 48.0f, 48.0f };
-    // Ve nhan vat
+    // VẼ NHÂN VẬT
     SDL_RenderTextureRotated(renderer, tex, &src, &dst, 0.0, nullptr, flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
+// HÀM GETTER SETTER
 void Character::SetPosition(const glm::vec2& pos) { position = pos; }
 glm::vec2 Character::GetPosition() const { return position; }
