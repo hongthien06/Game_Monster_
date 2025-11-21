@@ -602,7 +602,7 @@ void Player::TakeDamage(int damage) {
 
 // ===== COMBAT: ATTACK =====
 void Player::Attack() {
-    if (attackTimer > 0 || !canMove || !isAlive) return;
+    if (attackTimer > 0 || !canMove || !isAlive || !isOnGround) return;
 
     playerState = PlayerState::STATE_ATTACK;
     isAttacking = true;
@@ -612,7 +612,7 @@ void Player::Attack() {
 
 // ===== COMBAT: SHOT =====
 void Player::Shot() {
-    if (shootTimer > 0 || !canMove || !isAlive) return;
+    if (shootTimer > 0 || !canMove || !isAlive || !isOnGround) return;
 
     playerState = PlayerState::STATE_SHOT;
     isAttacking = true;
