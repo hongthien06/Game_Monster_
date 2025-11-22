@@ -92,18 +92,15 @@ void Player::HandleInput() {
 void Player::UseHealthPotion() {
     // Kiểm tra điều kiện sử dụng
     if (!isAlive) {
-        std::cout << "[Player] Khong the dung potion khi da chet!\n";
         return;
     }
 
     if (healthPotionCount <= 0) {
-        std::cout << "[Player] Khong co Health Potion de dung!\n";
         //audio.playSound("assets/audio/error.wav");  // Optional: âm thanh lỗi
         return;
     }
 
     if (health >= maxHealth) {
-        std::cout << "[Player] Mau da day, khong can dung potion!\n";
         return;
     }
 
@@ -112,9 +109,6 @@ void Player::UseHealthPotion() {
     int healAmount = GameConstants::HEALTH_POTION_HEAL_AMOUNT;
     health = std::min(health + healAmount, maxHealth);
 
-    std::cout << "[Player] Da su dung Health Potion! (" << healthPotionCount << " con lai) HP: "
-        << health << "/" << maxHealth << "\n";
-
     // Phát âm thanh (nếu có)
     //audio.playSound("assets/audio/heal");
 }
@@ -122,13 +116,10 @@ void Player::UseHealthPotion() {
 // THÊM POTION VÀO TÚI
 void Player::AddHealthPotion() {
     if (healthPotionCount >= maxHealthPotions) {
-        std::cout << "[Player] Tui da day! Khong the mang them potion.\n";
         return;
     }
 
     healthPotionCount++;
-    std::cout << "[Player] Nhat duoc Health Potion! Hien co: "
-        << healthPotionCount << "/" << maxHealthPotions << "\n";
 
     // Phát âm thanh nhặt đồ
     //audio.playSound("assets/audio/pickup.wav");
@@ -318,7 +309,6 @@ void Player::UpdateProjectiles(float deltaTime) {
 void Player::CheckFallDeath() {
     // Kiểm tra nếu rơi xuống dưới WORLD_HEIGHT + 100
     if (position.y > GameConstants::WORLD_HEIGHT + 10.0f && !isDying && isAlive) {
-        std::cout << "[Player] Roi khoi map! Mat 1 mang!\n";
         health = 0;  // Set máu = 0 trước
         LoseLife();  // Sau đó gọi LoseLife
     }
@@ -329,7 +319,6 @@ void Player::LoseLife() {
     if (isDying) return;  // Đang chết rồi thì không xử lý nữa
 
     lives--;
-    std::cout << "[Player] MAT 1 MANG! Con lai: " << lives << "/" << maxLives << "\n";
 
     if (lives <= 0) {
         // HẾT MẠNG - GAME OVER
@@ -337,7 +326,6 @@ void Player::LoseLife() {
         playerState = PlayerState::STATE_DEAD;
         canMove = false;
         isGameOver = true;
-        std::cout << "[Player] GAME OVER! Het mang!\n";
    
     }
     else {
@@ -351,7 +339,6 @@ void Player::LoseLife() {
 }
 
 void Player::Respawn() {
-    std::cout << "[Player] HOI SINH \n";
 
     // Reset vị trí
     position = respawnPoint;
@@ -378,7 +365,6 @@ void Player::Respawn() {
 void Player::AddLife() {
     if (lives < maxLives) {
         lives++;
-        std::cout << "[Player] NHAN THEM 1 MANG!\n";
     }
 }
 
@@ -573,12 +559,10 @@ void Player::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
 void Player::TakeDamage(int damage) {
     //  CHECK I-FRAMES TRƯỚC - KHÔNG NHẬN SÁT THƯƠNG KHI BẤT TỬ
     if (!isAlive || iFramesTimer > 0) {
-        std::cout << "[Player] Invulnerable! Remaining: " << iFramesTimer << "s\n";
         return;
     }
 
     health -= damage;
-    std::cout << "[Player] Took " << damage << " damage! HP: " << health << "/" << maxHealth << "\n";
 
     if (health <= 0) {
         health = 0;
@@ -654,7 +638,6 @@ void Player::Heal(int amount) {
     if (!isAlive) return;
 
     health = std::min(health + amount, maxHealth);
-    std::cout << "Player hoi " << amount << " HP! HP: " << health << "\n";
 }
 
 // ===== MOUSE HANDLING =====

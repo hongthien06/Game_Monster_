@@ -77,26 +77,19 @@ void Audio::cleanupFinishedSounds() {
 }
 
 void Audio::playBGM(const std::string& filePath, bool loop, float volume) {
-    std::cout << "Trying to play BGM: " << filePath << std::endl;
 
     if (bgmLoaded) {
-        std::cout << "Stopping previous BGM" << std::endl;
         ma_sound_stop(&bgm); // chỉ stop, không uninit ngay
         ma_sound_uninit(&bgm); // uninit 1 lần duy nhất, an toàn
     }
 
     ma_result result = ma_sound_init_from_file(&engine, filePath.c_str(), 0, NULL, NULL, &bgm);
     if (result == MA_SUCCESS) {
-        std::cout << "Successfully loaded BGM file" << std::endl;
         bgmLoaded = true;
         bgmVolume = volume;
         ma_sound_set_volume(&bgm, volume);
         ma_sound_set_looping(&bgm, loop);
         ma_sound_start(&bgm);
-        std::cout << "BGM started with volume: " << volume << std::endl;
-    }
-    else {
-        std::cout << "Failed to load BGM file. Error code: " << result << std::endl;
     }
 }
 

@@ -249,17 +249,17 @@ void Minions::Update(float deltaTime, Map& map) {
 void Minions::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     Enemy::Render(renderer, cameraOffset);
 
-    // Aura đỏ khi Rage (Berserk)
-    if (minionType == MinionType::ORC_BERSERK && isRaging) {
-        SDL_FRect outline = GetBoundingBox();
-        outline.x -= cameraOffset.x - 2;
-        outline.y -= cameraOffset.y - 2;
-        outline.w += 4;
-        outline.h += 4;
+    // // Aura đỏ khi Rage (Berserk)
+    // if (minionType == MinionType::ORC_BERSERK && isRaging) {
+    //     SDL_FRect outline = GetBoundingBox();
+    //     outline.x -= cameraOffset.x - 2;
+    //     outline.y -= cameraOffset.y - 2;
+    //     outline.w += 4;
+    //     outline.h += 4;
 
-        SDL_SetRenderDrawColor(renderer, 255, 0, 0, 150);
-        SDL_RenderRect(renderer, &outline);
-    }
+    //     // SDL_SetRenderDrawColor(renderer, 255, 0, 0, 150);
+    //     // SDL_RenderRect(renderer, &outline);
+    // }
 }
 
 void Minions::TakeDamage(int damage) {

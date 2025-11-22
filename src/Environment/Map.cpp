@@ -89,9 +89,6 @@ bool Map::loadMap(const string& filename) {
     LoadCollisionLayer(mapData);
     LoadObjects(mapData);
 
-    cout << "Map loaded successfully: " << filename << endl;
-    cout << "Tile size: " << tileWidth << "x" << tileHeight << endl;
-    cout << "Map size: " << mapWidth << "x" << mapHeight << endl;
 
     return true;
 }
@@ -172,9 +169,7 @@ void Map::LoadCollisionLayer(const json& mapData) {
 
     if (collisions.empty()) {
         cerr << "No collision layer found in map file!" << endl;
-    } else {
-        cout << "Loaded " << collisions.size() << " collision boxes." << endl;
-    }
+    } 
 }
 
 void Map::LoadObjects(const json& mapData) {
@@ -311,7 +306,6 @@ vector<SDL_FPoint> Map::GetSpawn(int x) {
 void Map::drawMap(const glm::vec2& cameraOffset) {
 
     if (!tilesetTexture) {
-    std::cout << "Tileset texture is NULL!\n";
     return;
 }
 
