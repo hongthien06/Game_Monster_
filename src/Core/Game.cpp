@@ -649,12 +649,19 @@ void Game::initItems() {
 }
 
 void Game::spawnCoinAtPosition(glm::vec2 pos, int amount) {
+    bool isBossLoot = (amount >= 10); // Boss thường drop >= 10 coins
+
     // Spawn nhiều coins rải rác xung quanh vị trí
     for (int i = 0; i < amount; i++) {
         float offsetX = (rand() % 30) - 15.0f; // Random -15 đến +15
         float offsetY = (rand() % 20) - 10.0f; // Random -10 đến +10
 
-        glm::vec2 coinPos = pos + glm::vec2(offsetX, offsetY + 15.0f);
+        // ✅ NẾU LÀ BOSS → HẠ XUỐNG THẤP HƠN (GẦN MẶT ĐẤT)
+        float yOffset = isBossLoot ? 60.0f : 15.0f;
+        //               ^^^^^^^^     ^^^^    ^^^^
+        //               Nếu Boss     +60px   Quái thường +15px
+
+        glm::vec2 coinPos = pos + glm::vec2(offsetX, offsetY + yOffset);
 
         auto coin = std::make_unique<Item>(coinPos, coinTex, ItemType::COIN);
 
