@@ -37,7 +37,7 @@ bool HUD::LoadResources() {
         std::cerr << "ERROR: Failed to load potion icon: " << SDL_GetError() << std::endl;
         return false;
     }
-    std::cout << "[HUD] Potion icon loaded successfully!" << std::endl;
+    
 
     return true;
 }
@@ -118,8 +118,7 @@ void HUD::Render(glm::vec2 cameraOffset) {
         SDL_RenderTexture(renderer, coinIconTex, &iconSrc, &iconRect);
     }
 
-    // ===== DEBUG: VẼ SỐ LƯỢNG HEALTH POTION =====
-    // Kiểm tra từng điều kiện
+ 
     if (!playerRef) {
         std::cerr << "[HUD] ERROR: playerRef is NULL!" << std::endl;
         return;

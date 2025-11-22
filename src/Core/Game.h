@@ -36,7 +36,7 @@ enum class GameState {
     GAME_OVER,
     GAME_WIN,
     TUTORIAL,
-    MAP_TRANSITIONING  // ✅ THÊM DÒNG NÀY
+    MAP_TRANSITIONING  
 };
 
 class Game {
@@ -54,7 +54,7 @@ private:
     HUD* playerHUD;
 
     std::string currentMapName;
-    std::string nextMapName;  // ✅ THÊM DÒNG NÀY
+    std::string nextMapName;  
 
     std::vector<std::unique_ptr<Item>> items;
     SDL_Texture* coinTex;
@@ -75,7 +75,7 @@ private:
     std::unique_ptr<TutorialMenu> tutorialMenu;
 
     std::unique_ptr<ScreenTransition> screenTransition;
-    std::unique_ptr<ScreenTransition> mapTransition;  // ✅ THÊM DÒNG NÀY
+    std::unique_ptr<ScreenTransition> mapTransition; 
     GameState targetState;
     std::string debugMap; 
     SDL_Texture* menuBackgroundTex;
@@ -102,7 +102,7 @@ public:
 
     void checkProjectileBounds();
 
-    // ✅ THÊM 2 DÒNG NÀY
+    
     void StartMapTransition(const std::string& nextMap, TransitionType type);
     void ExecuteMapChange();
 

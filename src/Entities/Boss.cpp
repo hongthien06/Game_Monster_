@@ -11,14 +11,14 @@ SDL_FRect Boss::GetWeaponHitbox() {
 
     // CHỈ KÍCH HOẠT HITBOX KHI ĐANG ATTACK VÀ ĐÚNG FRAME GÂY SÁT THƯƠNG
     if (enemyState == EnemyState::STATE_ATTACK) {
-        // Frame 5-7: Giai đoạn tay vung xuống (gây sát thương)
+        
         if (currentFrame >= 5 && currentFrame <= 7) {
 
-            // Tăng kích thước hitbox để dễ trúng Player
+          
             weaponBox.w = 60.0f;
             weaponBox.h = 90.0f;
 
-            // Hạ vị trí Y xuống sát đất (ngang tầm Player)
+         
             weaponBox.y = position.y + hitboxOffsetY + 50.0f;
 
             // Đặt hitbox trước mặt Boss
@@ -36,9 +36,7 @@ SDL_FRect Boss::GetWeaponHitbox() {
     return weaponBox;
 }
 
-// ==============================================================
-// CONSTRUCTOR & SETUP
-// ==============================================================
+
 
 Boss::Boss(SDL_Renderer* renderer, glm::vec2 startPos)
     : Enemy(),
@@ -176,7 +174,7 @@ void Boss::CheckPhaseTransition() {
         EnterPhase3();
     }
 }
-// VÀO PHASE 2 (70% HP)
+// VÀO PHASE 
 void Boss::EnterPhase2() {
     hasEnteredPhase2 = true;
     currentPhase = BossPhase::PHASE_2;
@@ -196,7 +194,7 @@ void Boss::EnterPhase2() {
         effectManager->TriggerScreenShake(10.0f, 0.5f);
     }
 }
-// VÀO PHASE 3 (40% HP - NỔI ĐIÊN)
+// VÀO PHASE 3
 void Boss::EnterPhase3() {
     hasEnteredPhase3 = true;
     currentPhase = BossPhase::PHASE_3;
@@ -217,10 +215,6 @@ void Boss::EnterPhase3() {
     }
 }
 
-// ==============================================================
-// ATTACK SKILLS
-// ==============================================================
-// TRIỆU HỒI MINIONS
 void Boss::SummonMinions() {
     if (summonCount >= maxSummons || summonTimer > 0) return;
 
@@ -256,15 +250,13 @@ void Boss::GroundSlam() {
     enemyCurrentFrame = 0;       // Đưa về frame đầu tiên của animation đánh
     enemyAnimationTimer = 0.0f;  // Reset bộ đếm thời gian frame
 
-    // 3. Debug log (Kiểm tra khoảng cách để xem có trúng không - chỉ để test)
+    
     float distToTarget = GetDistanceToTarget();
-    if (distToTarget <= slamRadius) {
-        std::cout << "Boss bat dau Ground Slam! (Hitbox se kich hoat o frame 5-7)\n";
-    }
+    
 
-    // 4. Kích hoạt Hiệu ứng (Visual & Sound)
+    
     if (effectManager) {
-        // Tạo chớp sáng màu vàng đậm (Gold/Orange) báo hiệu nguy hiểm
+        
         effectManager->CreateFlash(
             position,
             { 255, 200, 0, 180 },  // R:255, G:200, B:0 (Vàng cam), Alpha: 180
@@ -291,9 +283,9 @@ void Boss::UseUltimate() {
         // Flash đỏ toàn màn hình
         effectManager->CreateFlash(
             position,
-            { 255, 50, 50, 200 },  // Đỏ đậm
-            0.7f,    // Intensity rất cao
-            0.4f     // Duration dài
+            { 255, 50, 50, 200 }, 
+            0.7f,    
+            0.4f     
         );
 
         // Rung màn hình mạnh
@@ -336,9 +328,7 @@ int Boss::PerformAttack() {
     return 0;
 }
 
-// ==============================================================
-// UPDATE & RENDER
-// ==============================================================
+
 // CẬP NHẬT BOSS MỖI FRAME
 void Boss::Update(float deltaTime, Map& map) {
     // Xử lý intro
@@ -472,7 +462,7 @@ void Boss::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
         flipHorizontal ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE
     );
 }
-// NHẬN SÁT THƯƠNG (BOSS KHÔNG BỊ CHOÁNG - SUPER ARMOR)
+// NHẬN SÁT THƯƠNG 
 void Boss::TakeDamage(int damage) {
     if (isInvulnerable) {
         return;

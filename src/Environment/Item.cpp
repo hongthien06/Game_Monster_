@@ -49,8 +49,8 @@ void Item::Update(float deltaTime) {
 void Item::Render(SDL_Renderer* renderer, glm::vec2 cameraOffset) {
     if (isCollected || !texture) return;
 
-    float srcFrameSize;  // kích thước gốc
-    float displaySize;  // Kích thước hiển thị trên màn hình
+    float srcFrameSize;  
+    float displaySize;  
 
     if (type == ItemType::COIN) {
         srcFrameSize = 20.0f;

@@ -27,10 +27,6 @@ Map::Map(SDL_Renderer* renderer)
     bgFar  = IMG_LoadTexture(renderer, "assets/images/Layers/1.png");
     bgMid  = IMG_LoadTexture(renderer, "assets/images/Layers/2.png");
     bgNear = IMG_LoadTexture(renderer, "assets/images/Layers/3.png");
-
-    if (!bgFar || !bgMid || !bgNear) {
-     cout << "Failed to load background: " << SDL_GetError() << "\n";
-    }
 }
 
 Map::~Map() {
@@ -69,8 +65,8 @@ bool Map::loadMap(const string& filename) {
 
     // Load tileset
     string tilesetPath = mapData["tilesets"][0]["image"].get<string>();
-    // Nếu đường dẫn là relative path, thêm đường dẫn thư mục map
-    if (tilesetPath[0] != '/' && tilesetPath[1] != ':') {  // Không phải absolute path
+
+    if (tilesetPath[0] != '/' && tilesetPath[1] != ':') {  
         size_t lastSlash = filename.find_last_of("/\\");
         if (lastSlash != string::npos) {
             tilesetPath = filename.substr(0, lastSlash + 1) + tilesetPath;
@@ -83,13 +79,13 @@ bool Map::loadMap(const string& filename) {
         return false;
     }
     
-    // Tinh so cot trong tileset
+    
     int imageWidth = mapData["tilesets"][0]["imagewidth"];
     tilesetColumns = imageWidth / tileWidth;
 
     // Load layers
     LoadTileLayers(mapData);
-    LoadTileCollisions(mapData);   // <- Them dong nay de check hinh dang collision trong map
+    LoadTileCollisions(mapData);   
     LoadCollisionLayer(mapData);
     LoadObjects(mapData);
 
@@ -112,9 +108,9 @@ SDL_Texture* Map::LoadTexture(const string& file) {
 
 void Map::LoadTileLayers(const json& mapData) {
     for (auto& layer : mapData["layers"]) {
-        if (layer["type"] == "tilelayer") {   // "tilelayer" l� lo?i layer ch?a d? li?u tile
+        if (layer["type"] == "tilelayer") {   
             TileLayer tileLayer;
-            tileLayer.name = layer["name"];   // T�n layer
+            tileLayer.name = layer["name"];   
             tileLayer.width = layer["width"];
             tileLayer.height = layer["height"];
             tileLayer.data = layer["data"].get<vector<int>>();
@@ -135,14 +131,14 @@ void Map::LoadCollisionLayer(const json& mapData) {
                     int tileID = data[y * w + x];
                     if (tileID == 0) continue;
 
-                    // Tiled bắt đầu ID từ 1, còn trong tileset thì là 0-based
+                   
                     int localID = tileID - 1;
 
-                    // Nếu tile này có polygon riêng trong tileset
+                   
                     if (tilePolygons.count(localID)) {
                         auto poly = tilePolygons[localID];
 
-                        // Dịch polygon theo vị trí của tile trong map
+                        
                         for (auto& p : poly) {
                             p.x += x * tileWidth;
                             p.y += y * tileHeight;
@@ -245,7 +241,7 @@ bool Map::checkCollision(const SDL_FRect& playerRect) {
                 float centerX = interLeft + interWidth / 2.0f;
                 float centerY = interTop + interHeight / 2.0f;
 
-                //cout << "Intersection center: (" << centerX << ", " << centerY << ")\n";  //In ra de de debug ne nha.  in ra tam vung chong lan
+               
                 return true;
             }
         }
@@ -328,11 +324,11 @@ void Map::drawMap(const glm::vec2& cameraOffset) {
         // offset theo tỉ lệ parallax
         float offsetX = -cameraOffset.x * factor;
 
-        // vẽ lặp liên tục 2 ảnh để tránh bị hở
+        
         float x = fmod(offsetX, (float)texW);
         if (x > 0) x -= texW;
 
-        for (; x < 400; x += texW) { // 400 = screenWidth
+        for (; x < 400; x += texW) { 
             SDL_FRect dst = { x, 0, (float)texW, (float)texH };
             SDL_RenderTexture(renderer, tex, NULL, &dst);
         }
@@ -349,9 +345,9 @@ void Map::drawMap(const glm::vec2& cameraOffset) {
         for (int y = 0; y < layer.height; ++y) {
             for (int x = 0; x < layer.width; ++x) {
                 int tileID = layer.data[y * layer.width + x];
-                if (tileID == 0) continue; // Tile r?ng
+                if (tileID == 0) continue; 
 
-                tileID--; // Tiled bat dau tu 1
+                tileID--; 
 
                 SDL_FRect src{
                     static_cast<float>((tileID % tilesetColumns) * tileWidth),
@@ -366,23 +362,17 @@ void Map::drawMap(const glm::vec2& cameraOffset) {
                     static_cast<float>(tileWidth),
                     static_cast<float>(tileHeight)
                 };
-
-                if (SDL_RenderTexture(renderer, tilesetTexture, &src, &dst) < 0) {
-                 cout << "Render error: " << SDL_GetError() << endl;
-                }
-
                 SDL_RenderTexture(renderer, tilesetTexture, &src, &dst);
             }
         }
     }
 }
 
-// ================= Ham ve quanh cac o dat de tien debug ====================
+
 void Map::drawCollisionDebug(const glm::vec2& cameraOffset) {
-    // Màu cho polygon (đỏ)
+    
     SDL_SetRenderDrawColor(renderer, 255, 0, 0, 150);
 
-    // Vẽ các box collision bình thường
     for (auto& box : collisions) {
         SDL_FRect r = {
             box.rect.x - cameraOffset.x,
@@ -393,7 +383,6 @@ void Map::drawCollisionDebug(const glm::vec2& cameraOffset) {
         SDL_RenderRect(renderer, &r);
     }
 
-    // Vẽ các polygon collision nghiêng
     for (auto& poly : collisionPolygons) {
         if (poly.size() < 2) continue;
         for (size_t i = 0; i < poly.size(); ++i) {
@@ -410,11 +399,9 @@ void Map::drawCollisionDebug(const glm::vec2& cameraOffset) {
     }
 }
 
-// ===================== Them collision cho tile nghieng =======================
 void Map::LoadTileCollisions(const json& mapData) {
     // Kiểm tra tileset có chứa thông tin collision không
     if (!mapData["tilesets"][0].contains("tiles")) {
-        cout << "No tile collision data found in tileset\n";
         return;
     }
 
@@ -448,13 +435,10 @@ void Map::LoadTileCollisions(const json& mapData) {
                 box.rect.w = obj["width"];
                 box.rect.h = obj["height"];
 
-                tileBoxes[tileId] = box; // <- tạo map riêng cho box
+                tileBoxes[tileId] = box; 
             }
         }
     }
-
-    cout << "Loaded " << tilePolygons.size() << " tile polygons, "
-         << tileBoxes.size() << " tile boxes\n";
 }
 const std::vector<SDL_FRect> Map::GetCollisionTiles() const {
     std::vector<SDL_FRect> rects;

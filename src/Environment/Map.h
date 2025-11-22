@@ -38,15 +38,15 @@ public:
 
     // ===== Getter =====
     vector<SDL_FPoint> GetSpawn(int x);
-    bool checkCollision(const SDL_FRect& playerRect);    // Kiem tra va cham voi dat nha Duc Anh
+    bool checkCollision(const SDL_FRect& playerRect);    
     
-    void drawCollisionDebug(const glm::vec2& cameraOffset);  // Ve hitbox quanh cac o dat
+    void drawCollisionDebug(const glm::vec2& cameraOffset);  
     const vector<SDL_FRect> GetCollisionTiles() const;
 private:
     // ===== Internal helper functions =====
     SDL_Texture* LoadTexture(const string& file);
     void LoadTileLayers(const json& mapData);
-    void LoadTileCollisions(const json& mapData); // <-- Them dong nay
+    void LoadTileCollisions(const json& mapData); 
     void LoadCollisionLayer(const json& mapData);
     void LoadObjects(const json& mapData);
     bool PointInPolygon(const SDL_FPoint& p, const std::vector<SDL_FPoint>& poly);
@@ -55,9 +55,9 @@ private:
     // ===== SDL / Rendering =====
     SDL_Renderer* renderer;
     SDL_Texture* tilesetTexture;
-    SDL_Texture* bgFar = nullptr;     // lớp xa (màu xanh tím)
-    SDL_Texture* bgMid = nullptr;     // lớp giữa (rừng tối)
-    SDL_Texture* bgNear = nullptr;    // lớp gần (cây to nhiều chi tiết)
+    SDL_Texture* bgFar = nullptr;     
+    SDL_Texture* bgMid = nullptr;     
+    SDL_Texture* bgNear = nullptr;    
 
     // ===== Tile / Map properties =====
     int tileWidth;
@@ -82,10 +82,8 @@ private:
     vector<TileLayer> tileLayers;
     vector<CollisionBox> collisions;
 
-    // Cac polygon va cham (cho tile nghieng, hinh phuc tap)
+    
     vector<vector<SDL_FPoint>> collisionPolygons;
-
-    // Bản đồ lưu polygon gốc theo tileID trong tileset
     unordered_map<int, vector<SDL_FPoint>> tilePolygons;
     unordered_map<int, CollisionBox> tileBoxes;
 };
