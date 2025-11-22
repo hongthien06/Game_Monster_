@@ -510,13 +510,13 @@ void Game::StartMapTransition(const std::string& nextMap, TransitionType type) {
 
     float duration;
     if (type == TransitionType::ZOOM_FLASH) {
-        duration = 0.25f;  // ZOOM_FLASH nhanh hơn
+        duration = 0.12f;  // ZOOM_FLASH nhanh hơn
     }
     else if (type == TransitionType::FADE) {
-        duration = 0.15f;  // FADE cực nhanh
+        duration = 0.08f;  // FADE cực nhanh
     }
     else {
-        duration = 0.2f;   // Các loại khác
+        duration = 0.1f;   // Các loại khác
     }
 
     mapTransition = std::make_unique<ScreenTransition>(
