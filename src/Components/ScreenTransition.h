@@ -13,8 +13,8 @@ enum class TransitionType {
 
 enum class TransitionState {
     IDLE,
-    TRANSITIONING_OUT,  // ?ang t?i d?n (menu -> ?en)
-    TRANSITIONING_IN    // ?ang sáng d?n (?en -> game)
+    TRANSITIONING_OUT,  
+    TRANSITIONING_IN    
 };
 
 class ScreenTransition {
@@ -22,8 +22,8 @@ private:
     SDL_Renderer* renderer;
     TransitionType type;
     TransitionState state;
-    float progress;          // 0.0 -> 1.0
-    float duration;          // Th?i gian transition (giây)
+    float progress;         
+    float duration;         
     float elapsedTime;
     bool isActive;
     int screenWidth;
@@ -53,13 +53,13 @@ public:
         elapsedTime += deltaTime;
         progress = std::min(elapsedTime / duration, 1.0f);
 
-        // Khi hoàn thành fade out, chuy?n sang fade in
+   
         if (state == TransitionState::TRANSITIONING_OUT && progress >= 1.0f) {
             state = TransitionState::TRANSITIONING_IN;
             progress = 0.0f;
             elapsedTime = 0.0f;
         }
-        // Khi hoàn thành fade in, k?t thúc transition
+        
         else if (state == TransitionState::TRANSITIONING_IN && progress >= 1.0f) {
             isActive = false;
             state = TransitionState::IDLE;

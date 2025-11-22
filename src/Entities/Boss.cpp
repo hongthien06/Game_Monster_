@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 
-// LẤY HITBOX VŨ KHÍ BOSS (CHỈ HOẠT ĐỘNG KHI ĐÁNH)
+// LẤY HITBOX VŨ KHÍ BOSS 
 SDL_FRect Boss::GetWeaponHitbox() {
     SDL_FRect weaponBox = { 0.0f, 0.0f, 0.0f, 0.0f };
     int currentFrame = this->enemyCurrentFrame;
